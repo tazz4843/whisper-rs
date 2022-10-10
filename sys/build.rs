@@ -4,7 +4,7 @@ use std::env;
 use std::path::PathBuf;
 
 fn main() {
-    println!("cargo:rustc-link-search=whisper.cpp");
+    println!("cargo:rustc-link-search={}", env::var("OUT_DIR").unwrap());
     println!("cargo:rustc-link-lib=static=whisper");
     println!("cargo:rerun-if-changed=wrapper.h");
 
