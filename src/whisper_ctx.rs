@@ -453,3 +453,9 @@ impl Drop for WhisperContext {
         unsafe { whisper_rs_sys::whisper_free(self.ctx) };
     }
 }
+
+// following implementations are safe
+// see https://github.com/ggerganov/whisper.cpp/issues/32#issuecomment-1272790388
+// concurrent usage is prevented by &mut self on methods that modify the struct
+unsafe impl Send for WhisperContext {}
+unsafe impl Sync for WhisperContext {}

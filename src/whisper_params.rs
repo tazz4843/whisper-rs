@@ -112,3 +112,9 @@ impl<'a> FullParams<'a> {
         self.fp.language = language.as_ptr() as *const _;
     }
 }
+
+// following implementations are safe
+// see https://github.com/ggerganov/whisper.cpp/issues/32#issuecomment-1272790388
+// concurrent usage is prevented by &mut self on methods that modify the struct
+unsafe impl<'a> Send for FullParams<'a> {}
+unsafe impl<'a> Sync for FullParams<'a> {}
