@@ -6,6 +6,7 @@ description = "Rust bindings for whisper.cpp (FFI bindings)"
 license = "Unlicense"
 documentation = "https://docs.rs/whisper-rs-sys"
 repository = "https://github.com/tazz4843/whisper-rs"
+links = "whisper"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
