@@ -17,3 +17,6 @@ whisper-rs-sys = { path = "sys", version = "0.1" }
 
 [features]
 simd = []
+
+[package.metadata.docs.rs]
+features = ["simd"]
