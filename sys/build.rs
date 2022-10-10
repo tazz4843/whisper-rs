@@ -32,6 +32,11 @@ fn main() {
         }
     }
 
+    // stop if we're on docs.rs
+    if env::var("DOCS_RS").is_ok() {
+        return;
+    }
+
     // build libwhisper.a
     env::set_current_dir("whisper.cpp").expect("Unable to change directory");
     let code = std::process::Command::new("make")
