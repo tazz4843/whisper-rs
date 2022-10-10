@@ -35,6 +35,21 @@ See [examples/basic_use.rs](examples/basic_use.rs) for more details.
 Lower level bindings are exposed if needed, but the above should be enough for most use cases.
 See the docs: https://docs.rs/whisper-rs/ for more details.
 
+## Building
+By default, you will experience a vague error from rustc about not being able to "find native static library \`whisper`"
+
+To resolve this, you need to clone the original `whisper.cpp` repo and build it. Then, set `RUSTFLAGS` to point to the built library.
+
+You also need to link against the C++ standard library, which can be done with the `-lstdc++` flag.
+
+```shell
+git clone https://github.com/ggerganov/whisper.cpp
+cd whisper.cpp
+make libwhisper.a
+cd ..
+RUSTFLAGS="-L whisper.cpp/ -Clink-args=-lstdc++" cargo build
+```
+
 ## License
 [Unlicense](LICENSE)
 
