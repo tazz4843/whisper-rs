@@ -5,6 +5,10 @@ members = ["sys"]
 name = "whisper-rs"
 version = "0.1.0"
 edition = "2021"
+description = "Rust bindings for whisper.cpp"
+license = "Unlicense"
+documentation = "https://docs.rs/whisper-rs"
+repository = "https://github.com/tazz4843/whisper-rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
