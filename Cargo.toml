@@ -1,0 +1,15 @@
+[workspace]
+members = ["sys"]
+
+[package]
+name = "whisper-cpp"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+whisper-cpp-sys = { path = "sys", version = "0.1" }
+
+[features]
+simd = []
