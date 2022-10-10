@@ -14,7 +14,7 @@ pub enum DecodeStrategy {
 }
 
 pub struct FullParams<'a> {
-    pub(crate) fp: whisper_cpp_sys::whisper_full_params,
+    pub(crate) fp: whisper_rs_sys::whisper_full_params,
     phantom: PhantomData<&'a str>,
 }
 
@@ -22,7 +22,7 @@ impl<'a> FullParams<'a> {
     /// Create a new set of parameters for the decoder.
     pub fn new(decode_strategy: DecodeStrategy) -> FullParams<'a> {
         let mut fp = unsafe {
-            whisper_cpp_sys::whisper_full_default_params(match decode_strategy {
+            whisper_rs_sys::whisper_full_default_params(match decode_strategy {
                 DecodeStrategy::Greedy { .. } => 0,
                 DecodeStrategy::BeamSearch { .. } => 1,
             } as _)

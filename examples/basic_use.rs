@@ -1,4 +1,4 @@
-use whisper_cpp::{DecodeStrategy, FullParams, WhisperContext};
+use whisper_rs::{DecodeStrategy, FullParams, WhisperContext};
 
 // note that running this example will not do anything, as it is just a
 // demonstration of how to use the library, and actual usage requires
@@ -34,8 +34,8 @@ pub fn usage() {
     // note that you don't need to use these, you can do it yourself or any other way you want
     // these are just provided for convenience
     // SIMD variants of these functions are also available, but only on nightly Rust: see the docs
-    let audio_data = whisper_cpp::convert_stereo_to_mono_audio(
-        &whisper_cpp::convert_integer_to_float_audio(&audio_data),
+    let audio_data = whisper_rs::convert_stereo_to_mono_audio(
+        &whisper_rs::convert_integer_to_float_audio(&audio_data),
     );
 
     // now we can run the model

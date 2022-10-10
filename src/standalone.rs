@@ -18,7 +18,7 @@ use std::ffi::{c_int, CString};
 /// `int whisper_lang_id(const char * lang)`
 pub fn get_lang_id(lang: &str) -> Option<c_int> {
     let c_lang = CString::new(lang).expect("Language contains null byte");
-    let ret = unsafe { whisper_cpp_sys::whisper_lang_id(c_lang.as_ptr()) };
+    let ret = unsafe { whisper_rs_sys::whisper_lang_id(c_lang.as_ptr()) };
     if ret == -1 {
         None
     } else {
@@ -32,7 +32,7 @@ pub fn get_lang_id(lang: &str) -> Option<c_int> {
 /// # C++ equivalent
 /// `whisper_token whisper_token_translate ()`
 pub fn token_translate() -> WhisperToken {
-    unsafe { whisper_cpp_sys::whisper_token_translate() }
+    unsafe { whisper_rs_sys::whisper_token_translate() }
 }
 
 /// Get the ID of the transcribe task token.
@@ -40,5 +40,5 @@ pub fn token_translate() -> WhisperToken {
 /// # C++ equivalent
 /// `whisper_token whisper_token_transcribe()`
 pub fn token_transcribe() -> WhisperToken {
-    unsafe { whisper_cpp_sys::whisper_token_transcribe() }
+    unsafe { whisper_rs_sys::whisper_token_transcribe() }
 }

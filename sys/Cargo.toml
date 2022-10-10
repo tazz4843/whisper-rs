@@ -1,5 +1,5 @@
 [package]
-name = "whisper-cpp-sys"
+name = "whisper-rs-sys"
 version = "0.1.0"
 edition = "2021"
 
