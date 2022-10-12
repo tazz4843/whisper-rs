@@ -52,4 +52,9 @@ fn main() {
         format!("{}/libwhisper.a", env::var("OUT_DIR").unwrap()),
     )
     .expect("Failed to copy libwhisper.a");
+    // clean the whisper build directory to prevent Cargo from complaining during crate publish
+    std::process::Command::new("make")
+        .arg("clean")
+        .status()
+        .expect("Failed to clean whisper build directory");
 }
