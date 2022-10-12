@@ -35,6 +35,16 @@ See [examples/basic_use.rs](examples/basic_use.rs) for more details.
 Lower level bindings are exposed if needed, but the above should be enough for most use cases.
 See the docs: https://docs.rs/whisper-rs/ for more details.
 
+## Troubleshooting
+
+* I get an error about a lot of undefined symbols at compile time!
+  * These symbols might be part of the C++ standard library.
+    * Try linking against it with the `-Clink-args=-lstdc++` compiler flag: 
+    * `RUSTFLAGS="-Clink-args=-lstdc++" cargo build`
+* Windows/macOS/Android aren't working!
+  * I don't have a way to test these platforms, so I can't really help you.
+    * If you can get it working, please open a PR!
+
 ## License
 [Unlicense](LICENSE)
 
