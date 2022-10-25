@@ -30,16 +30,16 @@ impl<'a> FullParams<'a> {
 
         match decode_strategy {
             DecodeStrategy::Greedy { n_past } => {
-                fp.__bindgen_anon_1.greedy.n_past = n_past;
+                // fp.__bindgen_anon_1.greedy.n_past = n_past;
             }
             DecodeStrategy::BeamSearch {
                 n_past,
                 beam_width,
                 n_best,
             } => {
-                fp.__bindgen_anon_1.beam_search.n_past = n_past;
-                fp.__bindgen_anon_1.beam_search.beam_width = beam_width;
-                fp.__bindgen_anon_1.beam_search.n_best = n_best;
+                // fp.__bindgen_anon_1.beam_search.n_past = n_past;
+                // fp.__bindgen_anon_1.beam_search.beam_width = beam_width;
+                // fp.__bindgen_anon_1.beam_search.n_best = n_best;
             }
         }
 

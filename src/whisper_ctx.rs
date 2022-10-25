@@ -187,18 +187,17 @@ impl WhisperContext {
     /// Make sure to call [WhisperContext::decode] first.
     ///
     /// # Arguments
-    /// * needs_timestamp
     ///
     /// # Returns
     /// Ok(WhisperToken) on success, Err(WhisperError) on failure.
     ///
     /// # C++ equivalent
-    /// `whisper_token whisper_sample_best(struct whisper_context * ctx, bool need_timestamp)`
-    pub fn sample_best(&mut self, needs_timestamp: bool) -> Result<WhisperToken, WhisperError> {
+    /// `whisper_token whisper_sample_best(struct whisper_context * ctx)`
+    pub fn sample_best(&mut self) -> Result<WhisperToken, WhisperError> {
         if !self.decode_once {
             return Err(WhisperError::DecodeNotComplete);
         }
-        let ret = unsafe { whisper_rs_sys::whisper_sample_best(self.ctx, needs_timestamp) };
+        let ret = unsafe { whisper_rs_sys::whisper_sample_best(self.ctx) };
         Ok(ret)
     }
 

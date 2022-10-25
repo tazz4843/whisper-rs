@@ -71,7 +71,7 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-    pub fn whisper_sample_best(ctx: *mut whisper_context, need_timestamp: bool) -> whisper_token;
+    pub fn whisper_sample_best(ctx: *mut whisper_context) -> whisper_token;
 }
 extern "C" {
     pub fn whisper_sample_timestamp(ctx: *mut whisper_context) -> whisper_token;
