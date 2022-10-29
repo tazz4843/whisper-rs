@@ -42,3 +42,11 @@ pub fn token_translate() -> WhisperToken {
 pub fn token_transcribe() -> WhisperToken {
     unsafe { whisper_rs_sys::whisper_token_transcribe() }
 }
+
+/// Print system information.
+///
+/// # C++ equivalent
+/// `const char * whisper_print_system_info()`
+pub fn print_system_info() {
+    unsafe { whisper_rs_sys::whisper_print_system_info() };
+}
