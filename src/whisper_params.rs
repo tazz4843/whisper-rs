@@ -1,4 +1,4 @@
-use std::ffi::c_int;
+use std::ffi::{c_int, CString};
 use std::marker::PhantomData;
 
 pub enum SamplingStrategy {
@@ -113,7 +113,8 @@ impl<'a> FullParams<'a> {
     ///
     /// Defaults to "en".
     pub fn set_language(&mut self, language: &'a str) {
-        self.fp.language = language.as_ptr() as *const _;
+        let c_lang = CString::new(language).expect("Language contains null byte");
+        self.fp.language = c_lang.into_raw() as *const _;
     }
 
     /// Set the callback for new segments.
