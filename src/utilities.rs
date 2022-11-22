@@ -111,6 +111,7 @@ pub fn convert_stereo_to_mono_audio_simd(samples: &[f32]) -> Vec<f32> {
     mono
 }
 
+#[cfg(feature = "simd")]
 #[cfg(test)]
 mod test {
     use super::*;

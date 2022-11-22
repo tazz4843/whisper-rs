@@ -12,7 +12,8 @@ fn main() {
         let _: u64 = std::fs::copy(
             "src/bindings.rs",
             env::var("OUT_DIR").unwrap() + "/bindings.rs",
-        ).expect("Failed to copy bindings.rs");
+        )
+        .expect("Failed to copy bindings.rs");
     } else {
         let bindings = bindgen::Builder::default()
             .header("wrapper.h")
@@ -34,7 +35,7 @@ fn main() {
                     "src/bindings.rs",
                     env::var("OUT_DIR").unwrap() + "/bindings.rs",
                 )
-                    .expect("Unable to copy bindings.rs");
+                .expect("Unable to copy bindings.rs");
             }
         }
     };
