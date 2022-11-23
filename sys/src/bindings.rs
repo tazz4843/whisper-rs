@@ -212,6 +212,18 @@ pub struct whisper_context {
     _unused: [u8; 0],
 }
 pub type whisper_token = ::std::os::raw::c_int;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct whisper_token_data {
+    pub id: ::std::os::raw::c_int,
+    pub tid: ::std::os::raw::c_int,
+    pub p: ::std::os::raw::c_float,
+    pub pt: ::std::os::raw::c_float,
+    pub ptsum: ::std::os::raw::c_float,
+    pub t0: ::std::os::raw::c_long,
+    pub t1: ::std::os::raw::c_long,
+    pub vlen: ::std::os::raw::c_float,
+}
 extern "C" {
     pub fn whisper_init(path_model: *const ::std::os::raw::c_char) -> *mut whisper_context;
 }
@@ -251,7 +263,7 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-    pub fn whisper_sample_best(ctx: *mut whisper_context) -> whisper_token;
+    pub fn whisper_sample_best(ctx: *mut whisper_context) -> whisper_token_data;
 }
 extern "C" {
     pub fn whisper_sample_timestamp(ctx: *mut whisper_context) -> whisper_token;

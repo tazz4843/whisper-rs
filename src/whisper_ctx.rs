@@ -1,6 +1,8 @@
 use crate::error::WhisperError;
 use crate::whisper_params::FullParams;
 use crate::WhisperToken;
+use crate::WhisperTokenData;
+
 use std::ffi::{c_int, CStr, CString};
 
 /// Safe Rust wrapper around a Whisper context.
@@ -194,12 +196,21 @@ impl WhisperContext {
     ///
     /// # C++ equivalent
     /// `whisper_token whisper_sample_best(struct whisper_context * ctx, bool need_timestamp)`
-    pub fn sample_best(&mut self) -> Result<WhisperToken, WhisperError> {
+    pub fn sample_best(&mut self) -> Result<WhisperTokenData, WhisperError> {
         if !self.decode_once {
             return Err(WhisperError::DecodeNotComplete);
         }
         let ret = unsafe { whisper_rs_sys::whisper_sample_best(self.ctx) };
-        Ok(ret)
+        Ok(WhisperTokenData {
+            id: ret.id,
+            tid: ret.tid,
+            p: ret.p,
+            pt: ret.pt,
+            ptsum: ret.ptsum,
+            t0: ret.t0,
+            t1: ret.t1,
+            vlen: ret.vlen,
+        })
     }
 
     /// Return the token with the most probable timestamp.
