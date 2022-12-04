@@ -363,7 +363,7 @@ impl WhisperContext {
         unsafe { whisper_rs_sys::whisper_token_beg(self.ctx) }
     }
 
-    /// Print performance statistics to stdout.
+    /// Print performance statistics to stderr.
     ///
     /// # C++ equivalent
     /// `void whisper_print_timings(struct whisper_context * ctx)`
