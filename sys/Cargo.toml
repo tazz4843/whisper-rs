@@ -13,4 +13,4 @@ links = "whisper"
 [dependencies]
 
 [build-dependencies]
-bindgen = "0.60"
+bindgen = "0.61"

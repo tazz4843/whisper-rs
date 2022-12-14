@@ -1,4 +1,4 @@
-use whisper_rs::{DecodeStrategy, FullParams, WhisperContext};
+use whisper_rs::{FullParams, SamplingStrategy, WhisperContext};
 
 // note that running this example will not do anything, as it is just a
 // demonstration of how to use the library, and actual usage requires
@@ -10,7 +10,7 @@ pub fn usage() {
     // create a params object
     // note that currently the only implemented strategy is Greedy, BeamSearch is a WIP
     // n_past defaults to 0
-    let mut params = FullParams::new(DecodeStrategy::Greedy { n_past: 0 });
+    let mut params = FullParams::new(SamplingStrategy::Greedy { n_past: 0 });
 
     // edit things as needed
     // here we set the number of threads to use to 1

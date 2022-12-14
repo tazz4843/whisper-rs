@@ -44,6 +44,14 @@ See the docs: https://docs.rs/whisper-rs/ for more details.
 * Windows/macOS/Android aren't working!
   * I don't have a way to test these platforms, so I can't really help you.
     * If you can get it working, please open a PR!
+* I get a panic during binding generation build!
+  * You can attempt to fix it yourself, or you can set the `WHISPER_DONT_GENERATE_BINDINGS` environment variable.
+    This skips attempting to build the bindings whatsoever and copies the existing ones. They may be out of date,
+    but it's better than nothing.
+    * `WHISPER_DONT_GENERATE_BINDINGS=1 cargo build`
+  * If you can fix the issue, please open a PR!
+* M1 build info:
+  * See [this issue](https://github.com/tazz4843/whisper-rs/pull/2) for more info.
 
 ## License
 [Unlicense](LICENSE)

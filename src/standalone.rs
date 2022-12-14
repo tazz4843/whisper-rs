@@ -1,7 +1,7 @@
 //! Standalone functions that have no associated type.
 
 use crate::WhisperToken;
-use std::ffi::{c_int, CString};
+use std::ffi::{c_int, CStr, CString};
 
 /// Return the id of the specified language, returns -1 if not found
 ///
@@ -41,4 +41,14 @@ pub fn token_translate() -> WhisperToken {
 /// `whisper_token whisper_token_transcribe()`
 pub fn token_transcribe() -> WhisperToken {
     unsafe { whisper_rs_sys::whisper_token_transcribe() }
+}
+
+/// Print system information.
+///
+/// # C++ equivalent
+/// `const char * whisper_print_system_info()`
+pub fn print_system_info() -> &'static str {
+    let c_buf = unsafe { whisper_rs_sys::whisper_print_system_info() };
+    let c_str = unsafe { CStr::from_ptr(c_buf) };
+    c_str.to_str().unwrap()
 }

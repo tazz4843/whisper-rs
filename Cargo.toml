@@ -3,7 +3,7 @@ members = ["sys"]
 
 [package]
 name = "whisper-rs"
-version = "0.1.3"
+version = "0.2.0"
 edition = "2021"
 description = "Rust bindings for whisper.cpp"
 license = "Unlicense"
@@ -13,7 +13,7 @@ repository = "https://github.com/tazz4843/whisper-rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-whisper-rs-sys = { path = "sys", version = "0.1" }
+whisper-rs-sys = { path = "sys", version = "0.2" }
 
 [features]
 simd = []

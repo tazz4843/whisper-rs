@@ -1,7 +1,7 @@
-use std::ffi::c_int;
+use std::ffi::{c_int, CString};
 use std::marker::PhantomData;
 
-pub enum DecodeStrategy {
+pub enum SamplingStrategy {
     Greedy {
         n_past: c_int,
     },
@@ -20,26 +20,30 @@ pub struct FullParams<'a> {
 
 impl<'a> FullParams<'a> {
     /// Create a new set of parameters for the decoder.
-    pub fn new(decode_strategy: DecodeStrategy) -> FullParams<'a> {
+    pub fn new(sampling_strategy: SamplingStrategy) -> FullParams<'a> {
         let mut fp = unsafe {
-            whisper_rs_sys::whisper_full_default_params(match decode_strategy {
-                DecodeStrategy::Greedy { .. } => 0,
-                DecodeStrategy::BeamSearch { .. } => 1,
+            whisper_rs_sys::whisper_full_default_params(match sampling_strategy {
+                SamplingStrategy::Greedy { .. } => {
+                    whisper_rs_sys::whisper_sampling_strategy_WHISPER_SAMPLING_GREEDY
+                }
+                SamplingStrategy::BeamSearch { .. } => {
+                    whisper_rs_sys::whisper_sampling_strategy_WHISPER_SAMPLING_BEAM_SEARCH
+                }
             } as _)
         };
 
-        match decode_strategy {
-            DecodeStrategy::Greedy { n_past } => {
-                fp.__bindgen_anon_1.greedy.n_past = n_past;
+        match sampling_strategy {
+            SamplingStrategy::Greedy { n_past } => {
+                fp.greedy.n_past = n_past;
             }
-            DecodeStrategy::BeamSearch {
+            SamplingStrategy::BeamSearch {
                 n_past,
                 beam_width,
                 n_best,
             } => {
-                fp.__bindgen_anon_1.beam_search.n_past = n_past;
-                fp.__bindgen_anon_1.beam_search.beam_width = beam_width;
-                fp.__bindgen_anon_1.beam_search.n_best = n_best;
+                fp.beam_search.n_past = n_past;
+                fp.beam_search.beam_width = beam_width;
+                fp.beam_search.n_best = n_best;
             }
         }
 
@@ -109,7 +113,36 @@ impl<'a> FullParams<'a> {
     ///
     /// Defaults to "en".
     pub fn set_language(&mut self, language: &'a str) {
-        self.fp.language = language.as_ptr() as *const _;
+        let c_lang = CString::new(language).expect("Language contains null byte");
+        self.fp.language = c_lang.into_raw() as *const _;
+    }
+
+    /// Set the callback for new segments.
+    ///
+    /// Note that this callback has not been Rustified yet (and likely never will be, unless someone else feels the need to do so).
+    /// It is still a C callback.
+    ///
+    /// # Safety
+    /// Do not use this function unless you know what you are doing.
+    /// * Be careful not to mutate the state of the whisper_context pointer returned in the callback.
+    ///   This could cause undefined behavior, as this violates the thread-safety guarantees of the underlying C library.
+    ///
+    /// Defaults to None.
+    pub unsafe fn set_new_segment_callback(
+        &mut self,
+        new_segment_callback: crate::WhisperNewSegmentCallback,
+    ) {
+        self.fp.new_segment_callback = new_segment_callback;
+    }
+
+    /// Set the user data to be passed to the new segment callback.
+    ///
+    /// # Safety
+    /// See the safety notes for `set_new_segment_callback`.
+    ///
+    /// Defaults to None.
+    pub unsafe fn set_new_segment_callback_user_data(&mut self, user_data: *mut std::ffi::c_void) {
+        self.fp.new_segment_callback_user_data = user_data;
     }
 }
 
