@@ -194,7 +194,7 @@ impl WhisperContext {
     ///
     /// # C++ equivalent
     /// `whisper_token whisper_sample_best(struct whisper_context * ctx, bool need_timestamp)`
-    pub fn sample_best(&mut self) -> Result<WhisperToken, WhisperError> {
+    pub fn sample_best(&mut self) -> Result<WhisperTokenData, WhisperError> {
         if !self.decode_once {
             return Err(WhisperError::DecodeNotComplete);
         }
@@ -210,11 +210,11 @@ impl WhisperContext {
     ///
     /// # C++ equivalent
     /// `whisper_token whisper_sample_timestamp(struct whisper_context * ctx)`
-    pub fn sample_timestamp(&mut self) -> Result<WhisperToken, WhisperError> {
+    pub fn sample_timestamp(&mut self, is_initial: bool) -> Result<WhisperTokenData, WhisperError> {
         if !self.decode_once {
             return Err(WhisperError::DecodeNotComplete);
         }
-        let ret = unsafe { whisper_rs_sys::whisper_sample_timestamp(self.ctx) };
+        let ret = unsafe { whisper_rs_sys::whisper_sample_timestamp(self.ctx, is_initial) };
         Ok(ret)
     }
 
