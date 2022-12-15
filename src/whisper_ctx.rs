@@ -502,21 +502,28 @@ impl WhisperContext {
     /// * token: Token index.
     ///
     /// # Returns
-    /// Ok(WhisperToken) on success, Err(WhisperError) on failure.
+    /// [crate::WhisperToken]
     ///
     /// # C++ equivalent
     /// `whisper_token whisper_full_get_token_id (struct whisper_context * ctx, int i_segment, int i_token)`
-    pub fn full_get_token_id(
-        &self,
-        segment: c_int,
-        token: c_int,
-    ) -> Result<WhisperToken, WhisperError> {
-        let ret = unsafe { whisper_rs_sys::whisper_full_get_token_id(self.ctx, segment, token) };
-        if ret < 0 {
-            Err(WhisperError::GenericError(ret))
-        } else {
-            Ok(ret as WhisperToken)
-        }
+    pub fn full_get_token_id(&self, segment: c_int, token: c_int) -> WhisperToken {
+        unsafe { whisper_rs_sys::whisper_full_get_token_id(self.ctx, segment, token) }
+    }
+
+    /// Get token data for the specified token in the specified segment.
+    ///
+    /// # Arguments
+    /// * segment: Segment index.
+    /// * token: Token index.
+    ///
+    /// # Returns
+    /// [crate::WhisperTokenData]
+    ///
+    /// # C++ equivalent
+    /// `whisper_token_data whisper_full_get_token_data(struct whisper_context * ctx, int i_segment, int i_token)`
+    #[inline]
+    pub fn full_get_token_data(&self, segment: c_int, token: c_int) -> WhisperTokenData {
+        unsafe { whisper_rs_sys::whisper_full_get_token_data(self.ctx, segment, token) }
     }
 
     /// Get the probability of the specified token in the specified segment.
