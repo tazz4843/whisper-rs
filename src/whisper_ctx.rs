@@ -367,6 +367,15 @@ impl WhisperContext {
         unsafe { whisper_rs_sys::whisper_print_timings(self.ctx) }
     }
 
+    /// Reset performance statistics.
+    ///
+    /// # C++ equivalent
+    /// `void whisper_reset_timings(struct whisper_context * ctx)`
+    #[inline]
+    pub fn reset_timings(&self) {
+        unsafe { whisper_rs_sys::whisper_reset_timings(self.ctx) }
+    }
+
     /// Run the entire model: PCM -> log mel spectrogram -> encoder -> decoder -> text
     /// Uses the specified decoding strategy to obtain the text.
     ///
