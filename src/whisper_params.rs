@@ -1,4 +1,4 @@
-use std::ffi::{c_char, c_int, CString};
+use std::ffi::{c_int, CString};
 use std::marker::PhantomData;
 use whisper_rs_sys::whisper_token;
 
@@ -213,7 +213,6 @@ impl<'a, 'b> FullParams<'a, 'b> {
         self.fp.prompt_n_tokens = tokens_len;
     }
 
-
     /// Set the target language.
     ///
     /// Defaults to "en".
@@ -274,7 +273,10 @@ impl<'a, 'b> FullParams<'a, 'b> {
     /// See the safety notes for `set_start_encoder_callback`.
     ///
     /// Defaults to None.
-    pub unsafe fn set_start_encoder_callback_user_data(&mut self, user_data: *mut std::ffi::c_void) {
+    pub unsafe fn set_start_encoder_callback_user_data(
+        &mut self,
+        user_data: *mut std::ffi::c_void,
+    ) {
         self.fp.encoder_begin_callback_user_data = user_data;
     }
 }
