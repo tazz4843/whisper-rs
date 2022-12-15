@@ -3,7 +3,7 @@ members = ["sys"]
 
 [package]
 name = "whisper-rs"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 description = "Rust bindings for whisper.cpp"
 license = "Unlicense"
