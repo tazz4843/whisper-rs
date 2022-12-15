@@ -15,3 +15,4 @@ pub use whisper_params::{FullParams, SamplingStrategy};
 pub type WhisperTokenData = whisper_rs_sys::whisper_token_data;
 pub type WhisperToken = whisper_rs_sys::whisper_token;
 pub type WhisperNewSegmentCallback = whisper_rs_sys::whisper_new_segment_callback;
+pub type WhisperStartEncoderCallback = whisper_rs_sys::whisper_encoder_begin_callback;
