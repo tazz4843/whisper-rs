@@ -259,6 +259,7 @@ impl WhisperContext {
     ///
     /// # C++ equivalent
     /// `int whisper_is_multilingual(struct whisper_context * ctx)`
+    #[inline]
     pub fn is_multilingual(&self) -> bool {
         unsafe { whisper_rs_sys::whisper_is_multilingual(self.ctx) != 0 }
     }
@@ -307,6 +308,7 @@ impl WhisperContext {
     ///
     /// # C++ equivalent
     /// `whisper_token whisper_token_eot (struct whisper_context * ctx)`
+    #[inline]
     pub fn token_eot(&self) -> WhisperToken {
         unsafe { whisper_rs_sys::whisper_token_eot(self.ctx) }
     }
@@ -315,6 +317,7 @@ impl WhisperContext {
     ///
     /// # C++ equivalent
     /// `whisper_token whisper_token_sot (struct whisper_context * ctx)`
+    #[inline]
     pub fn token_sot(&self) -> WhisperToken {
         unsafe { whisper_rs_sys::whisper_token_sot(self.ctx) }
     }
@@ -323,6 +326,7 @@ impl WhisperContext {
     ///
     /// # C++ equivalent
     /// `whisper_token whisper_token_prev(struct whisper_context * ctx)`
+    #[inline]
     pub fn token_prev(&self) -> WhisperToken {
         unsafe { whisper_rs_sys::whisper_token_prev(self.ctx) }
     }
@@ -331,6 +335,7 @@ impl WhisperContext {
     ///
     /// # C++ equivalent
     /// `whisper_token whisper_token_solm(struct whisper_context * ctx)`
+    #[inline]
     pub fn token_solm(&self) -> WhisperToken {
         unsafe { whisper_rs_sys::whisper_token_solm(self.ctx) }
     }
@@ -339,6 +344,7 @@ impl WhisperContext {
     ///
     /// # C++ equivalent
     /// `whisper_token whisper_token_not (struct whisper_context * ctx)`
+    #[inline]
     pub fn token_not(&self) -> WhisperToken {
         unsafe { whisper_rs_sys::whisper_token_not(self.ctx) }
     }
@@ -347,6 +353,7 @@ impl WhisperContext {
     ///
     /// # C++ equivalent
     /// `whisper_token whisper_token_beg (struct whisper_context * ctx)`
+    #[inline]
     pub fn token_beg(&self) -> WhisperToken {
         unsafe { whisper_rs_sys::whisper_token_beg(self.ctx) }
     }
@@ -355,6 +362,7 @@ impl WhisperContext {
     ///
     /// # C++ equivalent
     /// `void whisper_print_timings(struct whisper_context * ctx)`
+    #[inline]
     pub fn print_timings(&self) {
         unsafe { whisper_rs_sys::whisper_print_timings(self.ctx) }
     }
@@ -389,6 +397,7 @@ impl WhisperContext {
     ///
     /// # C++ equivalent
     /// `int whisper_full_n_segments(struct whisper_context * ctx)`
+    #[inline]
     pub fn full_n_segments(&self) -> c_int {
         unsafe { whisper_rs_sys::whisper_full_n_segments(self.ctx) }
     }
@@ -400,6 +409,7 @@ impl WhisperContext {
     ///
     /// # C++ equivalent
     /// `int64_t whisper_full_get_segment_t0(struct whisper_context * ctx, int i_segment)`
+    #[inline]
     pub fn full_get_segment_t0(&self, segment: c_int) -> i64 {
         unsafe { whisper_rs_sys::whisper_full_get_segment_t0(self.ctx, segment) }
     }
@@ -411,6 +421,7 @@ impl WhisperContext {
     ///
     /// # C++ equivalent
     /// `int64_t whisper_full_get_segment_t1(struct whisper_context * ctx, int i_segment)`
+    #[inline]
     pub fn full_get_segment_t1(&self, segment: c_int) -> i64 {
         unsafe { whisper_rs_sys::whisper_full_get_segment_t1(self.ctx, segment) }
     }
@@ -517,6 +528,7 @@ impl WhisperContext {
 }
 
 impl Drop for WhisperContext {
+    #[inline]
     fn drop(&mut self) {
         unsafe { whisper_rs_sys::whisper_free(self.ctx) };
     }
