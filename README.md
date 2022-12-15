@@ -4,12 +4,14 @@ Rust bindings to [whisper.cpp](https://github.com/ggerganov/whisper.cpp/)
 
 ## Usage
 ```rust
+use whisper_rs::{WhisperContext, FullParams, SamplingStrategy};
+
 fn main() {
     // load a context and model
     let mut ctx = WhisperContext::new("path/to/model").expect("failed to load model");
     
     // create a params object
-    let mut params = FullParams::new(DecodeStrategy::Greedy { n_past: 0 });
+    let mut params = FullParams::new(SamplingStrategy::Greedy { n_past: 0 });
 
     // assume we have a buffer of audio data
     // here we'll make a fake one, floating point samples, 32 bit, 16KHz, mono
