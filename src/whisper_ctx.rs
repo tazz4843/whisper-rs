@@ -222,49 +222,37 @@ impl WhisperContext {
     /// Get the mel spectrogram length.
     ///
     /// # Returns
-    /// Ok(c_int) on success, Err(WhisperError) on failure.
+    /// c_int
     ///
     /// # C++ equivalent
     /// `int whisper_n_len          (struct whisper_context * ctx)`
-    pub fn n_len(&self) -> Result<c_int, WhisperError> {
-        let ret = unsafe { whisper_rs_sys::whisper_n_len(self.ctx) };
-        if ret < 0 {
-            Err(WhisperError::GenericError(ret))
-        } else {
-            Ok(ret as c_int)
-        }
+    #[inline]
+    pub fn n_len(&self) -> c_int {
+        unsafe { whisper_rs_sys::whisper_n_len(self.ctx) }
     }
 
     /// Get n_vocab.
     ///
     /// # Returns
-    /// Ok(c_int) on success, Err(WhisperError) on failure.
+    /// c_int
     ///
     /// # C++ equivalent
     /// `int whisper_n_vocab        (struct whisper_context * ctx)`
-    pub fn n_vocab(&self) -> Result<c_int, WhisperError> {
-        let ret = unsafe { whisper_rs_sys::whisper_n_vocab(self.ctx) };
-        if ret < 0 {
-            Err(WhisperError::GenericError(ret))
-        } else {
-            Ok(ret as c_int)
-        }
+    #[inline]
+    pub fn n_vocab(&self) -> c_int {
+        unsafe { whisper_rs_sys::whisper_n_vocab(self.ctx) }
     }
 
     /// Get n_text_ctx.
     ///
     /// # Returns
-    /// Ok(c_int) on success, Err(WhisperError) on failure.
+    /// c_int
     ///
     /// # C++ equivalent
     /// `int whisper_n_text_ctx     (struct whisper_context * ctx)`
-    pub fn n_text_ctx(&self) -> Result<c_int, WhisperError> {
-        let ret = unsafe { whisper_rs_sys::whisper_n_text_ctx(self.ctx) };
-        if ret < 0 {
-            Err(WhisperError::GenericError(ret))
-        } else {
-            Ok(ret as c_int)
-        }
+    #[inline]
+    pub fn n_text_ctx(&self) -> c_int {
+        unsafe { whisper_rs_sys::whisper_n_text_ctx(self.ctx) }
     }
 
     /// Does this model support multiple languages?
@@ -453,17 +441,13 @@ impl WhisperContext {
     /// * segment: Segment index.
     ///
     /// # Returns
-    /// Ok(c_int) on success, Err(WhisperError) on failure.
+    /// c_int
     ///
     /// # C++ equivalent
     /// `int whisper_full_n_tokens(struct whisper_context * ctx, int i_segment)`
-    pub fn full_n_tokens(&self, segment: c_int) -> Result<c_int, WhisperError> {
-        let ret = unsafe { whisper_rs_sys::whisper_full_n_tokens(self.ctx, segment) };
-        if ret < 0 {
-            Err(WhisperError::GenericError(ret))
-        } else {
-            Ok(ret as c_int)
-        }
+    #[inline]
+    pub fn full_n_tokens(&self, segment: c_int) -> c_int {
+        unsafe { whisper_rs_sys::whisper_full_n_tokens(self.ctx, segment) }
     }
 
     /// Get the token text of the specified token in the specified segment.
