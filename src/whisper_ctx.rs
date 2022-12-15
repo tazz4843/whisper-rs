@@ -68,7 +68,9 @@ impl WhisperContext {
                 threads as c_int,
             )
         };
-        if ret == 0 {
+        if ret == -1 {
+            Err(WhisperError::UnableToCalculateSpectrogram)
+        } else if ret == 0 {
             self.spectrogram_initialized = true;
             Ok(())
         } else {
@@ -101,7 +103,9 @@ impl WhisperContext {
                 80 as c_int,
             )
         };
-        if ret == 0 {
+        if ret == -1 {
+            Err(WhisperError::InvalidMelBands)
+        } else if ret == 0 {
             self.spectrogram_initialized = true;
             Ok(())
         } else {
@@ -130,7 +134,9 @@ impl WhisperContext {
         }
         let ret =
             unsafe { whisper_rs_sys::whisper_encode(self.ctx, offset as c_int, threads as c_int) };
-        if ret == 0 {
+        if ret == -1 {
+            Err(WhisperError::UnableToCalculateEvaluation)
+        } else if ret == 0 {
             self.encode_complete = true;
             Ok(())
         } else {
@@ -174,7 +180,9 @@ impl WhisperContext {
                 threads as c_int,
             )
         };
-        if ret == 0 {
+        if ret == -1 {
+            Err(WhisperError::UnableToCalculateEvaluation)
+        } else if ret == 0 {
             self.decode_once = true;
             Ok(())
         } else {
@@ -394,10 +402,61 @@ impl WhisperContext {
         let ret = unsafe {
             whisper_rs_sys::whisper_full(self.ctx, params.fp, data.as_ptr(), data.len() as c_int)
         };
-        if ret < 0 {
-            Err(WhisperError::GenericError(ret))
+        if ret == -1 {
+            Err(WhisperError::UnableToCalculateSpectrogram)
+        } else if ret == 7 {
+            Err(WhisperError::FailedToEncode)
+        } else if ret == 8 {
+            Err(WhisperError::FailedToDecode)
+        } else if ret == 0 {
+            Ok(ret)
         } else {
-            Ok(ret as c_int)
+            Err(WhisperError::GenericError(ret))
+        }
+    }
+
+    /// Split the input audio into chunks and delegate to [WhisperContext::full].
+    ///
+    /// It seems this approach can offer some speedup in some cases,
+    /// however, the accuracy can be worse at the start and end of chunks.
+    ///
+    /// # Arguments
+    /// * params: [crate::FullParams] struct.
+    /// * pcm: PCM audio data.
+    /// * n_processors: Number of threads to use.
+    ///
+    /// # Returns
+    /// Ok(c_int) on success, Err(WhisperError) on failure.
+    ///
+    /// # C++ equivalent
+    /// `int whisper_full_parallel(struct whisper_context * ctx, struct whisper_full_params params, const float * samples, int n_samples, int n_processors)`
+    pub fn full_parallel(
+        &mut self,
+        params: FullParams,
+        data: &[f32],
+        n_processors: c_int,
+    ) -> Result<c_int, WhisperError> {
+        let ret = unsafe {
+            whisper_rs_sys::whisper_full_parallel(
+                self.ctx,
+                params.fp,
+                data.as_ptr(),
+                data.len() as c_int,
+                n_processors,
+            )
+        };
+        if ret == -1 {
+            Err(WhisperError::UnableToCalculateSpectrogram)
+        } else if ret == 7 {
+            Err(WhisperError::FailedToEncode)
+        } else if ret == 8 {
+            Err(WhisperError::FailedToDecode)
+        } else if ret == 0 {
+            // note 0 is returned on success and also when initializing other contexts fails,
+            // causing some audio to not be processed
+            Ok(ret)
+        } else {
+            Err(WhisperError::GenericError(ret))
         }
     }
 
