@@ -110,7 +110,7 @@ impl WhisperContext {
     }
 
     /// Run the Whisper encoder on the log mel spectrogram stored inside the provided whisper context.
-    /// Make sure to call [WhisperContext::pcm_to_mel] or [[WhisperContext::set_mel] first.
+    /// Make sure to call [WhisperContext::pcm_to_mel] or [WhisperContext::set_mel] first.
     ///
     /// # Arguments
     /// * offset: Can be used to specify the offset of the first frame in the spectrogram. Usually 0.
