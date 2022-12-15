@@ -1,6 +1,6 @@
 use crate::error::WhisperError;
 use crate::whisper_params::FullParams;
-use crate::WhisperToken;
+use crate::{WhisperToken, WhisperTokenData};
 use std::ffi::{c_int, CStr, CString};
 
 /// Safe Rust wrapper around a Whisper context.
