@@ -12,5 +12,6 @@ pub use utilities::*;
 pub use whisper_ctx::WhisperContext;
 pub use whisper_params::{FullParams, SamplingStrategy};
 
-pub type WhisperToken = std::ffi::c_int;
+pub type WhisperTokenData = whisper_rs_sys::whisper_token_data;
+pub type WhisperToken = whisper_rs_sys::whisper_token;
 pub type WhisperNewSegmentCallback = whisper_rs_sys::whisper_new_segment_callback;
