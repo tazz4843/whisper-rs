@@ -4,6 +4,16 @@ use std::env;
 use std::path::PathBuf;
 
 fn main() {
+    let target = env::var("TARGET").unwrap();
+    // Link C++ standard library
+    if let Some(cpp_stdlib) = get_cpp_link_stdlib(&target) {
+        println!("cargo:rustc-link-lib=dylib={}", cpp_stdlib);
+    }
+    // Link macOS Accelerate framework for matrix calculations
+    if target.contains("apple") {
+        println!("cargo:rustc-link-lib=framework=Accelerate");
+    }
+
     println!("cargo:rustc-link-search={}", env::var("OUT_DIR").unwrap());
     println!("cargo:rustc-link-lib=static=whisper");
     println!("cargo:rerun-if-changed=wrapper.h");
@@ -65,4 +75,21 @@ fn main() {
         .arg("clean")
         .status()
         .expect("Failed to clean whisper build directory");
+}
+
+// From https://github.com/alexcrichton/cc-rs/blob/fba7feded71ee4f63cfe885673ead6d7b4f2f454/src/lib.rs#L2462
+fn get_cpp_link_stdlib(target: &str) -> Option<&'static str> {
+    if target.contains("msvc") {
+        None
+    } else if target.contains("apple") {
+        Some("c++")
+    } else if target.contains("freebsd") {
+        Some("c++")
+    } else if target.contains("openbsd") {
+        Some("c++")
+    } else if target.contains("android") {
+        Some("c++_shared")
+    } else {
+        Some("stdc++")
+    }
 }
