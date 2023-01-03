@@ -20,7 +20,7 @@ pub fn usage() {
     // and set the language to translate to to english
     params.set_language("en");
     // we also explicitly disable anything that prints to stdout
-    params.set_print_special_tokens(false);
+    params.set_print_special(false);
     params.set_print_progress(false);
     params.set_print_realtime(false);
     params.set_print_timestamps(false);
