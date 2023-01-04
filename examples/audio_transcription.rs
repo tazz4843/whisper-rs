@@ -1,12 +1,12 @@
+use std::fs::File;
+use std::io::Write;
 use whisper_rs::{FullParams, SamplingStrategy, WhisperContext};
 
 /// Loads a context and model, processes an audio file, and prints the resulting transcript to stdout.
 fn main() {
     // Load a context and model.
-    let mut ctx = WhisperContext::new(
-        "/Users/lucas/Documents/code/meetsary/whisper-test/whisper.cpp/models/ggml-base.en.bin",
-    )
-    .expect("failed to load model");
+    let mut ctx = WhisperContext::new("example/path/to/model/whisper.cpp/models/ggml-base.en.bin")
+        .expect("failed to load model");
 
     // Create a params object for running the model.
     // Currently, only the Greedy sampling strategy is implemented, with BeamSearch as a WIP.
@@ -27,7 +27,7 @@ fn main() {
     params.set_print_timestamps(false);
 
     // Open the audio file.
-    let mut reader = hound::WavReader::open("weeknd-2.wav").expect("failed to open file");
+    let mut reader = hound::WavReader::open("audio.wav").expect("failed to open file");
     let hound::WavSpec {
         channels,
         sample_rate,
@@ -59,12 +59,25 @@ fn main() {
     // Run the model.
     ctx.full(params, &audio[..]).expect("failed to run model");
 
-    // Fetch and print the results.
+    // Create a file to write the transcript to.
+    let mut file = File::create("transcript.txt").expect("failed to create file");
+
+    // Iterate through the segments of the transcript.
     let num_segments = ctx.full_n_segments();
     for i in 0..num_segments {
+        // Get the transcribed text and timestamps for the current segment.
         let segment = ctx.full_get_segment_text(i).expect("failed to get segment");
         let start_timestamp = ctx.full_get_segment_t0(i);
         let end_timestamp = ctx.full_get_segment_t1(i);
+
+        // Print the segment to stdout.
         println!("[{} - {}]: {}", start_timestamp, end_timestamp, segment);
+
+        // Format the segment information as a string.
+        let line = format!("[{} - {}]: {}\n", start_timestamp, end_timestamp, segment);
+
+        // Write the segment information to the file.
+        file.write_all(line.as_bytes())
+            .expect("failed to write to file");
     }
 }
