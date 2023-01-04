@@ -1,3 +1,6 @@
+// This example is not going to build in this folder.
+// You need to copy this code into your project and add the whisper_rs dependency in your cargo.toml
+
 use std::fs::File;
 use std::io::Write;
 use whisper_rs::{FullParams, SamplingStrategy, WhisperContext};
