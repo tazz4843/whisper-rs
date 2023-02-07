@@ -1,3 +1,5 @@
+#![allow(clippy::uninlined_format_args)]
+
 extern crate bindgen;
 
 use std::env;
