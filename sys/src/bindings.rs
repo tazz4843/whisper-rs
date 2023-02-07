@@ -99,6 +99,50 @@ pub const WHISPER_N_FFT: u32 = 400;
 pub const WHISPER_N_MEL: u32 = 80;
 pub const WHISPER_HOP_LENGTH: u32 = 160;
 pub const WHISPER_CHUNK_SIZE: u32 = 30;
+pub type wchar_t = ::std::os::raw::c_int;
+#[repr(C)]
+#[repr(align(16))]
+#[derive(Debug, Copy, Clone)]
+pub struct max_align_t {
+    pub __clang_max_align_nonce1: ::std::os::raw::c_longlong,
+    pub __bindgen_padding_0: u64,
+    pub __clang_max_align_nonce2: u128,
+}
+#[test]
+fn bindgen_test_layout_max_align_t() {
+    const UNINIT: ::std::mem::MaybeUninit<max_align_t> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<max_align_t>(),
+        32usize,
+        concat!("Size of: ", stringify!(max_align_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<max_align_t>(),
+        16usize,
+        concat!("Alignment of ", stringify!(max_align_t))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).__clang_max_align_nonce1) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(max_align_t),
+            "::",
+            stringify!(__clang_max_align_nonce1)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).__clang_max_align_nonce2) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(max_align_t),
+            "::",
+            stringify!(__clang_max_align_nonce2)
+        )
+    );
+}
 pub type __u_char = ::std::os::raw::c_uchar;
 pub type __u_short = ::std::os::raw::c_ushort;
 pub type __u_int = ::std::os::raw::c_uint;
@@ -220,6 +264,7 @@ pub struct whisper_token_data {
     pub id: whisper_token,
     pub tid: whisper_token,
     pub p: f32,
+    pub plog: f32,
     pub pt: f32,
     pub ptsum: f32,
     pub t0: i64,
@@ -271,8 +316,18 @@ fn bindgen_test_layout_whisper_token_data() {
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).pt) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).plog) as usize - ptr as usize },
         12usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(whisper_token_data),
+            "::",
+            stringify!(plog)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pt) as usize - ptr as usize },
+        16usize,
         concat!(
             "Offset of field: ",
             stringify!(whisper_token_data),
@@ -282,7 +337,7 @@ fn bindgen_test_layout_whisper_token_data() {
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).ptsum) as usize - ptr as usize },
-        16usize,
+        20usize,
         concat!(
             "Offset of field: ",
             stringify!(whisper_token_data),
@@ -321,8 +376,88 @@ fn bindgen_test_layout_whisper_token_data() {
         )
     );
 }
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct whisper_model_loader {
+    pub context: *mut ::std::os::raw::c_void,
+    pub read: ::std::option::Option<
+        unsafe extern "C" fn(
+            ctx: *mut ::std::os::raw::c_void,
+            output: *mut ::std::os::raw::c_void,
+            read_size: usize,
+        ) -> usize,
+    >,
+    pub eof: ::std::option::Option<unsafe extern "C" fn(ctx: *mut ::std::os::raw::c_void) -> bool>,
+    pub close: ::std::option::Option<unsafe extern "C" fn(ctx: *mut ::std::os::raw::c_void)>,
+}
+#[test]
+fn bindgen_test_layout_whisper_model_loader() {
+    const UNINIT: ::std::mem::MaybeUninit<whisper_model_loader> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<whisper_model_loader>(),
+        32usize,
+        concat!("Size of: ", stringify!(whisper_model_loader))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<whisper_model_loader>(),
+        8usize,
+        concat!("Alignment of ", stringify!(whisper_model_loader))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).context) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(whisper_model_loader),
+            "::",
+            stringify!(context)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).read) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(whisper_model_loader),
+            "::",
+            stringify!(read)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).eof) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(whisper_model_loader),
+            "::",
+            stringify!(eof)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).close) as usize - ptr as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(whisper_model_loader),
+            "::",
+            stringify!(close)
+        )
+    );
+}
 extern "C" {
-    pub fn whisper_init(path_model: *const ::std::os::raw::c_char) -> *mut whisper_context;
+    pub fn whisper_init_from_file(
+        path_model: *const ::std::os::raw::c_char,
+    ) -> *mut whisper_context;
+}
+extern "C" {
+    pub fn whisper_init_from_buffer(
+        buffer: *mut ::std::os::raw::c_void,
+        buffer_size: usize,
+    ) -> *mut whisper_context;
+}
+extern "C" {
+    pub fn whisper_init(loader: *mut whisper_model_loader) -> *mut whisper_context;
 }
 extern "C" {
     pub fn whisper_free(ctx: *mut whisper_context);
@@ -360,16 +495,29 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-    pub fn whisper_sample_best(ctx: *mut whisper_context) -> whisper_token_data;
+    pub fn whisper_tokenize(
+        ctx: *mut whisper_context,
+        text: *const ::std::os::raw::c_char,
+        tokens: *mut whisper_token,
+        n_max_tokens: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-    pub fn whisper_sample_timestamp(
-        ctx: *mut whisper_context,
-        is_initial: bool,
-    ) -> whisper_token_data;
+    pub fn whisper_lang_max_id() -> ::std::os::raw::c_int;
 }
 extern "C" {
     pub fn whisper_lang_id(lang: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn whisper_lang_str(id: ::std::os::raw::c_int) -> *const ::std::os::raw::c_char;
+}
+extern "C" {
+    pub fn whisper_lang_auto_detect(
+        ctx: *mut whisper_context,
+        offset_ms: ::std::os::raw::c_int,
+        n_threads: ::std::os::raw::c_int,
+        lang_probs: *mut f32,
+    ) -> ::std::os::raw::c_int;
 }
 extern "C" {
     pub fn whisper_n_len(ctx: *mut whisper_context) -> ::std::os::raw::c_int;
@@ -381,10 +529,13 @@ extern "C" {
     pub fn whisper_n_text_ctx(ctx: *mut whisper_context) -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn whisper_n_audio_ctx(ctx: *mut whisper_context) -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn whisper_is_multilingual(ctx: *mut whisper_context) -> ::std::os::raw::c_int;
 }
 extern "C" {
-    pub fn whisper_get_probs(ctx: *mut whisper_context) -> *mut f32;
+    pub fn whisper_get_logits(ctx: *mut whisper_context) -> *mut f32;
 }
 extern "C" {
     pub fn whisper_token_to_str(
@@ -409,6 +560,12 @@ extern "C" {
 }
 extern "C" {
     pub fn whisper_token_beg(ctx: *mut whisper_context) -> whisper_token;
+}
+extern "C" {
+    pub fn whisper_token_lang(
+        ctx: *mut whisper_context,
+        lang_id: ::std::os::raw::c_int,
+    ) -> whisper_token;
 }
 extern "C" {
     pub fn whisper_token_translate() -> whisper_token;
@@ -464,6 +621,14 @@ pub struct whisper_full_params {
     pub prompt_tokens: *const whisper_token,
     pub prompt_n_tokens: ::std::os::raw::c_int,
     pub language: *const ::std::os::raw::c_char,
+    pub suppress_blank: bool,
+    pub temperature: f32,
+    pub max_initial_ts: f32,
+    pub length_penalty: f32,
+    pub temperature_inc: f32,
+    pub entropy_thold: f32,
+    pub logprob_thold: f32,
+    pub no_speech_thold: f32,
     pub greedy: whisper_full_params__bindgen_ty_1,
     pub beam_search: whisper_full_params__bindgen_ty_2,
     pub new_segment_callback: whisper_new_segment_callback,
@@ -474,7 +639,7 @@ pub struct whisper_full_params {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct whisper_full_params__bindgen_ty_1 {
-    pub n_past: ::std::os::raw::c_int,
+    pub best_of: ::std::os::raw::c_int,
 }
 #[test]
 fn bindgen_test_layout_whisper_full_params__bindgen_ty_1() {
@@ -495,22 +660,21 @@ fn bindgen_test_layout_whisper_full_params__bindgen_ty_1() {
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).n_past) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).best_of) as usize - ptr as usize },
         0usize,
         concat!(
             "Offset of field: ",
             stringify!(whisper_full_params__bindgen_ty_1),
             "::",
-            stringify!(n_past)
+            stringify!(best_of)
         )
     );
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct whisper_full_params__bindgen_ty_2 {
-    pub n_past: ::std::os::raw::c_int,
-    pub beam_width: ::std::os::raw::c_int,
-    pub n_best: ::std::os::raw::c_int,
+    pub beam_size: ::std::os::raw::c_int,
+    pub patience: f32,
 }
 #[test]
 fn bindgen_test_layout_whisper_full_params__bindgen_ty_2() {
@@ -519,7 +683,7 @@ fn bindgen_test_layout_whisper_full_params__bindgen_ty_2() {
     let ptr = UNINIT.as_ptr();
     assert_eq!(
         ::std::mem::size_of::<whisper_full_params__bindgen_ty_2>(),
-        12usize,
+        8usize,
         concat!("Size of: ", stringify!(whisper_full_params__bindgen_ty_2))
     );
     assert_eq!(
@@ -531,33 +695,23 @@ fn bindgen_test_layout_whisper_full_params__bindgen_ty_2() {
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).n_past) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).beam_size) as usize - ptr as usize },
         0usize,
         concat!(
             "Offset of field: ",
             stringify!(whisper_full_params__bindgen_ty_2),
             "::",
-            stringify!(n_past)
+            stringify!(beam_size)
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).beam_width) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).patience) as usize - ptr as usize },
         4usize,
         concat!(
             "Offset of field: ",
             stringify!(whisper_full_params__bindgen_ty_2),
             "::",
-            stringify!(beam_width)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).n_best) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(whisper_full_params__bindgen_ty_2),
-            "::",
-            stringify!(n_best)
+            stringify!(patience)
         )
     );
 }
@@ -567,7 +721,7 @@ fn bindgen_test_layout_whisper_full_params() {
     let ptr = UNINIT.as_ptr();
     assert_eq!(
         ::std::mem::size_of::<whisper_full_params>(),
-        128usize,
+        160usize,
         concat!("Size of: ", stringify!(whisper_full_params))
     );
     assert_eq!(
@@ -796,8 +950,88 @@ fn bindgen_test_layout_whisper_full_params() {
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).greedy) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).suppress_blank) as usize - ptr as usize },
         80usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(suppress_blank)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).temperature) as usize - ptr as usize },
+        84usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(temperature)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).max_initial_ts) as usize - ptr as usize },
+        88usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(max_initial_ts)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).length_penalty) as usize - ptr as usize },
+        92usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(length_penalty)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).temperature_inc) as usize - ptr as usize },
+        96usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(temperature_inc)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).entropy_thold) as usize - ptr as usize },
+        100usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(entropy_thold)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).logprob_thold) as usize - ptr as usize },
+        104usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(logprob_thold)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).no_speech_thold) as usize - ptr as usize },
+        108usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(no_speech_thold)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).greedy) as usize - ptr as usize },
+        112usize,
         concat!(
             "Offset of field: ",
             stringify!(whisper_full_params),
@@ -807,7 +1041,7 @@ fn bindgen_test_layout_whisper_full_params() {
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).beam_search) as usize - ptr as usize },
-        84usize,
+        116usize,
         concat!(
             "Offset of field: ",
             stringify!(whisper_full_params),
@@ -817,7 +1051,7 @@ fn bindgen_test_layout_whisper_full_params() {
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).new_segment_callback) as usize - ptr as usize },
-        96usize,
+        128usize,
         concat!(
             "Offset of field: ",
             stringify!(whisper_full_params),
@@ -829,7 +1063,7 @@ fn bindgen_test_layout_whisper_full_params() {
         unsafe {
             ::std::ptr::addr_of!((*ptr).new_segment_callback_user_data) as usize - ptr as usize
         },
-        104usize,
+        136usize,
         concat!(
             "Offset of field: ",
             stringify!(whisper_full_params),
@@ -839,7 +1073,7 @@ fn bindgen_test_layout_whisper_full_params() {
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).encoder_begin_callback) as usize - ptr as usize },
-        112usize,
+        144usize,
         concat!(
             "Offset of field: ",
             stringify!(whisper_full_params),
@@ -851,7 +1085,7 @@ fn bindgen_test_layout_whisper_full_params() {
         unsafe {
             ::std::ptr::addr_of!((*ptr).encoder_begin_callback_user_data) as usize - ptr as usize
         },
-        120usize,
+        152usize,
         concat!(
             "Offset of field: ",
             stringify!(whisper_full_params),
@@ -934,4 +1168,11 @@ extern "C" {
         i_segment: ::std::os::raw::c_int,
         i_token: ::std::os::raw::c_int,
     ) -> f32;
+}
+extern "C" {
+    #[doc = ""]
+    pub fn whisper_bench_memcpy(n_threads: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn whisper_bench_ggml_mul_mat(n_threads: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
