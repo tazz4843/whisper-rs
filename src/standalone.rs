@@ -26,6 +26,34 @@ pub fn get_lang_id(lang: &str) -> Option<c_int> {
     }
 }
 
+/// Return the ID of the maximum language (ie the number of languages - 1)
+///
+/// # Returns
+/// i32
+///
+/// # C++ equivalent
+/// `int whisper_lang_max_id()`
+pub fn get_lang_max_id() -> i32 {
+    unsafe { whisper_rs_sys::whisper_lang_max_id() }
+}
+
+/// Get the short string of the specified language id (e.g. 2 -> "de").
+///
+/// # Returns
+/// The short string of the language, None if not found.
+///
+/// # C++ equivalent
+/// `const char * whisper_lang_str(int id)`
+pub fn get_lang_str(id: i32) -> Option<&'static str> {
+    let c_buf = unsafe { whisper_rs_sys::whisper_lang_str(id) };
+    if c_buf.is_null() {
+        None
+    } else {
+        let c_str = unsafe { CStr::from_ptr(c_buf) };
+        Some(c_str.to_str().unwrap())
+    }
+}
+
 // task tokens
 /// Get the ID of the translate task token.
 ///

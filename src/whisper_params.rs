@@ -1,16 +1,16 @@
-use std::ffi::{c_int, CString};
+use std::ffi::{c_float, c_int, CString};
 use std::marker::PhantomData;
 use whisper_rs_sys::whisper_token;
 
 pub enum SamplingStrategy {
     Greedy {
-        n_past: c_int,
+        best_of: c_int,
     },
     /// not implemented yet, results of using this unknown
     BeamSearch {
-        n_past: c_int,
-        beam_width: c_int,
-        n_best: c_int,
+        beam_size: c_int,
+        // not implemented in whisper.cpp as of this writing (v1.2.0)
+        patience: c_float,
     },
 }
 
@@ -35,17 +35,15 @@ impl<'a, 'b> FullParams<'a, 'b> {
         };
 
         match sampling_strategy {
-            SamplingStrategy::Greedy { n_past } => {
-                fp.greedy.n_past = n_past;
+            SamplingStrategy::Greedy { best_of } => {
+                fp.greedy.best_of = best_of;
             }
             SamplingStrategy::BeamSearch {
-                n_past,
-                beam_width,
-                n_best,
+                beam_size,
+                patience,
             } => {
-                fp.beam_search.n_past = n_past;
-                fp.beam_search.beam_width = beam_width;
-                fp.beam_search.n_best = n_best;
+                fp.beam_search.beam_size = beam_size;
+                fp.beam_search.patience = patience;
             }
         }
 
@@ -63,7 +61,7 @@ impl<'a, 'b> FullParams<'a, 'b> {
         self.fp.n_threads = n_threads;
     }
 
-    /// Set n_max_text_ctx.
+    /// Max tokens to use from past text as prompt for the decoder
     ///
     /// Defaults to 16384.
     pub fn set_n_max_text_ctx(&mut self, n_max_text_ctx: c_int) {
@@ -91,7 +89,7 @@ impl<'a, 'b> FullParams<'a, 'b> {
         self.fp.translate = translate;
     }
 
-    /// Set no_context. Usage unknown.
+    /// Do not use past transcription (if any) as initial prompt for the decoder.
     ///
     /// Defaults to false.
     pub fn set_no_context(&mut self, no_context: bool) {
@@ -105,7 +103,7 @@ impl<'a, 'b> FullParams<'a, 'b> {
         self.fp.single_segment = single_segment;
     }
 
-    /// Set print_special. Usage unknown.
+    /// Print special tokens (e.g. <SOT>, <EOT>, <BEG>, etc.)
     ///
     /// Defaults to false.
     pub fn set_print_special(&mut self, print_special: bool) {
@@ -119,14 +117,17 @@ impl<'a, 'b> FullParams<'a, 'b> {
         self.fp.print_progress = print_progress;
     }
 
-    /// Set print_realtime. Usage unknown.
+    /// Print results from within whisper.cpp.
+    /// Try to use the callback methods instead: [set_new_segment_callback](FullParams::set_new_segment_callback),
+    /// [set_new_segment_callback_user_data](FullParams::set_new_segment_callback_user_data).
     ///
     /// Defaults to false.
     pub fn set_print_realtime(&mut self, print_realtime: bool) {
         self.fp.print_realtime = print_realtime;
     }
 
-    /// Set whether to print timestamps.
+    /// Print timestamps for each text segment when printing realtime. Only has an effect if
+    /// [set_print_realtime](FullParams::set_print_realtime) is set to true.
     ///
     /// Defaults to true.
     pub fn set_print_timestamps(&mut self, print_timestamps: bool) {
@@ -181,6 +182,7 @@ impl<'a, 'b> FullParams<'a, 'b> {
     /// # EXPERIMENTAL
     ///
     /// Speed up audio ~2x by using phase vocoder.
+    /// Note that this can significantly reduce the accuracy of the transcription.
     ///
     /// Defaults to false.
     pub fn set_speed_up(&mut self, speed_up: bool) {
@@ -190,6 +192,7 @@ impl<'a, 'b> FullParams<'a, 'b> {
     /// # EXPERIMENTAL
     ///
     /// Overwrite the audio context size. 0 = default.
+    /// As with [set_speed_up](FullParams::set_speed_up), this can significantly reduce the accuracy of the transcription.
     ///
     /// Defaults to 0.
     pub fn set_audio_ctx(&mut self, audio_ctx: c_int) {
@@ -215,10 +218,78 @@ impl<'a, 'b> FullParams<'a, 'b> {
 
     /// Set the target language.
     ///
+    /// For auto-detection, set this to either "auto" or None.
+    ///
     /// Defaults to "en".
-    pub fn set_language(&mut self, language: &'a str) {
-        let c_lang = CString::new(language).expect("Language contains null byte");
-        self.fp.language = c_lang.into_raw() as *const _;
+    pub fn set_language(&mut self, language: Option<&'a str>) {
+        self.fp.language = match language {
+            Some(language) => CString::new(language)
+                .expect("Language contains null byte")
+                .into_raw() as *const _,
+            None => std::ptr::null(),
+        };
+    }
+
+    /// Set suppress_blank. See https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/decoding.py#L89
+    /// for more information.
+    ///
+    /// Defaults to true.
+    pub fn set_suppress_blank(&mut self, suppress_blank: bool) {
+        self.fp.suppress_blank = suppress_blank;
+    }
+
+    /// Set initial decoding temperature. See https://ai.stackexchange.com/a/32478 for more information.
+    ///
+    /// Defaults to 0.0.
+    pub fn set_temperature(&mut self, temperature: f32) {
+        self.fp.temperature = temperature;
+    }
+
+    /// Set max_initial_ts. See https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/decoding.py#L97
+    /// for more information.
+    ///
+    /// Defaults to 1.0.
+    pub fn set_max_initial_ts(&mut self, max_initial_ts: f32) {
+        self.fp.max_initial_ts = max_initial_ts;
+    }
+
+    /// Set length_penalty. See https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/transcribe.py#L267
+    /// for more information.
+    ///
+    /// Defaults to -1.0.
+    pub fn set_length_penalty(&mut self, length_penalty: f32) {
+        self.fp.length_penalty = length_penalty;
+    }
+
+    /// Set temperature_inc. See https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/transcribe.py#L274-L278
+    /// for more information.
+    ///
+    /// Defaults to 0.2.
+    pub fn set_temperature_inc(&mut self, temperature_inc: f32) {
+        self.fp.temperature_inc = temperature_inc;
+    }
+
+    /// Set entropy_thold. Similar to OpenAI's compression_ratio_threshold.
+    /// See https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/transcribe.py#L274-L278 for more information.
+    ///
+    /// Defaults to 2.4.
+    pub fn set_entropy_thold(&mut self, entropy_thold: f32) {
+        self.fp.entropy_thold = entropy_thold;
+    }
+
+    /// Set logprob_thold. See https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/transcribe.py#L274-L278
+    /// for more information.
+    ///
+    /// Defaults to -1.0.
+    pub fn set_logprob_thold(&mut self, logprob_thold: f32) {
+        self.fp.logprob_thold = logprob_thold;
+    }
+
+    /// Set no_speech_thold. Currently (as of v1.2.0) not implemented.
+    ///
+    /// Defaults to 0.6.
+    pub fn set_no_speech_thold(&mut self, no_speech_thold: f32) {
+        self.fp.no_speech_thold = no_speech_thold;
     }
 
     /// Set the callback for new segments.

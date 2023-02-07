@@ -35,6 +35,8 @@ pub enum WhisperError {
     NullPointer,
     /// Generic whisper error. Varies depending on the function.
     GenericError(c_int),
+    /// Whisper failed to convert the provided text into tokens.
+    InvalidText,
 }
 
 impl From<Utf8Error> for WhisperError {
