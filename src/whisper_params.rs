@@ -6,7 +6,6 @@ pub enum SamplingStrategy {
     Greedy {
         best_of: c_int,
     },
-    /// not implemented yet, results of using this unknown
     BeamSearch {
         beam_size: c_int,
         // not implemented in whisper.cpp as of this writing (v1.2.0)
