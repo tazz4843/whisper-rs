@@ -1,3 +1,5 @@
+#![allow(clippy::uninlined_format_args)]
+
 use whisper_rs::{FullParams, SamplingStrategy, WhisperContext};
 
 // note that running this example will not do anything, as it is just a
@@ -10,7 +12,7 @@ pub fn usage() {
     // create a params object
     // note that currently the only implemented strategy is Greedy, BeamSearch is a WIP
     // n_past defaults to 0
-    let mut params = FullParams::new(SamplingStrategy::Greedy { n_past: 0 });
+    let mut params = FullParams::new(SamplingStrategy::Greedy { best_of: 1 });
 
     // edit things as needed
     // here we set the number of threads to use to 1
@@ -18,9 +20,9 @@ pub fn usage() {
     // we also enable translation
     params.set_translate(true);
     // and set the language to translate to to english
-    params.set_language("en");
+    params.set_language(Some("en"));
     // we also explicitly disable anything that prints to stdout
-    params.set_print_special_tokens(false);
+    params.set_print_special(false);
     params.set_print_progress(false);
     params.set_print_realtime(false);
     params.set_print_timestamps(false);
