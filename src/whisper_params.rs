@@ -14,6 +14,12 @@ pub enum SamplingStrategy {
     },
 }
 
+impl Default for SamplingStrategy {
+    fn default() -> Self {
+        Self::Greedy { best_of: 1 }
+    }
+}
+
 pub struct FullParams<'a, 'b> {
     pub(crate) fp: whisper_rs_sys::whisper_full_params,
     phantom_lang: PhantomData<&'a str>,
