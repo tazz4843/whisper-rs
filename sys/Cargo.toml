@@ -1,6 +1,6 @@
 [package]
 name = "whisper-rs-sys"
-version = "0.2.1"
+version = "0.3.0"
 edition = "2021"
 description = "Rust bindings for whisper.cpp (FFI bindings)"
 license = "Unlicense"
@@ -13,4 +13,4 @@ links = "whisper"
 [dependencies]
 
 [build-dependencies]
-bindgen = "0.63"
+bindgen = "0.64"
