@@ -83,11 +83,7 @@ fn main() {
 fn get_cpp_link_stdlib(target: &str) -> Option<&'static str> {
     if target.contains("msvc") {
         None
-    } else if target.contains("apple") {
-        Some("c++")
-    } else if target.contains("freebsd") {
-        Some("c++")
-    } else if target.contains("openbsd") {
+    } else if target.contains("apple") || target.contains("freebsd") || target.contains("openbsd") {
         Some("c++")
     } else if target.contains("android") {
         Some("c++_shared")
