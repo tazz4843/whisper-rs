@@ -57,26 +57,97 @@ fn main() {
         return;
     }
 
-    // build libwhisper.a
-    env::set_current_dir("whisper.cpp").expect("Unable to change directory");
-    let code = std::process::Command::new("make")
-        .arg("libwhisper.a")
-        .status()
-        .expect("Failed to build libwhisper.a");
-    if code.code() != Some(0) {
-        panic!("Failed to build libwhisper.a");
+    #[cfg(not(target_os = "windows"))]
+    {
+        // build libwhisper.a
+        env::set_current_dir("whisper.cpp").expect("Unable to change directory");
+        let code = std::process::Command::new("make")
+            .arg("libwhisper.a")
+            .status()
+            .expect("Failed to build libwhisper.a");
+        if code.code() != Some(0) {
+            panic!("Failed to build libwhisper.a");
+        }
+        // move libwhisper.a to where Cargo expects it (OUT_DIR)
+        std::fs::copy(
+            "libwhisper.a",
+            format!("{}/libwhisper.a", env::var("OUT_DIR").unwrap()),
+        )
+        .expect("Failed to copy libwhisper.a");
+        // clean the whisper build directory to prevent Cargo from complaining during crate publish
+        std::process::Command::new("make")
+            .arg("clean")
+            .status()
+            .expect("Failed to clean whisper build directory");
     }
-    // move libwhisper.a to where Cargo expects it (OUT_DIR)
-    std::fs::copy(
-        "libwhisper.a",
-        format!("{}/libwhisper.a", env::var("OUT_DIR").unwrap()),
-    )
-    .expect("Failed to copy libwhisper.a");
-    // clean the whisper build directory to prevent Cargo from complaining during crate publish
-    std::process::Command::new("make")
-        .arg("clean")
-        .status()
-        .expect("Failed to clean whisper build directory");
+
+    #[cfg(target_os = "windows")]
+    {
+        // generate cmake build system
+        env::set_current_dir("whisper.cpp").expect("Unable to change directory");
+        let code = std::process::Command::new("cmake")
+            .args([
+                "-S",
+                ".",
+                "-B",
+                "./build",
+                "-DCMAKE_CXX_FLAGS=\"/utf-8\"",
+                "-DBUILD_SHARED_LIBS=OFF",
+            ])
+            .status()
+            .expect("Failed to generate cmake build system");
+        if code.code() != Some(0) {
+            panic!("Failed to generate cmake build system");
+        }
+        // build whisper.lib
+        let args = if cfg!(debug_assertions) {
+            [
+                "--build",
+                "build",
+                "--target",
+                "whisper",
+                "--config",
+                "Debug",
+                "--",
+                "/p:OutDir=output",
+            ]
+        } else {
+            [
+                "--build",
+                "build",
+                "--target",
+                "whisper",
+                "--config",
+                "Release",
+                "--",
+                "/p:OutDir=output",
+            ]
+        };
+        let code = std::process::Command::new("cmake")
+            .args(args)
+            .status()
+            .expect("Failed to build whisper.lib");
+        if code.code() != Some(0) {
+            panic!("Failed to build whisper.lib");
+        }
+        // move whisper.lib to where Cargo expects it (OUT_DIR)
+        std::fs::copy(
+            "./build/output/whisper.lib",
+            format!("{}/whisper.lib", env::var("OUT_DIR").unwrap()),
+        )
+        .expect("Failed to copy whisper.lib");
+        // clean the whisper build directory to prevent Cargo from complaining during crate publish
+        #[cfg(windows)]
+        std::process::Command::new("cmd")
+            .args(["/C", "rd", "/s", "/q", "build"])
+            .status()
+            .expect("Failed to clean whisper build directory");
+        #[cfg(not(windows))]
+        std::process::Command::new("sh")
+            .args(["-c", "rm", "-rf", "build"])
+            .status()
+            .expect("Failed to clean whisper build directory");
+    }
 }
 
 // From https://github.com/alexcrichton/cc-rs/blob/fba7feded71ee4f63cfe885673ead6d7b4f2f454/src/lib.rs#L2462
