@@ -66,7 +66,7 @@ fn main() {
     let code = std::process::Command::new("cmake")
         .arg("..")
         .arg("-DCMAKE_BUILD_TYPE=Release")
-        .arg("-DBUILD_SHARED_LIBS=ON")
+        .arg("-DBUILD_SHARED_LIBS=OFF")
         .arg("-DWHISPER_ALL_WARNINGS=OFF")
         .arg("-DWHISPER_ALL_WARNINGS_3RD_PARTY=OFF")
         .arg("-DWHISPER_BUILD_TESTS=OFF")
