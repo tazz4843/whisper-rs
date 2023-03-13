@@ -10,6 +10,7 @@ jobs:
       fail-fast: true
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
+        rust-version: [stable, nightly]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code into the proper directory
@@ -21,8 +22,9 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       - name: Install rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@master
         with:
+          toolchain: ${{ matrix.rust-version }}
           components: rustfmt, clippy
 
       - name: Check formatting
