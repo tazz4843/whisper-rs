@@ -1,0 +1,32 @@
+name: Check code
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out code into the proper directory
+        uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+
+      - name: Cache rust
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Check formatting
+        run: cargo fmt --check
+
+      - name: Check clippy lints
+        run: cargo clippy
