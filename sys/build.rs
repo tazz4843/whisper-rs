@@ -88,7 +88,7 @@ fn main() {
     }
 
     // move libwhisper.a to where Cargo expects it (OUT_DIR)
-    #[cfg(target_os="windows")]
+    #[cfg(target_os = "windows")]
     {
         std::fs::copy(
             "Release/whisper.lib",
@@ -97,7 +97,7 @@ fn main() {
         .expect("Failed to copy libwhisper.a");
     }
 
-    #[cfg(not(target_os="windows"))]
+    #[cfg(not(target_os = "windows"))]
     {
         std::fs::copy(
             "libwhisper.a",
