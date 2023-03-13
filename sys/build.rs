@@ -86,12 +86,26 @@ fn main() {
     if code.code() != Some(0) {
         panic!("Failed to build libwhisper.a");
     }
+
     // move libwhisper.a to where Cargo expects it (OUT_DIR)
-    std::fs::copy(
-        "Release/whisper.lib",
-        format!("{}/whisper.lib", env::var("OUT_DIR").unwrap()),
-    )
-    .expect("Failed to copy libwhisper.a");
+    #[cfg(target_os="windows")]
+    {
+        std::fs::copy(
+            "Release/whisper.lib",
+            format!("{}/whisper.lib", env::var("OUT_DIR").unwrap()),
+        )
+        .expect("Failed to copy libwhisper.a");
+    }
+
+    #[cfg(not(target_os="windows"))]
+    {
+        std::fs::copy(
+            "libwhisper.a",
+            format!("{}/libwhisper.a", env::var("OUT_DIR").unwrap()),
+        )
+        .expect("Failed to copy libwhisper.a");
+    }
+
     // clean the whisper build directory to prevent Cargo from complaining during crate publish
     _ = std::fs::remove_dir_all("build");
 }
