@@ -58,25 +58,56 @@ fn main() {
     }
 
     // build libwhisper.a
-    env::set_current_dir("whisper.cpp").expect("Unable to change directory");
-    let code = std::process::Command::new("make")
-        .arg("libwhisper.a")
+    env::set_current_dir("whisper.cpp").expect("Unable to change directory to whisper.cpp");
+    _ = std::fs::remove_dir_all("build");
+    _ = std::fs::create_dir("build");
+    env::set_current_dir("build").expect("Unable to change directory to whisper.cpp build");
+
+    let code = std::process::Command::new("cmake")
+        .arg("..")
+        .arg("-DCMAKE_BUILD_TYPE=Release")
+        .arg("-DBUILD_SHARED_LIBS=OFF")
+        .arg("-DWHISPER_ALL_WARNINGS=OFF")
+        .arg("-DWHISPER_ALL_WARNINGS_3RD_PARTY=OFF")
+        .arg("-DWHISPER_BUILD_TESTS=OFF")
+        .arg("-DWHISPER_BUILD_EXAMPLES=OFF")
+        .status()
+        .expect("Failed to generate build script");
+    if code.code() != Some(0) {
+        panic!("Failed to generate build script");
+    }
+
+    let code = std::process::Command::new("cmake")
+        .arg("--build")
+        .arg(".")
+        .arg("--config Release")
         .status()
         .expect("Failed to build libwhisper.a");
     if code.code() != Some(0) {
         panic!("Failed to build libwhisper.a");
     }
+
     // move libwhisper.a to where Cargo expects it (OUT_DIR)
-    std::fs::copy(
-        "libwhisper.a",
-        format!("{}/libwhisper.a", env::var("OUT_DIR").unwrap()),
-    )
-    .expect("Failed to copy libwhisper.a");
+    #[cfg(target_os = "windows")]
+    {
+        std::fs::copy(
+            "Release/whisper.lib",
+            format!("{}/whisper.lib", env::var("OUT_DIR").unwrap()),
+        )
+        .expect("Failed to copy libwhisper.a");
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        std::fs::copy(
+            "libwhisper.a",
+            format!("{}/libwhisper.a", env::var("OUT_DIR").unwrap()),
+        )
+        .expect("Failed to copy libwhisper.a");
+    }
+
     // clean the whisper build directory to prevent Cargo from complaining during crate publish
-    std::process::Command::new("make")
-        .arg("clean")
-        .status()
-        .expect("Failed to clean whisper build directory");
+    _ = std::fs::remove_dir_all("build");
 }
 
 // From https://github.com/alexcrichton/cc-rs/blob/fba7feded71ee4f63cfe885673ead6d7b4f2f454/src/lib.rs#L2462
