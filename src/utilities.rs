@@ -120,7 +120,7 @@ mod test {
     pub fn assert_stereo_to_mono_simd() {
         // fake some sample data, of 1028 elements
         let mut samples = Vec::with_capacity(1028);
-        for i in 0..1028 {
+        for i in 0..1029 {
             samples.push(i as f32);
         }
         let mono_simd = convert_stereo_to_mono_audio_simd(&samples);
