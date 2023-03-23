@@ -32,6 +32,7 @@ fn main() {
 
     // Open the audio file.
     let mut reader = hound::WavReader::open("audio.wav").expect("failed to open file");
+    #[allow(unused_variables)]
     let hound::WavSpec {
         channels,
         sample_rate,
