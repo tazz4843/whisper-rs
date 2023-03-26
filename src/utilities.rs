@@ -54,7 +54,7 @@ pub fn convert_integer_to_float_audio_simd(samples: &[i16]) -> Vec<f32> {
 
 /// Convert 32 bit floating point stereo PCM audio to 32 bit floating point mono PCM audio.
 ///
-/// If there are an odd number of samples, the last sample is dropped.
+/// If there are an odd number of samples, the last half-sample is dropped.
 /// This variant does not use SIMD instructions.
 ///
 /// # Arguments
@@ -68,7 +68,7 @@ pub fn convert_stereo_to_mono_audio(samples: &[f32]) -> Vec<f32> {
 
 /// Convert 32 bit floating point stereo PCM audio to 32 bit floating point mono PCM audio.
 ///
-/// If there are an odd number of samples, the last sample is dropped.
+/// If there are an odd number of samples, the last half-sample is dropped.
 /// This variant uses SIMD instructions, and as such is only available on
 /// nightly Rust.
 ///
