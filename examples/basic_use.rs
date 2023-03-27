@@ -5,7 +5,7 @@ use whisper_rs::{FullParams, SamplingStrategy, WhisperContext};
 // note that running this example will not do anything, as it is just a
 // demonstration of how to use the library, and actual usage requires
 // more dependencies than the base library.
-pub fn usage() {
+pub fn usage() -> Result<(), &'static str> {
     // load a context and model
     let mut ctx = WhisperContext::new("path/to/model").expect("failed to load model");
 
@@ -38,7 +38,7 @@ pub fn usage() {
     // SIMD variants of these functions are also available, but only on nightly Rust: see the docs
     let audio_data = whisper_rs::convert_stereo_to_mono_audio(
         &whisper_rs::convert_integer_to_float_audio(&audio_data),
-    );
+    )?;
 
     // now we can run the model
     ctx.full(params, &audio_data[..])
@@ -52,6 +52,8 @@ pub fn usage() {
         let end_timestamp = ctx.full_get_segment_t1(i);
         println!("[{} - {}]: {}", start_timestamp, end_timestamp, segment);
     }
+
+    Ok(())
 }
 
 fn main() {

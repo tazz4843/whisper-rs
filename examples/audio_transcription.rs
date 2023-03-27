@@ -7,7 +7,7 @@ use std::io::Write;
 use whisper_rs::{FullParams, SamplingStrategy, WhisperContext};
 
 /// Loads a context and model, processes an audio file, and prints the resulting transcript to stdout.
-fn main() {
+fn main() -> Result<(), &'static str> {
     // Load a context and model.
     let mut ctx = WhisperContext::new("example/path/to/model/whisper.cpp/models/ggml-base.en.bin")
         .expect("failed to load model");
@@ -52,7 +52,7 @@ fn main() {
     // These utilities are provided for convenience, but can be replaced with custom conversion logic.
     // SIMD variants of these functions are also available on nightly Rust (see the docs).
     if channels == 2 {
-        audio = whisper_rs::convert_stereo_to_mono_audio(&audio);
+        audio = whisper_rs::convert_stereo_to_mono_audio(&audio)?;
     } else if channels != 1 {
         panic!(">2 channels unsupported");
     }
@@ -85,4 +85,5 @@ fn main() {
         file.write_all(line.as_bytes())
             .expect("failed to write to file");
     }
+    Ok(())
 }
