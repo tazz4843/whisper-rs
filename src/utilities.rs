@@ -63,7 +63,10 @@ pub fn convert_integer_to_float_audio_simd(samples: &[i16]) -> Vec<f32> {
 /// # Returns
 /// A vector of 32 bit floating point mono PCM audio samples.
 pub fn convert_stereo_to_mono_audio(samples: &[f32]) -> Vec<f32> {
-    samples.chunks_exact(2).map(|x| (x[0] + x[1]) / 2.0).collect()
+    samples
+        .chunks_exact(2)
+        .map(|x| (x[0] + x[1]) / 2.0)
+        .collect()
 }
 
 /// Convert 32 bit floating point stereo PCM audio to 32 bit floating point mono PCM audio.

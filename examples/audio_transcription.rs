@@ -1,10 +1,10 @@
 // This example is not going to build in this folder.
 // You need to copy this code into your project and add the dependencies whisper_rs and hound in your cargo.toml
 
+use hound;
 use std::fs::File;
 use std::io::Write;
 use whisper_rs::{FullParams, SamplingStrategy, WhisperContext};
-use hound;
 
 /// Loads a context and model, processes an audio file, and prints the resulting transcript to stdout.
 fn main() {
