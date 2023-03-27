@@ -1,12 +1,13 @@
 // This example is not going to build in this folder.
-// You need to copy this code into your project and add the whisper_rs dependency in your cargo.toml
+// You need to copy this code into your project and add the dependencies whisper_rs and hound in your cargo.toml
 
+use hound;
 use std::fs::File;
 use std::io::Write;
 use whisper_rs::{FullParams, SamplingStrategy, WhisperContext};
 
 /// Loads a context and model, processes an audio file, and prints the resulting transcript to stdout.
-fn main() {
+fn main() -> Result<(), &'static str> {
     // Load a context and model.
     let mut ctx = WhisperContext::new("example/path/to/model/whisper.cpp/models/ggml-base.en.bin")
         .expect("failed to load model");
@@ -14,7 +15,7 @@ fn main() {
     // Create a params object for running the model.
     // Currently, only the Greedy sampling strategy is implemented, with BeamSearch as a WIP.
     // The number of past samples to consider defaults to 0.
-    let mut params = FullParams::new(SamplingStrategy::Greedy { n_past: 0 });
+    let mut params = FullParams::new(SamplingStrategy::Greedy { best_of: 0 });
 
     // Edit params as needed.
     // Set the number of threads to use to 1.
@@ -22,7 +23,7 @@ fn main() {
     // Enable translation.
     params.set_translate(true);
     // Set the language to translate to to English.
-    params.set_language("en");
+    params.set_language(Some("en"));
     // Disable anything that prints to stdout.
     params.set_print_special(false);
     params.set_print_progress(false);
@@ -31,6 +32,7 @@ fn main() {
 
     // Open the audio file.
     let mut reader = hound::WavReader::open("audio.wav").expect("failed to open file");
+    #[allow(unused_variables)]
     let hound::WavSpec {
         channels,
         sample_rate,
@@ -50,7 +52,7 @@ fn main() {
     // These utilities are provided for convenience, but can be replaced with custom conversion logic.
     // SIMD variants of these functions are also available on nightly Rust (see the docs).
     if channels == 2 {
-        audio = whisper_rs::convert_stereo_to_mono_audio(&audio);
+        audio = whisper_rs::convert_stereo_to_mono_audio(&audio)?;
     } else if channels != 1 {
         panic!(">2 channels unsupported");
     }
@@ -83,4 +85,5 @@ fn main() {
         file.write_all(line.as_bytes())
             .expect("failed to write to file");
     }
+    Ok(())
 }

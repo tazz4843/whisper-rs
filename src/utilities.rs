@@ -61,12 +61,16 @@ pub fn convert_integer_to_float_audio_simd(samples: &[i16]) -> Vec<f32> {
 ///
 /// # Returns
 /// A vector of 32 bit floating point mono PCM audio samples.
-pub fn convert_stereo_to_mono_audio(samples: &[f32]) -> Vec<f32> {
-    let mut mono = Vec::with_capacity(samples.len() / 2);
-    for i in (0..samples.len()).step_by(2) {
-        mono.push((samples[i] + samples[i + 1]) / 2.0);
+pub fn convert_stereo_to_mono_audio(samples: &[f32]) -> Result<Vec<f32>, &'static str> {
+    if samples.len() & 1 != 0 {
+        return Err("The stereo audio vector has an odd number of samples. \
+            This means a half-sample is missing somewhere");
     }
-    mono
+
+    Ok(samples
+        .chunks_exact(2)
+        .map(|x| (x[0] + x[1]) / 2.0)
+        .collect())
 }
 
 /// Convert 32 bit floating point stereo PCM audio to 32 bit floating point mono PCM audio.
@@ -80,7 +84,7 @@ pub fn convert_stereo_to_mono_audio(samples: &[f32]) -> Vec<f32> {
 /// # Returns
 /// A vector of 32 bit floating point mono PCM audio samples.
 #[cfg(feature = "simd")]
-pub fn convert_stereo_to_mono_audio_simd(samples: &[f32]) -> Vec<f32> {
+pub fn convert_stereo_to_mono_audio_simd(samples: &[f32]) -> Result<Vec<f32>, &'static str> {
     let mut mono = Vec::with_capacity(samples.len() / 2);
 
     let div_array = f32x16::splat(2.0);
@@ -104,11 +108,9 @@ pub fn convert_stereo_to_mono_audio_simd(samples: &[f32]) -> Vec<f32> {
     // Handle the remainder.
     // do this normally because it's only a few samples and the overhead of
     // converting to SIMD is not worth it.
-    for i in (0..remainder.len()).step_by(2) {
-        mono.push((remainder[i] + remainder[i + 1]) / 2.0);
-    }
+    mono.extend(convert_stereo_to_mono_audio(remainder)?);
 
-    mono
+    Ok(mono)
 }
 
 #[cfg(feature = "simd")]
@@ -117,12 +119,32 @@ mod test {
     use super::*;
 
     #[test]
+    pub fn assert_stereo_to_mono_err() {
+        // fake some sample data
+        let samples = (0u16..1029).map(f32::from).collect::<Vec<f32>>();
+        let mono = convert_stereo_to_mono_audio(&samples);
+        assert!(mono.is_err());
+    }
+}
+
+#[cfg(feature = "simd")]
+#[cfg(test)]
+mod test_simd {
+    use super::*;
+
+    #[test]
     pub fn assert_stereo_to_mono_simd() {
-        // fake some sample data, of 1028 elements
-        let mut samples = Vec::with_capacity(1028);
-        for i in 0..1028 {
-            samples.push(i as f32);
-        }
+        // fake some sample data
+        let samples = (0u16..1028).map(f32::from).collect::<Vec<f32>>();
+        let mono_simd = convert_stereo_to_mono_audio_simd(&samples);
+        let mono = convert_stereo_to_mono_audio(&samples);
+        assert_eq!(mono_simd, mono);
+    }
+
+    #[test]
+    pub fn assert_stereo_to_mono_simd_err() {
+        // fake some sample data
+        let samples = (0u16..1029).map(f32::from).collect::<Vec<f32>>();
         let mono_simd = convert_stereo_to_mono_audio_simd(&samples);
         let mono = convert_stereo_to_mono_audio(&samples);
         assert_eq!(mono_simd, mono);

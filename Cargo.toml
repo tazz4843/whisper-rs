@@ -4,7 +4,7 @@ exclude = ["examples/full_usage"]
 
 [package]
 name = "whisper-rs"
-version = "0.4.0"
+version = "0.5.0"
 edition = "2021"
 description = "Rust bindings for whisper.cpp"
 license = "Unlicense"
@@ -15,6 +15,9 @@ repository = "https://github.com/tazz4843/whisper-rs"
 
 [dependencies]
 whisper-rs-sys = { path = "sys", version = "0.3" }
+
+[dev-dependencies]
+hound = "3.5.0"
 
 [features]
 simd = []
