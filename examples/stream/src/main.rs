@@ -172,7 +172,7 @@ pub fn run_example() -> Result<(), anyhow::Error> {
 
         // Go to a new line every five seconds
         iterations += 1;
-        if iterations >= 5 {
+        if iterations > 5 {
             iterations = 0;
             final_ring.clear();
             samples.iter_mut().map(|x| *x = 0.0).count();
