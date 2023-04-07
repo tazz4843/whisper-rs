@@ -164,7 +164,7 @@ pub fn run_example() -> Result<(), anyhow::Error> {
     //output_stream.play()?;
 
     let mut final_ring = LocalRb::new(latency_samples);
-    let mut samples = vec![0_f32; latency_samples as usize];
+    let mut samples = vec![0_f32; latency_samples];
     let mut iterations = 0;
     loop {
         // Only run the model once a second
@@ -176,7 +176,7 @@ pub fn run_example() -> Result<(), anyhow::Error> {
             iterations = 0;
             final_ring.clear();
             samples.iter_mut().map(|x| *x = 0.0).count();
-            println!("");
+            println!();
         }
 
         // Make the model params
