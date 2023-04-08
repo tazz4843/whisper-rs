@@ -39,7 +39,7 @@ See the docs: https://docs.rs/whisper-rs/ for more details.
 
 ## Building
 
-See [./BUILDING.md] for instructions for building whisper-rs on Windows and OSX M1.
+See [BUILDING.md](BUILDING.md) for instructions for building whisper-rs on Windows and OSX M1.
 
 ## Troubleshooting
 
