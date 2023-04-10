@@ -37,23 +37,25 @@ See [examples/basic_use.rs](examples/basic_use.rs) for more details.
 Lower level bindings are exposed if needed, but the above should be enough for most use cases.
 See the docs: https://docs.rs/whisper-rs/ for more details.
 
+## Building
+
+See [BUILDING.md](BUILDING.md) for instructions for building whisper-rs on Windows and OSX M1.
+
 ## Troubleshooting
 
 * I get an error about a lot of undefined symbols at compile time!
   * These symbols might be part of the C++ standard library.
     * Try linking against it with the `-Clink-args=-lstdc++` compiler flag: 
     * `RUSTFLAGS="-Clink-args=-lstdc++" cargo build`
-* Windows/macOS/Android aren't working!
+* macOS/Android aren't working!
   * I don't have a way to test these platforms, so I can't really help you.
-    * If you can get it working, please open a PR!
+    * If you can get it working, please open a PR with any changes to make it work and build instructions in BUILDING.md!
 * I get a panic during binding generation build!
   * You can attempt to fix it yourself, or you can set the `WHISPER_DONT_GENERATE_BINDINGS` environment variable.
     This skips attempting to build the bindings whatsoever and copies the existing ones. They may be out of date,
     but it's better than nothing.
     * `WHISPER_DONT_GENERATE_BINDINGS=1 cargo build`
   * If you can fix the issue, please open a PR!
-* M1 build info:
-  * See [this issue](https://github.com/tazz4843/whisper-rs/pull/2) for more info.
 
 ## License
 [Unlicense](LICENSE)
