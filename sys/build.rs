@@ -80,7 +80,8 @@ fn main() {
     let code = std::process::Command::new("cmake")
         .arg("--build")
         .arg(".")
-        .arg("--config Release")
+        .arg("--config")
+        .arg("Release")
         .status()
         .expect("Failed to build libwhisper.a");
     if code.code() != Some(0) {
