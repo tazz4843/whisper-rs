@@ -6,6 +6,7 @@ mod standalone;
 mod utilities;
 mod whisper_ctx;
 mod whisper_params;
+mod whisper_state;
 
 pub use error::WhisperError;
 pub use standalone::*;
@@ -17,3 +18,5 @@ pub type WhisperTokenData = whisper_rs_sys::whisper_token_data;
 pub type WhisperToken = whisper_rs_sys::whisper_token;
 pub type WhisperNewSegmentCallback = whisper_rs_sys::whisper_new_segment_callback;
 pub type WhisperStartEncoderCallback = whisper_rs_sys::whisper_encoder_begin_callback;
+pub type WhisperProgressCallback = whisper_rs_sys::whisper_progress_callback;
+pub type WhisperLogitsFilterCallback = whisper_rs_sys::whisper_logits_filter_callback;

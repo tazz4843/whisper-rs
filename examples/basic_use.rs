@@ -7,7 +7,10 @@ use whisper_rs::{FullParams, SamplingStrategy, WhisperContext};
 // more dependencies than the base library.
 pub fn usage() -> Result<(), &'static str> {
     // load a context and model
-    let mut ctx = WhisperContext::new("path/to/model").expect("failed to load model");
+    let ctx = WhisperContext::new("path/to/model").expect("failed to load model");
+    // make a sample key
+    // here, since we only use this model once, we use a unique global key
+    ctx.create_key(()).expect("failed to create key");
 
     // create a params object
     // note that currently the only implemented strategy is Greedy, BeamSearch is a WIP
@@ -41,15 +44,24 @@ pub fn usage() -> Result<(), &'static str> {
     )?;
 
     // now we can run the model
-    ctx.full(params, &audio_data[..])
+    // note the key we use here is the one we created above
+    ctx.full(&(), params, &audio_data[..])
         .expect("failed to run model");
 
     // fetch the results
-    let num_segments = ctx.full_n_segments();
+    let num_segments = ctx
+        .full_n_segments(&())
+        .expect("failed to get number of segments");
     for i in 0..num_segments {
-        let segment = ctx.full_get_segment_text(i).expect("failed to get segment");
-        let start_timestamp = ctx.full_get_segment_t0(i);
-        let end_timestamp = ctx.full_get_segment_t1(i);
+        let segment = ctx
+            .full_get_segment_text(&(), i)
+            .expect("failed to get segment");
+        let start_timestamp = ctx
+            .full_get_segment_t0(&(), i)
+            .expect("failed to get segment start timestamp");
+        let end_timestamp = ctx
+            .full_get_segment_t1(&(), i)
+            .expect("failed to get segment end timestamp");
         println!("[{} - {}]: {}", start_timestamp, end_timestamp, segment);
     }
 

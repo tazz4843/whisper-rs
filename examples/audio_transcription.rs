@@ -9,11 +9,12 @@ use whisper_rs::{FullParams, SamplingStrategy, WhisperContext};
 /// Loads a context and model, processes an audio file, and prints the resulting transcript to stdout.
 fn main() -> Result<(), &'static str> {
     // Load a context and model.
-    let mut ctx = WhisperContext::new("example/path/to/model/whisper.cpp/models/ggml-base.en.bin")
+    let ctx = WhisperContext::new("example/path/to/model/whisper.cpp/models/ggml-base.en.bin")
         .expect("failed to load model");
+    // Create a single global key.
+    ctx.create_key(()).expect("failed to create key");
 
     // Create a params object for running the model.
-    // Currently, only the Greedy sampling strategy is implemented, with BeamSearch as a WIP.
     // The number of past samples to consider defaults to 0.
     let mut params = FullParams::new(SamplingStrategy::Greedy { best_of: 0 });
 
@@ -62,18 +63,27 @@ fn main() -> Result<(), &'static str> {
     }
 
     // Run the model.
-    ctx.full(params, &audio[..]).expect("failed to run model");
+    ctx.full(&(), params, &audio[..])
+        .expect("failed to run model");
 
     // Create a file to write the transcript to.
     let mut file = File::create("transcript.txt").expect("failed to create file");
 
     // Iterate through the segments of the transcript.
-    let num_segments = ctx.full_n_segments();
+    let num_segments = ctx
+        .full_n_segments(&())
+        .expect("failed to get number of segments");
     for i in 0..num_segments {
         // Get the transcribed text and timestamps for the current segment.
-        let segment = ctx.full_get_segment_text(i).expect("failed to get segment");
-        let start_timestamp = ctx.full_get_segment_t0(i);
-        let end_timestamp = ctx.full_get_segment_t1(i);
+        let segment = ctx
+            .full_get_segment_text(&(), i)
+            .expect("failed to get segment");
+        let start_timestamp = ctx
+            .full_get_segment_t0(&(), i)
+            .expect("failed to get start timestamp");
+        let end_timestamp = ctx
+            .full_get_segment_t1(&(), i)
+            .expect("failed to get end timestamp");
 
         // Print the segment to stdout.
         println!("[{} - {}]: {}", start_timestamp, end_timestamp, segment);

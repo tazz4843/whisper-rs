@@ -177,6 +177,15 @@ impl<'a, 'b> FullParams<'a, 'b> {
 
     /// # EXPERIMENTAL
     ///
+    /// Should the timestamps be split on words instead of characters?
+    ///
+    /// Defaults to false.
+    pub fn set_split_on_word(&mut self, split_on_word: bool) {
+        self.fp.split_on_word = split_on_word;
+    }
+
+    /// # EXPERIMENTAL
+    ///
     /// Set maximum tokens per segment. 0 means no limit.
     ///
     /// Defaults to 0.
@@ -243,6 +252,14 @@ impl<'a, 'b> FullParams<'a, 'b> {
         self.fp.suppress_blank = suppress_blank;
     }
 
+    /// Set suppress_non_speech_tokens. See https://github.com/openai/whisper/blob/7858aa9c08d98f75575035ecd6481f462d66ca27/whisper/tokenizer.py#L224-L253
+    /// for more information.
+    ///
+    /// Defaults to false.
+    pub fn set_suppress_non_speech_tokens(&mut self, suppress_non_speech_tokens: bool) {
+        self.fp.suppress_non_speech_tokens = suppress_non_speech_tokens;
+    }
+
     /// Set initial decoding temperature. See https://ai.stackexchange.com/a/32478 for more information.
     ///
     /// Defaults to 0.0.
@@ -290,7 +307,7 @@ impl<'a, 'b> FullParams<'a, 'b> {
         self.fp.logprob_thold = logprob_thold;
     }
 
-    /// Set no_speech_thold. Currently (as of v1.2.0) not implemented.
+    /// Set no_speech_thold. Currently (as of v1.3.0) not implemented.
     ///
     /// Defaults to 0.6.
     pub fn set_no_speech_thold(&mut self, no_speech_thold: f32) {
@@ -325,7 +342,35 @@ impl<'a, 'b> FullParams<'a, 'b> {
         self.fp.new_segment_callback_user_data = user_data;
     }
 
-    /// Set the callback for starting the encoder.
+    /// Set the callback for progress updates.
+    ///
+    /// Note that this callback has not been Rustified yet (and likely never will be, unless someone else feels the need to do so).
+    /// It is still a C callback.
+    ///
+    /// # Safety
+    /// Do not use this function unless you know what you are doing.
+    /// * Be careful not to mutate the state of the whisper_context pointer returned in the callback.
+    ///  This could cause undefined behavior, as this violates the thread-safety guarantees of the underlying C library.
+    ///
+    /// Defaults to None.
+    pub unsafe fn set_progress_callback(
+        &mut self,
+        progress_callback: crate::WhisperProgressCallback,
+    ) {
+        self.fp.progress_callback = progress_callback;
+    }
+
+    /// Set the user data to be passed to the progress callback.
+    ///
+    /// # Safety
+    /// See the safety notes for `set_progress_callback`.
+    ///
+    /// Defaults to None.
+    pub unsafe fn set_progress_callback_user_data(&mut self, user_data: *mut std::ffi::c_void) {
+        self.fp.progress_callback_user_data = user_data;
+    }
+
+    /// Set the callback that is called each time before the encoder begins.
     ///
     /// Note that this callback has not been Rustified yet (and likely never will be, unless someone else feels the need to do so).
     /// It is still a C callback.
@@ -354,6 +399,37 @@ impl<'a, 'b> FullParams<'a, 'b> {
         user_data: *mut std::ffi::c_void,
     ) {
         self.fp.encoder_begin_callback_user_data = user_data;
+    }
+
+    /// Set the callback that is called by each decoder to filter obtained logits.
+    ///
+    /// Note that this callback has not been Rustified yet (and likely never will be, unless someone else feels the need to do so).
+    /// It is still a C callback.
+    ///
+    /// # Safety
+    /// Do not use this function unless you know what you are doing.
+    /// * Be careful not to mutate the state of the whisper_context pointer returned in the callback.
+    ///   This could cause undefined behavior, as this violates the thread-safety guarantees of the underlying C library.
+    ///
+    /// Defaults to None.
+    pub unsafe fn set_filter_logits_callback(
+        &mut self,
+        logits_filter_callback: crate::WhisperLogitsFilterCallback,
+    ) {
+        self.fp.logits_filter_callback = logits_filter_callback;
+    }
+
+    /// Set the user data to be passed to the logits filter callback.
+    ///
+    /// # Safety
+    /// See the safety notes for `set_filter_logits_callback`.
+    ///
+    /// Defaults to None.
+    pub unsafe fn set_filter_logits_callback_user_data(
+        &mut self,
+        user_data: *mut std::ffi::c_void,
+    ) {
+        self.fp.logits_filter_callback_user_data = user_data;
     }
 }
 

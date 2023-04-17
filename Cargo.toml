@@ -15,6 +15,7 @@ repository = "https://github.com/tazz4843/whisper-rs"
 
 [dependencies]
 whisper-rs-sys = { path = "sys", version = "0.4" }
+dashmap = "5"
 
 [dev-dependencies]
 hound = "3.5.0"
