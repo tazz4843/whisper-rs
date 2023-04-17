@@ -19,14 +19,13 @@ ar = "C:\\msys64\\ucrt64\\bin\\ar.exe"
 
 # Running on Windows using Microsoft Visual Studio C++
 
-It has been reported that it is also possible to build whisper-rs using Visual Studio C++. 
+It has been reported that it is also possible to build whisper-rs using Visual Studio C++.
 
-Make sure you have installed and in the path: 
+Make sure you have installed and in the path:
 
 - Visual Studio C++
 - cmake
-
-You may need to clone the git repository instead of using the Cargo package.
+- LLVM(clang)
 
 # Running on M1 OSX
 
