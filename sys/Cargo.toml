@@ -7,13 +7,20 @@ license = "Unlicense"
 documentation = "https://docs.rs/whisper-rs-sys"
 repository = "https://github.com/tazz4843/whisper-rs"
 links = "whisper"
-exclude = [
-    "whisper.cpp/bindings",
-    "whisper.cpp/examples",
-    "whisper.cpp/extra",
-    "whisper.cpp/models",
-    "whisper.cpp/samples",
-    "whisper.cpp/tests",
+include = [
+    "whisper.cpp/bindings/javascript/package-tmpl.json",
+    "whisper.cpp/bindings/CMakeLists.txt",
+    "whisper.cpp/cmake",
+    "whisper.cpp/coreml",
+    "whisper.cpp/CMakeLists.txt",
+    "whisper.cpp/ggml.c",
+    "whisper.cpp/ggml.h",
+    "whisper.cpp/LICENSE",
+    "whisper.cpp/whisper.cpp",
+    "whisper.cpp/whisper.h",
+    "src/*.rs",
+    "build.rs",
+    "wrapper.h",
 ]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
