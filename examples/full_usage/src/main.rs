@@ -45,18 +45,19 @@ fn main() {
     let original_samples = parse_wav_file(audio_path);
     let samples = whisper_rs::convert_integer_to_float_audio(&original_samples);
 
-    let mut ctx =
+    let ctx =
         WhisperContext::new(&whisper_path.to_string_lossy()).expect("failed to open model");
+    ctx.create_key(()).expect("failed to create key");
     let params = FullParams::new(SamplingStrategy::default());
 
-    ctx.full(params, &samples)
+    ctx.full(&(), params, &samples)
         .expect("failed to convert samples");
 
-    let num_segments = ctx.full_n_segments();
+    let num_segments = ctx.full_n_segments(&()).expect("failed to get number of segments");
     for i in 0..num_segments {
-        let segment = ctx.full_get_segment_text(i).expect("failed to get segment");
-        let start_timestamp = ctx.full_get_segment_t0(i);
-        let end_timestamp = ctx.full_get_segment_t1(i);
+        let segment = ctx.full_get_segment_text(&(), i).expect("failed to get segment");
+        let start_timestamp = ctx.full_get_segment_t0(&(), i).expect("failed to get start timestamp");
+        let end_timestamp = ctx.full_get_segment_t1(&(), i).expect("failed to get end timestamp");
         println!("[{} - {}]: {}", start_timestamp, end_timestamp, segment);
     }
 }
