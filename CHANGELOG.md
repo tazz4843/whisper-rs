@@ -1,3 +1,12 @@
+# Version 0.6.0 (2023-04-17)
+* Update upstream whisper.cpp to v1.3.0
+* Fix breaking changes in update, which cascade to users:
+  * `WhisperContext`s now have a generic type parameter, which is a hashable key for a state map.
+    This allows for a single context to be reused for multiple different states, saving memory.
+    * You must create a new state upon creation, even if you are using the context only once, by calling `WhisperContext::create_key`.
+    * Each method that now takes a state now takes a key, which internally is used to look up the state.
+    * This also turns `WhisperContext` into an entirely immutable object, meaning it can be shared across threads and used concurrently, safely.
+
 # Version 0.2.0 (2022-10-28)
 * Update upstream whisper.cpp to 2c281d190b7ec351b8128ba386d110f100993973.
 * Fix breaking changes in update, which cascade to users:
