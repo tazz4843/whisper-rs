@@ -6,6 +6,7 @@
     * You must create a new state upon creation, even if you are using the context only once, by calling `WhisperContext::create_key`.
     * Each method that now takes a state now takes a key, which internally is used to look up the state.
     * This also turns `WhisperContext` into an entirely immutable object, meaning it can be shared across threads and used concurrently, safely.
+* Send feedback on these changes to the PR: https://github.com/tazz4843/whisper-rs/pull/33
 
 # Version 0.2.0 (2022-10-28)
 * Update upstream whisper.cpp to 2c281d190b7ec351b8128ba386d110f100993973.
