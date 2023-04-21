@@ -14,10 +14,17 @@ fn main() {
     // Link macOS Accelerate framework for matrix calculations
     if target.contains("apple") {
         println!("cargo:rustc-link-lib=framework=Accelerate");
+        #[cfg(feature = "coreml")]
+        {
+            println!("cargo:rustc-link-lib=framework=Foundation");
+            println!("cargo:rustc-link-lib=framework=CoreML");
+        }
     }
 
     println!("cargo:rustc-link-search={}", env::var("OUT_DIR").unwrap());
     println!("cargo:rustc-link-lib=static=whisper");
+    #[cfg(feature = "coreml")]
+    println!("cargo:rustc-link-lib=static=whisper.coreml");
     println!("cargo:rerun-if-changed=wrapper.h");
 
     if env::var("WHISPER_DONT_GENERATE_BINDINGS").is_ok() {
@@ -63,6 +70,20 @@ fn main() {
     _ = std::fs::create_dir("build");
     env::set_current_dir("build").expect("Unable to change directory to whisper.cpp build");
 
+    #[cfg(feature = "coreml")]
+    let code = std::process::Command::new("cmake")
+        .arg("..")
+        .arg("-DCMAKE_BUILD_TYPE=Release")
+        .arg("-DBUILD_SHARED_LIBS=OFF")
+        .arg("-DWHISPER_ALL_WARNINGS=OFF")
+        .arg("-DWHISPER_ALL_WARNINGS_3RD_PARTY=OFF")
+        .arg("-DWHISPER_BUILD_TESTS=OFF")
+        .arg("-DWHISPER_BUILD_EXAMPLES=OFF")
+        .arg("-DWHISPER_COREML=1")
+        .status()
+        .expect("Failed to generate build script");
+
+    #[cfg(not(feature = "coreml"))]
     let code = std::process::Command::new("cmake")
         .arg("..")
         .arg("-DCMAKE_BUILD_TYPE=Release")
@@ -106,6 +127,15 @@ fn main() {
         )
         .expect("Failed to copy libwhisper.a");
     }
+    #[cfg(feature = "coreml")]
+    #[cfg(not(target_os = "windows"))]
+    {
+        std::fs::copy(
+            "libwhisper.coreml.a",
+            format!("{}/libwhisper.coreml.a", env::var("OUT_DIR").unwrap()),
+        )
+        .expect("Failed to copy libwhisper.coreml.a");
+    }    
 
     // clean the whisper build directory to prevent Cargo from complaining during crate publish
     env::set_current_dir("..").expect("Unable to change directory to whisper.cpp");
