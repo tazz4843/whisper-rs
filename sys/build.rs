@@ -135,7 +135,7 @@ fn main() {
             format!("{}/libwhisper.coreml.a", env::var("OUT_DIR").unwrap()),
         )
         .expect("Failed to copy libwhisper.coreml.a");
-    }    
+    }
 
     // clean the whisper build directory to prevent Cargo from complaining during crate publish
     env::set_current_dir("..").expect("Unable to change directory to whisper.cpp");
