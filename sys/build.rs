@@ -116,7 +116,7 @@ fn main() {
             "Release/whisper.lib",
             format!("{}/whisper.lib", env::var("OUT_DIR").unwrap()),
         )
-        .expect("Failed to copy libwhisper.a");
+        .expect("Failed to copy libwhisper.lib");
     }
 
     #[cfg(not(target_os = "windows"))]
