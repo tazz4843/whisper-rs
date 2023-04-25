@@ -2,23 +2,18 @@ use crate::error::WhisperError;
 use crate::whisper_params::FullParams;
 use crate::whisper_state::WhisperState;
 use crate::{WhisperToken, WhisperTokenData};
-use dashmap::DashMap;
 use std::ffi::{c_int, CStr, CString};
-use std::hash::Hash;
 
 /// Safe Rust wrapper around a Whisper context.
 ///
 /// You likely want to create this with [WhisperContext::new],
 /// then run a full transcription with [WhisperContext::full].
 #[derive(Debug)]
-pub struct WhisperContext<K: Hash + Eq> {
+pub struct WhisperContext {
     ctx: *mut whisper_rs_sys::whisper_context,
-
-    /// Map of state IDs to state objects.
-    state_map: DashMap<K, WhisperState>,
 }
 
-impl<K: Hash + Eq> WhisperContext<K> {
+impl WhisperContext {
     /// Create a new WhisperContext from a file.
     ///
     /// # Arguments
@@ -35,10 +30,7 @@ impl<K: Hash + Eq> WhisperContext<K> {
         if ctx.is_null() {
             Err(WhisperError::InitError)
         } else {
-            Ok(Self {
-                ctx,
-                state_map: DashMap::new(),
-            })
+            Ok(Self { ctx })
         }
     }
 
@@ -59,10 +51,7 @@ impl<K: Hash + Eq> WhisperContext<K> {
         if ctx.is_null() {
             Err(WhisperError::InitError)
         } else {
-            Ok(Self {
-                ctx,
-                state_map: DashMap::new(),
-            })
+            Ok(Self { ctx })
         }
     }
 
@@ -70,35 +59,19 @@ impl<K: Hash + Eq> WhisperContext<K> {
 
     /// Create a new state object, ready for use.
     ///
-    /// # Arguments
-    /// * id: The ID of the state object. Must be unique.
-    ///
     /// # Returns
-    /// Ok(()) on success, Err(WhisperError) on failure.
-    /// If the ID is already in use, returns Err(WhisperError::StateIdAlreadyExists).
+    /// Ok(WhisperState) on success, Err(WhisperError) on failure.
     ///
     /// # C++ equivalent
     /// `struct whisper_state * whisper_init_state(struct whisper_context * ctx);`
-    pub fn create_key(&self, id: K) -> Result<(), WhisperError> {
-        if self.state_map.contains_key(&id) {
-            return Err(WhisperError::StateIdAlreadyExists);
-        }
+    pub fn create_state(&self) -> Result<WhisperState, WhisperError> {
         let state = unsafe { whisper_rs_sys::whisper_init_state(self.ctx) };
         if state.is_null() {
             Err(WhisperError::InitError)
         } else {
             // SAFETY: this is known to be a valid pointer to a `whisper_state` struct
-            self.state_map
-                .insert(id, unsafe { WhisperState::new(state) });
-            Ok(())
+            Ok(WhisperState::new(state))
         }
-    }
-
-    fn get_state_ptr(&self, id: &K) -> Result<*mut whisper_rs_sys::whisper_state, WhisperError> {
-        self.state_map
-            .get(id)
-            .map(|s| s.value().as_ptr())
-            .ok_or(WhisperError::StateIdDoesNotExist)
     }
 
     /// Convert raw PCM audio (floating point 32 bit) to log mel spectrogram.
@@ -113,15 +86,19 @@ impl<K: Hash + Eq> WhisperContext<K> {
     ///
     /// # C++ equivalent
     /// `int whisper_pcm_to_mel(struct whisper_context * ctx, const float * samples, int n_samples, int n_threads)`
-    pub fn pcm_to_mel(&self, key: &K, pcm: &[f32], threads: usize) -> Result<(), WhisperError> {
+    pub fn pcm_to_mel(
+        &self,
+        state: &WhisperState,
+        pcm: &[f32],
+        threads: usize,
+    ) -> Result<(), WhisperError> {
         if threads < 1 {
             return Err(WhisperError::InvalidThreadCount);
         }
-        let state_ptr = self.get_state_ptr(key)?;
         let ret = unsafe {
             whisper_rs_sys::whisper_pcm_to_mel_with_state(
                 self.ctx,
-                state_ptr,
+                state.as_ptr(),
                 pcm.as_ptr(),
                 pcm.len() as c_int,
                 threads as c_int,
@@ -151,18 +128,17 @@ impl<K: Hash + Eq> WhisperContext<K> {
     /// `int whisper_pcm_to_mel(struct whisper_context * ctx, const float * samples, int n_samples, int n_threads)`
     pub fn pcm_to_mel_phase_vocoder(
         &self,
-        key: &K,
+        state: &WhisperState,
         pcm: &[f32],
         threads: usize,
     ) -> Result<(), WhisperError> {
         if threads < 1 {
             return Err(WhisperError::InvalidThreadCount);
         }
-        let state_ptr = self.get_state_ptr(key)?;
         let ret = unsafe {
             whisper_rs_sys::whisper_pcm_to_mel_phase_vocoder_with_state(
                 self.ctx,
-                state_ptr,
+                state.as_ptr(),
                 pcm.as_ptr(),
                 pcm.len() as c_int,
                 threads as c_int,
@@ -193,13 +169,11 @@ impl<K: Hash + Eq> WhisperContext<K> {
     ///
     /// # C++ equivalent
     /// `int whisper_set_mel(struct whisper_context * ctx, const float * data, int n_len, int n_mel)`
-    pub fn set_mel(&self, key: &K, data: &[f32]) -> Result<(), WhisperError> {
-        let state_ptr = self.get_state_ptr(key)?;
-
+    pub fn set_mel(&self, state: &WhisperState, data: &[f32]) -> Result<(), WhisperError> {
         let ret = unsafe {
             whisper_rs_sys::whisper_set_mel_with_state(
                 self.ctx,
-                state_ptr,
+                state.as_ptr(),
                 data.as_ptr(),
                 data.len() as c_int,
                 80 as c_int,
@@ -226,15 +200,19 @@ impl<K: Hash + Eq> WhisperContext<K> {
     ///
     /// # C++ equivalent
     /// `int whisper_encode(struct whisper_context * ctx, int offset, int n_threads)`
-    pub fn encode(&self, key: &K, offset: usize, threads: usize) -> Result<(), WhisperError> {
+    pub fn encode(
+        &self,
+        state: &WhisperState,
+        offset: usize,
+        threads: usize,
+    ) -> Result<(), WhisperError> {
         if threads < 1 {
             return Err(WhisperError::InvalidThreadCount);
         }
-        let state_ptr = self.get_state_ptr(key)?;
         let ret = unsafe {
             whisper_rs_sys::whisper_encode_with_state(
                 self.ctx,
-                state_ptr,
+                state.as_ptr(),
                 offset as c_int,
                 threads as c_int,
             )
@@ -265,7 +243,7 @@ impl<K: Hash + Eq> WhisperContext<K> {
     /// `int whisper_decode(struct whisper_context * ctx, const whisper_token * tokens, int n_tokens, int n_past, int n_threads)`
     pub fn decode(
         &self,
-        key: &K,
+        state: &WhisperState,
         tokens: &[WhisperToken],
         n_past: usize,
         threads: usize,
@@ -273,11 +251,10 @@ impl<K: Hash + Eq> WhisperContext<K> {
         if threads < 1 {
             return Err(WhisperError::InvalidThreadCount);
         }
-        let state_ptr = self.get_state_ptr(key)?;
         let ret = unsafe {
             whisper_rs_sys::whisper_decode_with_state(
                 self.ctx,
-                state_ptr,
+                state.as_ptr(),
                 tokens.as_ptr(),
                 tokens.len() as c_int,
                 n_past as c_int,
@@ -342,20 +319,19 @@ impl<K: Hash + Eq> WhisperContext<K> {
     /// `int whisper_lang_auto_detect(struct whisper_context * ctx, int offset_ms, int n_threads, float * lang_probs)`
     pub fn lang_detect(
         &self,
-        key: &K,
+        state: &WhisperState,
         offset_ms: usize,
         threads: usize,
     ) -> Result<Vec<f32>, WhisperError> {
         if threads < 1 {
             return Err(WhisperError::InvalidThreadCount);
         }
-        let state_ptr = self.get_state_ptr(key)?;
 
         let mut lang_probs: Vec<f32> = vec![0.0; crate::standalone::get_lang_max_id() as usize + 1];
         let ret = unsafe {
             whisper_rs_sys::whisper_lang_auto_detect_with_state(
                 self.ctx,
-                state_ptr,
+                state.as_ptr(),
                 offset_ms as c_int,
                 threads as c_int,
                 lang_probs.as_mut_ptr(),
@@ -392,8 +368,8 @@ impl<K: Hash + Eq> WhisperContext<K> {
     /// # C++ equivalent
     /// `int whisper_n_len_from_state(struct whisper_context * ctx)`
     #[inline]
-    pub fn n_len(&self, key: &K) -> Result<c_int, WhisperError> {
-        Ok(unsafe { whisper_rs_sys::whisper_n_len_from_state(self.get_state_ptr(key)?) })
+    pub fn n_len(&self, state: &WhisperState) -> Result<c_int, WhisperError> {
+        Ok(unsafe { whisper_rs_sys::whisper_n_len_from_state(state.as_ptr()) })
     }
 
     /// Get n_vocab.
@@ -600,16 +576,18 @@ impl<K: Hash + Eq> WhisperContext<K> {
     ///
     /// # C++ equivalent
     /// `float * whisper_get_logits(struct whisper_context * ctx)`
-    pub fn get_logits(&self, key: &K, segment: c_int) -> Result<Vec<Vec<f32>>, WhisperError> {
-        let state_ptr = self.get_state_ptr(key)?;
-
-        let ret = unsafe { whisper_rs_sys::whisper_get_logits_from_state(state_ptr) };
+    pub fn get_logits(
+        &self,
+        state: &WhisperState,
+        segment: c_int,
+    ) -> Result<Vec<Vec<f32>>, WhisperError> {
+        let ret = unsafe { whisper_rs_sys::whisper_get_logits_from_state(state.as_ptr()) };
         if ret.is_null() {
             return Err(WhisperError::NullPointer);
         }
         let mut logits = Vec::new();
         let n_vocab = self.n_vocab();
-        let n_tokens = self.full_n_tokens(key, segment)?;
+        let n_tokens = self.full_n_tokens(state, segment)?;
         for i in 0..n_tokens {
             let mut row = Vec::new();
             for j in 0..n_vocab {
@@ -756,12 +734,16 @@ impl<K: Hash + Eq> WhisperContext<K> {
     ///
     /// # C++ equivalent
     /// `int whisper_full(struct whisper_context * ctx, struct whisper_full_params params, const float * samples, int n_samples)`
-    pub fn full(&self, key: &K, params: FullParams, data: &[f32]) -> Result<c_int, WhisperError> {
-        let state_ptr = self.get_state_ptr(key)?;
+    pub fn full(
+        &self,
+        state: &WhisperState,
+        params: FullParams,
+        data: &[f32],
+    ) -> Result<c_int, WhisperError> {
         let ret = unsafe {
             whisper_rs_sys::whisper_full_with_state(
                 self.ctx,
-                state_ptr,
+                state.as_ptr(),
                 params.fp,
                 data.as_ptr(),
                 data.len() as c_int,
@@ -786,8 +768,8 @@ impl<K: Hash + Eq> WhisperContext<K> {
     /// # C++ equivalent
     /// `int whisper_full_n_segments(struct whisper_context * ctx)`
     #[inline]
-    pub fn full_n_segments(&self, key: &K) -> Result<c_int, WhisperError> {
-        Ok(unsafe { whisper_rs_sys::whisper_full_n_segments_from_state(self.get_state_ptr(key)?) })
+    pub fn full_n_segments(&self, state: &WhisperState) -> Result<c_int, WhisperError> {
+        Ok(unsafe { whisper_rs_sys::whisper_full_n_segments_from_state(state.as_ptr()) })
     }
 
     /// Language ID associated with the provided state.
@@ -795,8 +777,8 @@ impl<K: Hash + Eq> WhisperContext<K> {
     /// # C++ equivalent
     /// `int whisper_full_lang_id_from_state(struct whisper_state * state);`
     #[inline]
-    pub fn full_lang_id_from_state(&self, key: &K) -> Result<c_int, WhisperError> {
-        Ok(unsafe { whisper_rs_sys::whisper_full_lang_id_from_state(self.get_state_ptr(key)?) })
+    pub fn full_lang_id_from_state(&self, state: &WhisperState) -> Result<c_int, WhisperError> {
+        Ok(unsafe { whisper_rs_sys::whisper_full_lang_id_from_state(state.as_ptr()) })
     }
 
     /// Get the start time of the specified segment.
@@ -807,12 +789,13 @@ impl<K: Hash + Eq> WhisperContext<K> {
     /// # C++ equivalent
     /// `int64_t whisper_full_get_segment_t0(struct whisper_context * ctx, int i_segment)`
     #[inline]
-    pub fn full_get_segment_t0(&self, key: &K, segment: c_int) -> Result<i64, WhisperError> {
+    pub fn full_get_segment_t0(
+        &self,
+        state: &WhisperState,
+        segment: c_int,
+    ) -> Result<i64, WhisperError> {
         Ok(unsafe {
-            whisper_rs_sys::whisper_full_get_segment_t0_from_state(
-                self.get_state_ptr(key)?,
-                segment,
-            )
+            whisper_rs_sys::whisper_full_get_segment_t0_from_state(state.as_ptr(), segment)
         })
     }
 
@@ -824,12 +807,13 @@ impl<K: Hash + Eq> WhisperContext<K> {
     /// # C++ equivalent
     /// `int64_t whisper_full_get_segment_t1(struct whisper_context * ctx, int i_segment)`
     #[inline]
-    pub fn full_get_segment_t1(&self, key: &K, segment: c_int) -> Result<i64, WhisperError> {
+    pub fn full_get_segment_t1(
+        &self,
+        state: &WhisperState,
+        segment: c_int,
+    ) -> Result<i64, WhisperError> {
         Ok(unsafe {
-            whisper_rs_sys::whisper_full_get_segment_t1_from_state(
-                self.get_state_ptr(key)?,
-                segment,
-            )
+            whisper_rs_sys::whisper_full_get_segment_t1_from_state(state.as_ptr(), segment)
         })
     }
 
@@ -843,11 +827,14 @@ impl<K: Hash + Eq> WhisperContext<K> {
     ///
     /// # C++ equivalent
     /// `const char * whisper_full_get_segment_text(struct whisper_context * ctx, int i_segment)`
-    pub fn full_get_segment_text(&self, key: &K, segment: c_int) -> Result<String, WhisperError> {
-        let state_ptr = self.get_state_ptr(key)?;
-
-        let ret =
-            unsafe { whisper_rs_sys::whisper_full_get_segment_text_from_state(state_ptr, segment) };
+    pub fn full_get_segment_text(
+        &self,
+        state: &WhisperState,
+        segment: c_int,
+    ) -> Result<String, WhisperError> {
+        let ret = unsafe {
+            whisper_rs_sys::whisper_full_get_segment_text_from_state(state.as_ptr(), segment)
+        };
         if ret.is_null() {
             return Err(WhisperError::NullPointer);
         }
@@ -867,10 +854,12 @@ impl<K: Hash + Eq> WhisperContext<K> {
     /// # C++ equivalent
     /// `int whisper_full_n_tokens(struct whisper_context * ctx, int i_segment)`
     #[inline]
-    pub fn full_n_tokens(&self, key: &K, segment: c_int) -> Result<c_int, WhisperError> {
-        Ok(unsafe {
-            whisper_rs_sys::whisper_full_n_tokens_from_state(self.get_state_ptr(key)?, segment)
-        })
+    pub fn full_n_tokens(
+        &self,
+        state: &WhisperState,
+        segment: c_int,
+    ) -> Result<c_int, WhisperError> {
+        Ok(unsafe { whisper_rs_sys::whisper_full_n_tokens_from_state(state.as_ptr(), segment) })
     }
 
     /// Get the token text of the specified token in the specified segment.
@@ -886,14 +875,16 @@ impl<K: Hash + Eq> WhisperContext<K> {
     /// `const char * whisper_full_get_token_text(struct whisper_context * ctx, int i_segment, int i_token)`
     pub fn full_get_token_text(
         &self,
-        key: &K,
+        state: &WhisperState,
         segment: c_int,
         token: c_int,
     ) -> Result<String, WhisperError> {
-        let state_ptr = self.get_state_ptr(key)?;
         let ret = unsafe {
             whisper_rs_sys::whisper_full_get_token_text_from_state(
-                self.ctx, state_ptr, segment, token,
+                self.ctx,
+                state.as_ptr(),
+                segment,
+                token,
             )
         };
         if ret.is_null() {
@@ -917,16 +908,12 @@ impl<K: Hash + Eq> WhisperContext<K> {
     /// `whisper_token whisper_full_get_token_id (struct whisper_context * ctx, int i_segment, int i_token)`
     pub fn full_get_token_id(
         &self,
-        key: &K,
+        state: &WhisperState,
         segment: c_int,
         token: c_int,
     ) -> Result<WhisperToken, WhisperError> {
         Ok(unsafe {
-            whisper_rs_sys::whisper_full_get_token_id_from_state(
-                self.get_state_ptr(key)?,
-                segment,
-                token,
-            )
+            whisper_rs_sys::whisper_full_get_token_id_from_state(state.as_ptr(), segment, token)
         })
     }
 
@@ -944,16 +931,12 @@ impl<K: Hash + Eq> WhisperContext<K> {
     #[inline]
     pub fn full_get_token_data(
         &self,
-        key: &K,
+        state: &WhisperState,
         segment: c_int,
         token: c_int,
     ) -> Result<WhisperTokenData, WhisperError> {
         Ok(unsafe {
-            whisper_rs_sys::whisper_full_get_token_data_from_state(
-                self.get_state_ptr(key)?,
-                segment,
-                token,
-            )
+            whisper_rs_sys::whisper_full_get_token_data_from_state(state.as_ptr(), segment, token)
         })
     }
 
@@ -971,21 +954,17 @@ impl<K: Hash + Eq> WhisperContext<K> {
     #[inline]
     pub fn full_get_token_prob(
         &self,
-        key: &K,
+        state: &WhisperState,
         segment: c_int,
         token: c_int,
     ) -> Result<f32, WhisperError> {
         Ok(unsafe {
-            whisper_rs_sys::whisper_full_get_token_p_from_state(
-                self.get_state_ptr(key)?,
-                segment,
-                token,
-            )
+            whisper_rs_sys::whisper_full_get_token_p_from_state(state.as_ptr(), segment, token)
         })
     }
 }
 
-impl<K: Hash + Eq> Drop for WhisperContext<K> {
+impl Drop for WhisperContext {
     #[inline]
     fn drop(&mut self) {
         unsafe { whisper_rs_sys::whisper_free(self.ctx) };
@@ -994,5 +973,5 @@ impl<K: Hash + Eq> Drop for WhisperContext<K> {
 
 // following implementations are safe
 // see https://github.com/ggerganov/whisper.cpp/issues/32#issuecomment-1272790388
-unsafe impl<K: Hash + Eq> Send for WhisperContext<K> {}
-unsafe impl<K: Hash + Eq> Sync for WhisperContext<K> {}
+unsafe impl Send for WhisperContext {}
+unsafe impl Sync for WhisperContext {}
