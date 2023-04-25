@@ -39,10 +39,6 @@ pub enum WhisperError {
     InvalidText,
     /// Creating a state pointer failed. Check stderr for more information.
     FailedToCreateState,
-    /// State pointer ID already exists.
-    StateIdAlreadyExists,
-    /// State pointer ID does not exist.
-    StateIdDoesNotExist,
 }
 
 impl From<Utf8Error> for WhisperError {
@@ -105,8 +101,6 @@ impl std::fmt::Display for WhisperError {
                 "Whisper failed to convert the provided text into tokens."
             ),
             FailedToCreateState => write!(f, "Creating a state pointer failed."),
-            StateIdAlreadyExists => write!(f, "State pointer ID already exists."),
-            StateIdDoesNotExist => write!(f, "State pointer ID does not exist."),
             GenericError(c_int) => write!(
                 f,
                 "Generic whisper error. Varies depending on the function. Error code: {}",
