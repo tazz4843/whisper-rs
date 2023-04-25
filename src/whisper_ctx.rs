@@ -59,12 +59,8 @@ impl WhisperContext {
 
     /// Create a new state object, ready for use.
     ///
-    /// # Arguments
-    /// * id: The ID of the state object. Must be unique.
-    ///
     /// # Returns
-    /// Ok(()) on success, Err(WhisperError) on failure.
-    /// If the ID is already in use, returns Err(WhisperError::StateIdAlreadyExists).
+    /// Ok(WhieperState) on success, Err(WhisperError) on failure.
     ///
     /// # C++ equivalent
     /// `struct whisper_state * whisper_init_state(struct whisper_context * ctx);`
