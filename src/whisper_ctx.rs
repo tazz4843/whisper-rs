@@ -60,7 +60,7 @@ impl WhisperContext {
     /// Create a new state object, ready for use.
     ///
     /// # Returns
-    /// Ok(WhieperState) on success, Err(WhisperError) on failure.
+    /// Ok(WhisperState) on success, Err(WhisperError) on failure.
     ///
     /// # C++ equivalent
     /// `struct whisper_state * whisper_init_state(struct whisper_context * ctx);`
