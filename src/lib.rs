@@ -13,6 +13,7 @@ pub use standalone::*;
 pub use utilities::*;
 pub use whisper_ctx::WhisperContext;
 pub use whisper_params::{FullParams, SamplingStrategy};
+pub use whisper_state::WhisperState;
 
 pub type WhisperTokenData = whisper_rs_sys::whisper_token_data;
 pub type WhisperToken = whisper_rs_sys::whisper_token;
