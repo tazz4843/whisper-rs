@@ -8,9 +8,8 @@ use whisper_rs::{FullParams, SamplingStrategy, WhisperContext};
 pub fn usage() -> Result<(), &'static str> {
     // load a context and model
     let ctx = WhisperContext::new("path/to/model").expect("failed to load model");
-    // make a sample key
-    // here, since we only use this model once, we use a unique global key
-    ctx.create_key(()).expect("failed to create key");
+    // make a state
+    let state = ctx.create_state().expect("failed to create state");
 
     // create a params object
     // note that currently the only implemented strategy is Greedy, BeamSearch is a WIP
@@ -45,22 +44,22 @@ pub fn usage() -> Result<(), &'static str> {
 
     // now we can run the model
     // note the key we use here is the one we created above
-    ctx.full(&(), params, &audio_data[..])
+    ctx.full(&state, params, &audio_data[..])
         .expect("failed to run model");
 
     // fetch the results
     let num_segments = ctx
-        .full_n_segments(&())
+        .full_n_segments(&state)
         .expect("failed to get number of segments");
     for i in 0..num_segments {
         let segment = ctx
-            .full_get_segment_text(&(), i)
+            .full_get_segment_text(&state, i)
             .expect("failed to get segment");
         let start_timestamp = ctx
-            .full_get_segment_t0(&(), i)
+            .full_get_segment_t0(&state, i)
             .expect("failed to get segment start timestamp");
         let end_timestamp = ctx
-            .full_get_segment_t1(&(), i)
+            .full_get_segment_t1(&state, i)
             .expect("failed to get segment end timestamp");
         println!("[{} - {}]: {}", start_timestamp, end_timestamp, segment);
     }

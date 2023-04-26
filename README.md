@@ -18,23 +18,23 @@ fn main() {
     let audio_data = vec![0_f32; 16000 * 2];
 
     // now we can run the model
-    ctx.create_key(()).expect("failed to create key");
-    ctx.full(&(), params, &audio_data[..])
+    let state = ctx.create_state().expect("failed to create state");
+    ctx.full(&state, params, &audio_data[..])
         .expect("failed to run model");
 
     // fetch the results
     let num_segments = ctx
-        .full_n_segments(&())
+        .full_n_segments(&state)
         .expect("failed to get number of segments");
     for i in 0..num_segments {
         let segment = ctx
-            .full_get_segment_text(&(), i)
+            .full_get_segment_text(&state, i)
             .expect("failed to get segment");
         let start_timestamp = ctx
-            .full_get_segment_t0(&(), i)
+            .full_get_segment_t0(&state, i)
             .expect("failed to get segment start timestamp");
         let end_timestamp = ctx
-            .full_get_segment_t1(&(), i)
+            .full_get_segment_t1(&state, i)
             .expect("failed to get segment end timestamp");
         println!("[{} - {}]: {}", start_timestamp, end_timestamp, segment);
     }
