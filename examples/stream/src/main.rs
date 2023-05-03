@@ -49,8 +49,8 @@ pub fn run_example() -> Result<(), anyhow::Error> {
     let config: cpal::StreamConfig = input_device.default_input_config()?.into();
 
     // Create a delay in case the input and output devices aren't synced.
-    let latency_frames = (LATENCY_MS / 1_000.0) * config.sample_rate.0 as f32;
-    let latency_samples = latency_frames as usize * config.channels as usize * 5;
+    let latency_frames = (LATENCY_MS / 1_000.0) * config.sample_rate.0 as f32 / 2.0;
+    let latency_samples = latency_frames as usize * config.channels as usize * 10;
     println!("{}", config.sample_rate.0);
 
     // The buffer to share samples
@@ -171,6 +171,7 @@ pub fn run_example() -> Result<(), anyhow::Error> {
         thread::sleep(time::Duration::from_millis(1000));
 
         // Go to a new line every five seconds
+        // TODO: JPB: Feed old sample text as the prompt for the next round of iterations
         iterations += 1;
         if iterations > 5 {
             iterations = 0;
