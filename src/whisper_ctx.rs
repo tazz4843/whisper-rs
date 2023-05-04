@@ -88,12 +88,15 @@ impl WhisperContext {
         text: &str,
         max_tokens: usize,
     ) -> Result<Vec<WhisperToken>, WhisperError> {
+        // convert the text to a nul-terminated C string. Will raise an error if the text contains
+        // any nul bytes.
+        let text = CString::new(text)?;
         // allocate at least max_tokens to ensure the memory is valid
         let mut tokens: Vec<WhisperToken> = Vec::with_capacity(max_tokens);
         let ret = unsafe {
             whisper_rs_sys::whisper_tokenize(
                 self.ctx,
-                text.as_ptr() as *const _,
+                text.as_ptr(),
                 tokens.as_mut_ptr(),
                 max_tokens as c_int,
             )
