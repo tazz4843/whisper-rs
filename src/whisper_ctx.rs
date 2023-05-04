@@ -308,13 +308,27 @@ impl WhisperContext {
     /// # C++ equivalent
     /// `const char * whisper_token_to_str(struct whisper_context * ctx, whisper_token token)`
     pub fn token_to_str(&self, token_id: WhisperToken) -> Result<String, WhisperError> {
+        let c_str = self.token_to_cstr(token_id)?;
+        let r_str = c_str.to_str()?;
+        Ok(r_str.to_string())
+    }
+
+    /// Convert a token ID to a &CStr.
+    ///
+    /// # Arguments
+    /// * token_id: ID of the token.
+    ///
+    /// # Returns
+    /// Ok(String) on success, Err(WhisperError) on failure.
+    ///
+    /// # C++ equivalent
+    /// `const char * whisper_token_to_str(struct whisper_context * ctx, whisper_token token)`
+    pub fn token_to_cstr(&self, token_id: WhisperToken) -> Result<&CStr, WhisperError> {
         let ret = unsafe { whisper_rs_sys::whisper_token_to_str(self.ctx, token_id) };
         if ret.is_null() {
             return Err(WhisperError::NullPointer);
         }
-        let c_str = unsafe { CStr::from_ptr(ret) };
-        let r_str = c_str.to_str()?;
-        Ok(r_str.to_string())
+        Ok(unsafe { CStr::from_ptr(ret) })
     }
 
     /// Undocumented but exposed function in the C++ API.
