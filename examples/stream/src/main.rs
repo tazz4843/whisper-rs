@@ -149,8 +149,8 @@ pub fn run_example() -> Result<(), anyhow::Error> {
         panic!("expected a whisper directory")
     }
 
-    let mut ctx =
-        WhisperContext::new(&whisper_path.to_string_lossy()).expect("failed to open model");
+    let ctx = WhisperContext::new(&whisper_path.to_string_lossy()).expect("failed to open model");
+    let mut state = ctx.create_state().expect("failed to create key");
 
     // START EVERYTHING
 
@@ -166,8 +166,8 @@ pub fn run_example() -> Result<(), anyhow::Error> {
     let mut final_ring = LocalRb::new(latency_samples);
     let mut samples = vec![0_f32; latency_samples];
     let mut iterations = 0;
-    let mut words = "".to_owned(); 
-    let mut tokens = ctx.tokenize("", 0)?;
+    let mut words = "".to_owned();
+    let mut tokens;
     loop {
         // Only run the model once a second
         thread::sleep(time::Duration::from_millis(1000));
@@ -217,22 +217,22 @@ pub fn run_example() -> Result<(), anyhow::Error> {
         //final_ring.pop_slice(&mut samples[..]);
 
         // Run the model
-        ctx.full(params, &samples)
+        state
+            .full(params, &samples)
             .expect("failed to convert samples");
 
         // Output the results
-        let num_segments = ctx.full_n_segments();
-        for i in 0..num_segments {
-            let segment = ctx.full_get_segment_text(i).expect("failed to get segment");
-            let words = segment
-                .replace("[BLANK_AUDIO]", "")
-                .replace("[ Silence ]", "")
-                .trim_end()
-                .to_owned();
-            print!("\x1B[2K\r{words}");
-            std::io::stdout().flush().unwrap();
-            //println!("{words} ");
-        }
+        let segment = state
+            .full_get_segment_text(0)
+            .expect("failed to get segment");
+        words = segment
+            .replace("[BLANK_AUDIO]", "")
+            .replace("[ Silence ]", "")
+            .trim_end()
+            .to_owned();
+        print!("\x1B[2K\r{words}");
+        std::io::stdout().flush().unwrap();
+        //println!("{words} ");
     }
 }
 
