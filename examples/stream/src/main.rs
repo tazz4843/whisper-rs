@@ -152,6 +152,9 @@ pub fn run_example() -> Result<(), anyhow::Error> {
     let ctx = WhisperContext::new(&whisper_path.to_string_lossy()).expect("failed to open model");
     let mut state = ctx.create_state().expect("failed to create key");
 
+    // VAD SETUP
+    let mut vad = Vad::new_with_rate(SampleRate::Rate48kHz);
+
     // START EVERYTHING
 
     // Play the streams.
@@ -172,16 +175,6 @@ pub fn run_example() -> Result<(), anyhow::Error> {
         // Only run the model once a second
         thread::sleep(time::Duration::from_millis(1000));
 
-        // Go to a new line every five seconds
-        // TODO: JPB: Feed old sample text as the prompt for the next round of iterations
-        iterations += 1;
-        if iterations > 5 {
-            iterations = 0;
-            final_ring.clear();
-            samples.iter_mut().map(|x| *x = 0.0).count();
-            println!();
-        }
-
         // Make the model params
         let mut params = FullParams::new(SamplingStrategy::default());
         params.set_print_progress(false);
@@ -193,6 +186,8 @@ pub fn run_example() -> Result<(), anyhow::Error> {
         params.set_suppress_blank(true);
         params.set_no_speech_thold(0.3);
         params.set_no_context(true);
+        params.set_split_on_word(true);
+        params.set_token_timestamps(true);
 
         // Go to a new line every five seconds
         // Set the tokens for the model to be the last five seconds
@@ -212,6 +207,10 @@ pub fn run_example() -> Result<(), anyhow::Error> {
         samples[0..head.len()].copy_from_slice(head);
         samples[head.len()..head.len() + tail.len()].copy_from_slice(tail);
 
+        // Get the new samples
+        //let current_samples = consumer.pop_iter().map(|x| (x * i16::MAX as f32) as i16).collect::<Vec<i16>>();
+        //let is_voice_segment = vad.is_voice_segment(&current_samples);
+        
         // [TESTING] Only use the samples from the last second
         //let mut samples = vec![0_f32; final_ring.len() as usize];
         //final_ring.pop_slice(&mut samples[..]);
@@ -220,6 +219,14 @@ pub fn run_example() -> Result<(), anyhow::Error> {
         state
             .full(params, &samples)
             .expect("failed to convert samples");
+
+        //for i in 0..state.full_n_tokens(0)? {
+        //    let token = state.full_get_token_data(0, i)?;
+        //    let token_text = state.full_get_token_text(0, i)?;
+        //    
+        //    //println!("{i} {:?} {:?}", token_text, token);
+        //}
+        //println!("TESTING: {}", (0..state.full_n_tokens(0)?).map(|i| state.full_get_token_text(0, i).expect("Invalid token")).collect::<String>());
 
         // Output the results
         let segment = state
