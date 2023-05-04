@@ -23,6 +23,7 @@ hound = "3.5.0"
 [features]
 simd = []
 coreml = ["whisper-rs-sys/coreml"]
+test-with-tiny-model = []
 
 [package.metadata.docs.rs]
 features = ["simd"]
