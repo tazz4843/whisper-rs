@@ -166,6 +166,8 @@ pub fn run_example() -> Result<(), anyhow::Error> {
     let mut final_ring = LocalRb::new(latency_samples);
     let mut samples = vec![0_f32; latency_samples];
     let mut iterations = 0;
+    let mut words = "".to_owned(); 
+    let mut tokens = ctx.tokenize("", 0)?;
     loop {
         // Only run the model once a second
         thread::sleep(time::Duration::from_millis(1000));
@@ -191,6 +193,18 @@ pub fn run_example() -> Result<(), anyhow::Error> {
         params.set_suppress_blank(true);
         params.set_no_speech_thold(0.3);
         params.set_no_context(true);
+
+        // Go to a new line every five seconds
+        // Set the tokens for the model to be the last five seconds
+        iterations += 1;
+        if iterations > 5 {
+            iterations = 0;
+            final_ring.clear();
+            samples.iter_mut().map(|x| *x = 0.0).count();
+            tokens = ctx.tokenize(&words, state.full_n_tokens(0)? as usize)?;
+            params.set_tokens(&tokens);
+            println!();
+        }
 
         // Get the new samples
         final_ring.push_iter_overwrite(consumer.pop_iter());
