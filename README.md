@@ -48,16 +48,12 @@ See the docs: https://docs.rs/whisper-rs/ for more details.
 
 ## Building
 
-See [BUILDING.md](BUILDING.md) for instructions for building whisper-rs on Windows and OSX M1.
+See [BUILDING.md](BUILDING.md) for instructions for building whisper-rs on Windows and OSX M1. Linux builds should just work out of the box.
 
 ## Troubleshooting
 
-* I get an error about a lot of undefined symbols at compile time!
-  * These symbols might be part of the C++ standard library.
-    * Try linking against it with the `-Clink-args=-lstdc++` compiler flag:
-    * `RUSTFLAGS="-Clink-args=-lstdc++" cargo build`
-* macOS/Android aren't working!
-  * I don't have a way to test these platforms, so I can't really help you.
+* Something other than Windows/macOS/Linux isn't working!
+  * I don't have a way to test this platforms, so I can't really help you.
     * If you can get it working, please open a PR with any changes to make it work and build instructions in BUILDING.md!
 * I get a panic during binding generation build!
   * You can attempt to fix it yourself, or you can set the `WHISPER_DONT_GENERATE_BINDINGS` environment variable.
