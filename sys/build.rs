@@ -26,6 +26,11 @@ fn main() {
     println!("cargo:rustc-link-lib=static=whisper");
     #[cfg(feature = "coreml")]
     println!("cargo:rustc-link-lib=static=whisper.coreml");
+    #[cfg(feature = "opencl")]
+    {
+        println!("cargo:rustc-link-lib=clblast");
+        println!("cargo:rustc-link-lib=OpenCL");
+    }
     println!("cargo:rerun-if-changed=wrapper.h");
 
     if env::var("WHISPER_DONT_GENERATE_BINDINGS").is_ok() {
@@ -81,13 +86,13 @@ fn main() {
         .arg("-DWHISPER_BUILD_EXAMPLES=OFF");
 
     #[cfg(feature = "coreml")]
-    cmd.arg("-DWHISPER_COREML=1");
+    cmd.arg("-DWHISPER_COREML=ON");
 
     #[cfg(feature = "cuda")]
-    cmd.arg("-DWHISPER_CUBLAS=1");
+    cmd.arg("-DWHISPER_CUBLAS=ON");
 
     #[cfg(feature = "opencl")]
-    cmd.arg("-DWHISPER_CLBLAST=1");
+    cmd.arg("-DWHISPER_CLBLAST=ON");
 
     let code = cmd.status().expect("Failed to run `cmake`");
     if code.code() != Some(0) {
