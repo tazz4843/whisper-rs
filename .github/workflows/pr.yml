@@ -32,3 +32,6 @@ jobs:
 
       - name: Check clippy lints
         run: cargo clippy
+
+      - name: Check build
+        run: cargo build --verbose
