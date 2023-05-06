@@ -31,33 +31,44 @@ fn main() {
         .nth(1)
         .expect("first argument should be path to WAV file");
     let audio_path = Path::new(&arg1);
-    if !audio_path.exists() && !audio_path.is_file() {
-        panic!("expected a file");
+    if !audio_path.exists() {
+        panic!("audio file doesn't exist");
     }
     let arg2 = std::env::args()
         .nth(2)
         .expect("second argument should be path to Whisper model");
     let whisper_path = Path::new(&arg2);
-    if !whisper_path.exists() && !whisper_path.is_file() {
-        panic!("expected a whisper directory")
+    if !whisper_path.exists() {
+        panic!("whisper file doesn't exist")
     }
 
     let original_samples = parse_wav_file(audio_path);
     let samples = whisper_rs::convert_integer_to_float_audio(&original_samples);
 
-    let ctx =
-        WhisperContext::new(&whisper_path.to_string_lossy()).expect("failed to open model");
+    let ctx = WhisperContext::new(&whisper_path.to_string_lossy()).expect("failed to open model");
     let mut state = ctx.create_state().expect("failed to create key");
     let params = FullParams::new(SamplingStrategy::default());
 
-    state.full(params, &samples)
+    let st = std::time::Instant::now();
+    state
+        .full(params, &samples)
         .expect("failed to convert samples");
+    let et = std::time::Instant::now();
 
-    let num_segments = state.full_n_segments().expect("failed to get number of segments");
+    let num_segments = state
+        .full_n_segments()
+        .expect("failed to get number of segments");
     for i in 0..num_segments {
-        let segment = state.full_get_segment_text(i).expect("failed to get segment");
-        let start_timestamp = state.full_get_segment_t0(i).expect("failed to get start timestamp");
-        let end_timestamp = state.full_get_segment_t1(i).expect("failed to get end timestamp");
+        let segment = state
+            .full_get_segment_text(i)
+            .expect("failed to get segment");
+        let start_timestamp = state
+            .full_get_segment_t0(i)
+            .expect("failed to get start timestamp");
+        let end_timestamp = state
+            .full_get_segment_t1(i)
+            .expect("failed to get end timestamp");
         println!("[{} - {}]: {}", start_timestamp, end_timestamp, segment);
     }
+    println!("took {}ms", (et - st).as_millis());
 }
