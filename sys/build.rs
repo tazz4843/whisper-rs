@@ -2,6 +2,7 @@
 
 extern crate bindgen;
 
+use cfg_if::cfg_if;
 use std::env;
 use std::path::PathBuf;
 
@@ -70,32 +71,27 @@ fn main() {
     _ = std::fs::create_dir("build");
     env::set_current_dir("build").expect("Unable to change directory to whisper.cpp build");
 
-    #[cfg(feature = "coreml")]
-    let code = std::process::Command::new("cmake")
-        .arg("..")
+    let mut cmd = std::process::Command::new("cmake");
+    cmd.arg("..")
         .arg("-DCMAKE_BUILD_TYPE=Release")
         .arg("-DBUILD_SHARED_LIBS=OFF")
         .arg("-DWHISPER_ALL_WARNINGS=OFF")
         .arg("-DWHISPER_ALL_WARNINGS_3RD_PARTY=OFF")
         .arg("-DWHISPER_BUILD_TESTS=OFF")
-        .arg("-DWHISPER_BUILD_EXAMPLES=OFF")
-        .arg("-DWHISPER_COREML=1")
-        .status()
-        .expect("Failed to generate build script");
+        .arg("-DWHISPER_BUILD_EXAMPLES=OFF");
 
-    #[cfg(not(feature = "coreml"))]
-    let code = std::process::Command::new("cmake")
-        .arg("..")
-        .arg("-DCMAKE_BUILD_TYPE=Release")
-        .arg("-DBUILD_SHARED_LIBS=OFF")
-        .arg("-DWHISPER_ALL_WARNINGS=OFF")
-        .arg("-DWHISPER_ALL_WARNINGS_3RD_PARTY=OFF")
-        .arg("-DWHISPER_BUILD_TESTS=OFF")
-        .arg("-DWHISPER_BUILD_EXAMPLES=OFF")
-        .status()
-        .expect("Failed to generate build script");
+    #[cfg(feature = "coreml")]
+    cmd.arg("-DWHISPER_COREML=1");
+
+    #[cfg(feature = "cuda")]
+    cmd.arg("-DWHISPER_CUBLAS=1");
+
+    #[cfg(feature = "opencl")]
+    cmd.arg("-DWHISPER_CLBLAST=1");
+
+    let code = cmd.status().expect("Failed to run `cmake`");
     if code.code() != Some(0) {
-        panic!("Failed to generate build script");
+        panic!("Failed to run `cmake`");
     }
 
     let code = std::process::Command::new("cmake")
@@ -110,31 +106,32 @@ fn main() {
     }
 
     // move libwhisper.a to where Cargo expects it (OUT_DIR)
-    #[cfg(target_os = "windows")]
-    {
-        std::fs::copy(
-            "Release/whisper.lib",
-            format!("{}/whisper.lib", env::var("OUT_DIR").unwrap()),
-        )
-        .expect("Failed to copy libwhisper.lib");
+    cfg_if! {
+        if #[cfg(target_os = "windows")] {
+            std::fs::copy(
+                "Release/whisper.lib",
+                format!("{}/whisper.lib", env::var("OUT_DIR").unwrap()),
+            )
+            .expect("Failed to copy libwhisper.lib");
+        } else {
+            std::fs::copy(
+                "libwhisper.a",
+                format!("{}/libwhisper.a", env::var("OUT_DIR").unwrap()),
+            )
+            .expect("Failed to copy libwhisper.a");
+        }
     }
 
-    #[cfg(not(target_os = "windows"))]
-    {
-        std::fs::copy(
-            "libwhisper.a",
-            format!("{}/libwhisper.a", env::var("OUT_DIR").unwrap()),
-        )
-        .expect("Failed to copy libwhisper.a");
-    }
-    #[cfg(feature = "coreml")]
-    #[cfg(not(target_os = "windows"))]
-    {
-        std::fs::copy(
-            "libwhisper.coreml.a",
-            format!("{}/libwhisper.coreml.a", env::var("OUT_DIR").unwrap()),
-        )
-        .expect("Failed to copy libwhisper.coreml.a");
+    // if on iOS or macOS, with coreml feature enabled, copy libwhisper.coreml.a as well
+    cfg_if! {
+        if #[cfg(all(feature = "coreml", any(target_os = "ios", target_os = "macos")))]
+        {
+            std::fs::copy(
+                "libwhisper.coreml.a",
+                format!("{}/libwhisper.coreml.a", env::var("OUT_DIR").unwrap()),
+            )
+            .expect("Failed to copy libwhisper.coreml.a");
+        }
     }
 
     // clean the whisper build directory to prevent Cargo from complaining during crate publish

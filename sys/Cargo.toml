@@ -27,8 +27,11 @@ include = [
 
 [features]
 coreml = []
+cuda = []
+opencl = []
 
 [dependencies]
 
 [build-dependencies]
 bindgen = "0.64"
+cfg-if = "1"
