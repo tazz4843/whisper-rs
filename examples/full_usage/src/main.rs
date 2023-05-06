@@ -31,15 +31,15 @@ fn main() {
         .nth(1)
         .expect("first argument should be path to WAV file");
     let audio_path = Path::new(&arg1);
-    if !audio_path.exists() && !audio_path.is_file() {
-        panic!("expected a file");
+    if !audio_path.exists() {
+        panic!("audio file doesn't exist");
     }
     let arg2 = std::env::args()
         .nth(2)
         .expect("second argument should be path to Whisper model");
     let whisper_path = Path::new(&arg2);
-    if !whisper_path.exists() && !whisper_path.is_file() {
-        panic!("expected a whisper directory")
+    if !whisper_path.exists() {
+        panic!("whisper file doesn't exist")
     }
 
     let original_samples = parse_wav_file(audio_path);
