@@ -50,8 +50,11 @@ fn main() {
     let mut state = ctx.create_state().expect("failed to create key");
     let params = FullParams::new(SamplingStrategy::default());
 
-    state.full(params, &samples)
+    let st = std::time::Instant::now();
+    state
+        .full(params, &samples)
         .expect("failed to convert samples");
+    let et = std::time::Instant::now();
 
     let num_segments = state.full_n_segments().expect("failed to get number of segments");
     for i in 0..num_segments {
@@ -60,4 +63,5 @@ fn main() {
         let end_timestamp = state.full_get_segment_t1(i).expect("failed to get end timestamp");
         println!("[{} - {}]: {}", start_timestamp, end_timestamp, segment);
     }
+    println!("took {}ms", (et - st).as_millis());
 }
