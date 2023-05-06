@@ -275,16 +275,16 @@ impl WhisperContext {
         unsafe { whisper_rs_sys::whisper_model_n_mels(self.ctx) }
     }
 
-    /// Get model_f16.
+    /// Get model_ftype.
     ///
     /// # Returns
     /// c_int
     ///
     /// # C++ equivalent
-    /// `int whisper_model_f16          (struct whisper_context * ctx);`
+    /// `int whisper_model_ftype          (struct whisper_context * ctx);`
     #[inline]
-    pub fn model_f16(&self) -> c_int {
-        unsafe { whisper_rs_sys::whisper_model_f16(self.ctx) }
+    pub fn model_ftype(&self) -> c_int {
+        unsafe { whisper_rs_sys::whisper_model_ftype(self.ctx) }
     }
 
     /// Get model_type.
