@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  clippy:
     strategy:
       fail-fast: false
       matrix:
@@ -32,6 +32,28 @@ jobs:
 
       - name: Check clippy lints
         run: cargo clippy
+
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        rust-version: [stable, nightly]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out code into the proper directory
+        uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+
+      - name: Cache rust
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust-version }}
+          components: rustfmt
 
       - name: Check build
         run: cargo build --verbose
