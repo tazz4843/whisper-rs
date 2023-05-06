@@ -31,6 +31,15 @@ fn main() {
         println!("cargo:rustc-link-lib=clblast");
         println!("cargo:rustc-link-lib=OpenCL");
     }
+    #[cfg(feature = "cuda")]
+    {
+        println!("cargo:rustc-link-lib=cublas");
+        println!("cargo:rustc-link-lib=culibos");
+        println!("cargo:rustc-link-lib=cudart");
+        println!("cargo:rustc-link-lib=cublasLt");
+        println!("cargo:rustc-link-search=/usr/local/cuda/lib64");
+        println!("cargo:rustc-link-search=/opt/cuda/lib64");
+    }
     println!("cargo:rerun-if-changed=wrapper.h");
 
     if env::var("WHISPER_DONT_GENERATE_BINDINGS").is_ok() {
