@@ -80,6 +80,7 @@ fn main() {
         .arg("-DWHISPER_BUILD_TESTS=OFF")
         .arg("-DWHISPER_BUILD_EXAMPLES=OFF")
         .arg("-DWHISPER_COREML=1")
+        .arg("-DWHISPER_COREML_ALLOW_FALLBACK=1")
         .status()
         .expect("Failed to generate build script");
 
