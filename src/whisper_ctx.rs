@@ -299,7 +299,7 @@ impl WhisperContext {
         unsafe { whisper_rs_sys::whisper_model_type(self.ctx) }
     }
 
-    /// token functions
+    // token functions
     /// Convert a token ID to a string.
     ///
     /// # Arguments
