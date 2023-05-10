@@ -1,3 +1,12 @@
+# Version 0.7.0 (2023-05-10)
+* Update upstream whisper.cpp to v1.4.0 (integer quantization support, see last point for CUDA support)
+* Expose `WhisperState` as a public type, allowing for more control over the state.
+  * `WhisperContext::create_state` now returns a `WhisperState` instead of `()`.
+  * All methods that took a key argument in v0.6.0 have been moved to `WhisperState`.
+* Generic key argument on `WhisperContext` has been removed.
+* Note: CUDA and OpenCL acceleration is supported on the `cuda-and-opencl-support` branch of the git repo,
+  and will probably be released in v0.8.0.
+
 # Version 0.6.0 (2023-04-17)
 * Update upstream whisper.cpp to v1.3.0
 * Fix breaking changes in update, which cascade to users:
