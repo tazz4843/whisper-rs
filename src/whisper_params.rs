@@ -2,6 +2,7 @@ use std::ffi::{c_float, c_int, CString};
 use std::marker::PhantomData;
 use whisper_rs_sys::whisper_token;
 
+#[derive(Debug, Clone)]
 pub enum SamplingStrategy {
     Greedy {
         best_of: c_int,
