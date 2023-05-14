@@ -104,9 +104,11 @@ fn main() {
     #[cfg(feature = "opencl")]
     cmd.arg("-DWHISPER_CLBLAST=ON");
 
-    let code = cmd.status().expect("Failed to run `cmake`");
+    let code = cmd
+        .status()
+        .expect("Failed to run `cmake` (is CMake installed?)");
     if code.code() != Some(0) {
-        panic!("Failed to run `cmake`");
+        panic!("Failed to run `cmake` (is CMake installed?)");
     }
 
     let code = std::process::Command::new("cmake")
@@ -115,9 +117,9 @@ fn main() {
         .arg("--config")
         .arg("Release")
         .status()
-        .expect("Failed to build libwhisper.a");
+        .expect("Failed to build libwhisper.a (is CMake installed?)");
     if code.code() != Some(0) {
-        panic!("Failed to build libwhisper.a");
+        panic!("Failed to build libwhisper.a (is CMake installed?)");
     }
 
     // move libwhisper.a to where Cargo expects it (OUT_DIR)

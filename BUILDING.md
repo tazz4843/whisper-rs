@@ -37,3 +37,11 @@ rustflags = "-lc++ -l framework=Accelerate"
 ```
 
 See https://github.com/tazz4843/whisper-rs/pull/2 for more information.
+
+You also need to have CMake installed. You can obtain this using homebrew:
+
+```
+brew install cmake
+```
+
+CMake can also be installed from https://cmake.org/download/ but `cmake` binary needs to be in your PATH.
