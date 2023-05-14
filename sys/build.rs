@@ -95,7 +95,8 @@ fn main() {
         .arg("-DWHISPER_BUILD_EXAMPLES=OFF");
 
     #[cfg(feature = "coreml")]
-    cmd.arg("-DWHISPER_COREML=ON");
+    cmd.arg("-DWHISPER_COREML=ON")
+        .arg("-DWHISPER_COREML_ALLOW_FALLBACK=1");
 
     #[cfg(feature = "cuda")]
     cmd.arg("-DWHISPER_CUBLAS=ON");
