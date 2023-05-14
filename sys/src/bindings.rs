@@ -782,6 +782,7 @@ pub struct whisper_full_params {
     pub prompt_tokens: *const whisper_token,
     pub prompt_n_tokens: ::std::os::raw::c_int,
     pub language: *const ::std::os::raw::c_char,
+    pub detect_language: bool,
     pub suppress_blank: bool,
     pub suppress_non_speech_tokens: bool,
     pub temperature: f32,
@@ -1136,8 +1137,18 @@ fn bindgen_test_layout_whisper_full_params() {
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).suppress_blank) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).detect_language) as usize - ptr as usize },
         88usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(detect_language)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).suppress_blank) as usize - ptr as usize },
+        89usize,
         concat!(
             "Offset of field: ",
             stringify!(whisper_full_params),
@@ -1147,7 +1158,7 @@ fn bindgen_test_layout_whisper_full_params() {
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).suppress_non_speech_tokens) as usize - ptr as usize },
-        89usize,
+        90usize,
         concat!(
             "Offset of field: ",
             stringify!(whisper_full_params),
