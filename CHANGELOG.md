@@ -1,3 +1,11 @@
+# Version 0.8.0 (2023-05-14)
+* Update upstream whisper.cpp to v1.4.2 (OpenCL support)
+* Add CUDA and OpenCL support to bindings
+  * No MacOS testers were able to test CoreML support, so it may be broken. Please open an issue if it is.
+  * Enable CUDA support by enabling the `cuda` feature.
+  * Enable OpenCL support by enabling the `opencl` feature.
+* Add `FullParams::set_detect_language`
+
 # Version 0.7.0 (2023-05-10)
 * Update upstream whisper.cpp to v1.4.0 (integer quantization support, see last point for CUDA support)
 * Expose `WhisperState` as a public type, allowing for more control over the state.
