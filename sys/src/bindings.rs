@@ -660,7 +660,7 @@ extern "C" {
     pub fn whisper_model_n_mels(ctx: *mut whisper_context) -> ::std::os::raw::c_int;
 }
 extern "C" {
-    pub fn whisper_model_f16(ctx: *mut whisper_context) -> ::std::os::raw::c_int;
+    pub fn whisper_model_ftype(ctx: *mut whisper_context) -> ::std::os::raw::c_int;
 }
 extern "C" {
     pub fn whisper_model_type(ctx: *mut whisper_context) -> ::std::os::raw::c_int;
