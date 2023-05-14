@@ -20,8 +20,12 @@ whisper-rs-sys = { path = "sys", version = "0.5" }
 hound = "3.5.0"
 
 [features]
+default = []
+
 simd = []
 coreml = ["whisper-rs-sys/coreml"]
+cuda = ["whisper-rs-sys/cuda"]
+opencl = ["whisper-rs-sys/opencl"]
 test-with-tiny-model = []
 
 [package.metadata.docs.rs]
