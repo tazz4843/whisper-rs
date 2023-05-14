@@ -245,6 +245,15 @@ impl<'a, 'b> FullParams<'a, 'b> {
         };
     }
 
+    /// Set `detect_language`.
+    ///
+    /// Has the same effect as setting the language to "auto" or None.
+    ///
+    /// Defaults to false.
+    pub fn set_detect_language(&mut self, detect_language: bool) {
+        self.fp.detect_language = detect_language;
+    }
+
     /// Set suppress_blank. See https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/decoding.py#L89
     /// for more information.
     ///
