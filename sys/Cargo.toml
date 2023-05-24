@@ -17,6 +17,8 @@ include = [
     "whisper.cpp/ggml.h",
     "whisper.cpp/ggml-opencl.c",
     "whisper.cpp/ggml-opencl.h",
+    "whisper.cpp/ggml-cuda.cu",
+    "whisper.cpp/ggml-cuda.h",
     "whisper.cpp/LICENSE",
     "whisper.cpp/whisper.cpp",
     "whisper.cpp/whisper.h",
