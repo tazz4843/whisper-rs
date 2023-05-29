@@ -125,6 +125,7 @@ pub fn run_example() -> Result<(), anyhow::Error> {
     let mut start_time = Instant::now();
 
     // Main loop
+    // TODO: JPB: Make this it's own function (And the lines above it)
     let mut num_chars_to_delete = 0;
     let mut loop_num = 0;
     let mut words = "".to_owned();
@@ -144,7 +145,6 @@ pub fn run_example() -> Result<(), anyhow::Error> {
         let samples: Vec<_> = consumer.pop_iter().collect();
         let samples = whisper_rs::convert_stereo_to_mono_audio(&samples).unwrap();
         //let samples = make_audio_louder(&samples, 1.0);
-        //println!("sample len: {}", samples.len());
         let num_samples_to_delete = iter_num_samples
             .push_overwrite(samples.len())
             .expect("Error num samples to delete is off");
@@ -152,7 +152,6 @@ pub fn run_example() -> Result<(), anyhow::Error> {
             iter_samples.pop();
         }
         iter_samples.push_iter(&mut samples.into_iter());
-        //println!("{} [{}\x08]", iter_samples.len(), iter_num_samples.iter().map(|i : &usize| i.to_string() + " ").collect::<String>());
         let (head, tail) = iter_samples.as_slices();
         let current_samples = [head, tail].concat();
 
@@ -164,14 +163,11 @@ pub fn run_example() -> Result<(), anyhow::Error> {
                 token_time_end as f32 / (LATENCY_MS * cmp::min(loop_num, NUM_ITERS) as f32); // token times are not a value in ms, they're 150 per second
             let ms_per_token_time = 1.0 / token_time_per_ms;
 
-            //num_chars_to_delete = 0;
             let mut tokens_saved = vec![];
+            // Skip beginning and end token
             for i in 1..num_tokens - 1 {
-                // Skip beginning and end token
                 let token = state.full_get_token_data(0, i)?;
-                //let token_text = state.full_get_token_text(0, i)?;
                 let token_t0_ms = token.t0 as f32 * ms_per_token_time;
-                //println!("{i} {:?} {:?}", token_text, token);
                 let ms_to_delete = num_samples_to_delete as f32 / (sampling_freq / 1000.0);
 
                 // Save tokens for whisper context
@@ -216,27 +212,14 @@ pub fn run_example() -> Result<(), anyhow::Error> {
         }
 
         // Make the model params
-        let mut params = FullParams::new(SamplingStrategy::default());
-        params.set_print_progress(false);
-        params.set_print_special(false);
-        params.set_print_realtime(false);
-        params.set_print_timestamps(false);
-        params.set_suppress_blank(true);
-        params.set_language(Some("en"));
-        params.set_token_timestamps(true);
-        params.set_duration_ms(LATENCY_MS as i32);
-        params.set_no_context(true);
-        //let tokens = iter_tokens.clone().into_iter().flatten().collect::<Vec<WhisperToken>>();
         let (head, tail) = iter_tokens.as_slices();
         let tokens = [head, tail]
             .concat()
             .into_iter()
             .flatten()
             .collect::<Vec<WhisperToken>>();
+        let mut params = gen_whisper_params();
         params.set_tokens(&tokens);
-        //params.set_no_speech_thold(0.3);
-        //params.set_single_segment(true);
-        //params.set_split_on_word(true);
 
         // Run the model
         state
@@ -262,9 +245,26 @@ pub fn run_example() -> Result<(), anyhow::Error> {
     }
 }
 
-//fn run_whisper() -> Result<(), anyhow::Error>{
-//   Ok(())
-//}
+fn gen_whisper_params<'a>() -> FullParams<'a, 'a> {
+    let mut params = FullParams::new(SamplingStrategy::default());
+    params.set_print_progress(false);
+    params.set_print_special(false);
+    params.set_print_realtime(false);
+    params.set_print_timestamps(false);
+    params.set_suppress_blank(true);
+    params.set_language(Some("en"));
+    params.set_token_timestamps(true);
+    params.set_duration_ms(LATENCY_MS as i32);
+    params.set_no_context(true);
+
+    //params.set_no_speech_thold(0.3);
+    //params.set_split_on_word(true);
+
+    // This impacts token times, don't use
+    //params.set_single_segment(true);
+
+    params
+}
 
 fn err_fn(err: cpal::StreamError) {
     eprintln!("an error occurred on stream: {}", err);
