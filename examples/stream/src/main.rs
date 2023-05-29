@@ -143,7 +143,7 @@ pub fn run_example() -> Result<(), anyhow::Error> {
             let sleep_time = latency - duration;
             thread::sleep(sleep_time);
         } else {
-            panic!("Classification got behind. It took to long. Try using a smaller model and/or more threads"); 
+            panic!("Classification got behind. It took to long. Try using a smaller model and/or more threads");
         }
         start_time = Instant::now();
 
