@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.70"
 cpal = "0.15.1"
+itertools = "0.10.5"
 ringbuf = "0.3.2"
 webrtc-vad = "0.4"
 whisper-rs = { path = "../.." }

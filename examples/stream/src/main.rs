@@ -1,36 +1,29 @@
 #![allow(clippy::uninlined_format_args)]
 
-use std::path::Path;
-use std::{thread, time};
-use whisper_rs::{FullParams, SamplingStrategy, WhisperContext};
+//! Feeds back the input stream directly into the output stream.
+//!
+//! Assumes that the input and output devices can use the same stream configuration and that they
+//! support the f32 sample format.
+//!
+//! Uses a delay of `LATENCY_MS` milliseconds in case the default input and output streams are not
+//! precisely synchronised.
+
+extern crate anyhow;
+extern crate cpal;
+extern crate ringbuf;
 
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
-use ringbuf::{LocalRb, Rb, SharedRb};
+use ringbuf::{Rb, SharedRb, LocalRb};
+use whisper_rs::{FullParams, SamplingStrategy, WhisperContext, WhisperToken};
+use std::path::Path;
 
+use std::{thread, cmp};
+use std::time::{Duration, Instant};
 use std::io::Write;
 
-use std::cell::RefCell;
-use webrtc_vad::{SampleRate, Vad};
-
-const LATENCY_MS: f32 = 1000.0;
-
-thread_local! {
-    static VAD: RefCell<Vad> = RefCell::new(Vad::new_with_rate(SampleRate::Rate48kHz));
-}
-
-fn clamp(value: f32, min: f32, max: f32) -> f32 {
-    value.min(max).max(min)
-}
-
-fn make_audio_louder(audio_samples: &[f32], gain: f32) -> Vec<f32> {
-    audio_samples
-        .iter()
-        .map(|sample| {
-            let louder_sample = sample * gain;
-            clamp(louder_sample, -1.0, 1.0)
-        })
-        .collect()
-}
+const LATENCY_MS: f32 = 5000.0;
+const NUM_ITERS: usize = 2;
+const NUM_ITERS_SAVED: usize = 2;
 
 pub fn run_example() -> Result<(), anyhow::Error> {
     let host = cpal::default_host();
@@ -39,71 +32,55 @@ pub fn run_example() -> Result<(), anyhow::Error> {
     let input_device = host
         .default_input_device()
         .expect("failed to get default input device");
-    let output_device = host
-        .default_output_device()
-        .expect("failed to get default output device");
+    //let output_device = host
+    //    .default_output_device()
+    //    .expect("failed to get default output device");
     println!("Using default input device: \"{}\"", input_device.name()?);
-    println!("Using default output device: \"{}\"", output_device.name()?);
+    //println!("Using default output device: \"{}\"", output_device.name()?);
 
     // We'll try and use the same configuration between streams to keep it simple.
     let config: cpal::StreamConfig = input_device.default_input_config()?.into();
 
     // Create a delay in case the input and output devices aren't synced.
-    let latency_frames = (LATENCY_MS / 1_000.0) * config.sample_rate.0 as f32 / 2.0;
-    let latency_samples = latency_frames as usize * config.channels as usize * 10;
-    println!("{}", config.sample_rate.0);
+    let latency_frames = (LATENCY_MS / 1_000.0) * config.sample_rate.0 as f32;
+    let latency_samples = latency_frames as usize * config.channels as usize;
+    let sampling_freq = config.sample_rate.0 as f32 / 2.0; // TODO: JPB: Divide by 2 because of stereo to mono
 
     // The buffer to share samples
-    let ring = SharedRb::<f32, _>::new(latency_samples);
+    let ring = SharedRb::new(latency_samples * 2);
     let (mut producer, mut consumer) = ring.split();
 
-    // Vad setup
-    let vad_size = (10 * config.sample_rate.0 / 1_000) as usize;
-    let mut vad_ring = SharedRb::<i16, _>::new(vad_size);
+    // Setup whisper
+    let arg1 = std::env::args()
+        .nth(1)
+        .expect("First argument should be path to Whisper model");
+    let whisper_path = Path::new(&arg1);
+    if !whisper_path.exists() && !whisper_path.is_file() {
+        panic!("expected a whisper directory")
+    }
+    let ctx = WhisperContext::new(&whisper_path.to_string_lossy()).expect("failed to open model");
+    let mut state = ctx.create_state().expect("failed to create key");
 
-    // Fill the samples with 0s
-    for _ in 0..vad_size {
-        vad_ring.push(0).unwrap();
+    // Variables used across loop iterations
+    let mut iter_samples = LocalRb::new(latency_samples * NUM_ITERS * 2);
+    let mut iter_num_samples = LocalRb::new(NUM_ITERS);
+    let mut iter_tokens = LocalRb::new(NUM_ITERS_SAVED);
+    for _ in 0..NUM_ITERS { iter_num_samples.push(0).expect("Error initailizing iter_num_samples"); }
+
+    // Fill the samples with 0.0 equal to the length of the delay.
+    for _ in 0..latency_samples {
+        // The ring buffer has twice as much space as necessary to add latency here,
+        // so this should never fail
+        producer.push(0.0).unwrap();
     }
 
-    let mut vad_ring_full = vec![0_i16; vad_size];
     let input_data_fn = move |data: &[f32], _: &cpal::InputCallbackInfo| {
         let mut output_fell_behind = false;
-        let samples = whisper_rs::convert_stereo_to_mono_audio(data).unwrap();
-        let samples = make_audio_louder(&samples, 4.0);
-
-        // TODO: JPB: Make temp array up here so that copy_from_slice only needs to be called once
-
-        for sample in samples {
-            // Add sample to vad ring buffer
-            let sample_i16 = (sample * i16::MAX as f32) as i16;
-            vad_ring.push_overwrite(sample_i16);
-
-            // Get all the sample from the vad ring buffer in order
-            let (head, tail) = vad_ring.as_slices();
-            vad_ring_full[0..head.len()].copy_from_slice(head);
-            vad_ring_full[head.len()..].copy_from_slice(tail);
-
-            // Check if person is talking
-            let mut talking = false;
-            VAD.with(|vad| {
-                talking = vad
-                    .borrow_mut()
-                    .is_voice_segment(&vad_ring_full[..])
-                    .unwrap();
-            });
-            //println!("talking: {talking}");
-
-            // TODO: JPB: talking is a problem due to spacing...
-
-            // Write to main ring buffer if talking
-            //if talking {
+        for &sample in data {
             if producer.push(sample).is_err() {
                 output_fell_behind = true;
             }
-            //}
         }
-
         if output_fell_behind {
             eprintln!("output stream fell behind: try increasing latency");
         }
@@ -113,9 +90,9 @@ pub fn run_example() -> Result<(), anyhow::Error> {
     //    let mut input_fell_behind = None;
     //    for sample in data {
     //        *sample = match consumer.pop() {
-    //            Ok(s) => s,
-    //            Err(err) => {
-    //                input_fell_behind = Some(err);
+    //            Some(s) => s,
+    //            None => {
+    //                input_fell_behind = Some("");
     //                0.0
     //            }
     //        };
@@ -130,7 +107,7 @@ pub fn run_example() -> Result<(), anyhow::Error> {
 
     // Build streams.
     println!(
-        "Attempting to build the streams with f32 samples and `{:?}`.",
+        "Attempting to build both streams with f32 samples and `{:?}`.",
         config
     );
     println!("Setup input stream");
@@ -139,41 +116,81 @@ pub fn run_example() -> Result<(), anyhow::Error> {
     //let output_stream = output_device.build_output_stream(&config, output_data_fn, err_fn, None)?;
     println!("Successfully built streams.");
 
-    // WHISPER SETUP
-
-    let arg1 = std::env::args()
-        .nth(1)
-        .expect("First argument should be path to Whisper model");
-    let whisper_path = Path::new(&arg1);
-    if !whisper_path.exists() && !whisper_path.is_file() {
-        panic!("expected a whisper directory")
-    }
-
-    let ctx = WhisperContext::new(&whisper_path.to_string_lossy()).expect("failed to open model");
-    let mut state = ctx.create_state().expect("failed to create key");
-
-    // VAD SETUP
-    let mut vad = Vad::new_with_rate(SampleRate::Rate48kHz);
-
-    // START EVERYTHING
-
     // Play the streams.
     println!(
         "Starting the input and output streams with `{}` milliseconds of latency.",
         LATENCY_MS
     );
-    thread::sleep(time::Duration::from_millis(1000));
     input_stream.play()?;
     //output_stream.play()?;
+    
+    // Remove the initial samples
+    consumer.pop_iter().count();
+    let mut start_time = Instant::now();
 
-    let mut final_ring = LocalRb::new(latency_samples);
-    let mut samples = vec![0_f32; latency_samples];
-    let mut iterations = 0;
+
+    let mut num_chars_to_delete = 0;
+    let mut loop_num = 0;
     let mut words = "".to_owned();
-    let mut tokens;
-    loop {
-        // Only run the model once a second
-        thread::sleep(time::Duration::from_millis(1000));
+    for _ in 0..6 {
+    //loop {
+        loop_num += 1;
+
+        // Only run every LATENCY_MS
+        let duration = start_time.elapsed();
+        let latency = Duration::from_millis(LATENCY_MS as u64);
+        if duration < latency {
+            let sleep_time = latency - duration;
+            thread::sleep(sleep_time);
+        }
+        start_time = Instant::now();
+
+        // Collect the samples
+        let samples : Vec<_>= consumer.pop_iter().collect();
+        let samples = whisper_rs::convert_stereo_to_mono_audio(&samples).unwrap();
+        //let samples = make_audio_louder(&samples, 1.0);
+        //println!("sample len: {}", samples.len());
+        let num_samples_to_delete = iter_num_samples.push_overwrite(samples.len()).expect("Error num samples to delete is off");
+        for _ in 0..num_samples_to_delete { iter_samples.pop(); };
+        iter_samples.push_iter(&mut samples.into_iter());
+        //println!("{} [{}\x08]", iter_samples.len(), iter_num_samples.iter().map(|i : &usize| i.to_string() + " ").collect::<String>());
+        let (head, tail) = iter_samples.as_slices();
+        let current_samples = [head, tail].concat();
+
+        // Get tokens to be deleted
+        if loop_num > 1 {
+            let num_tokens = state.full_n_tokens(0)?;
+            let token_time_end = state.full_get_segment_t1(0)?;
+            let token_time_per_ms = token_time_end as f32 / (LATENCY_MS * cmp::min(loop_num, NUM_ITERS) as f32); // token times are not a value in ms, they're 150 per second
+            let ms_per_token_time = 1.0 / token_time_per_ms;
+
+            //num_chars_to_delete = 0;
+            let mut tokens_saved = vec![];
+            for i in 1..num_tokens-1 { // Skip beginning and end token
+                let token = state.full_get_token_data(0, i)?;
+                //let token_text = state.full_get_token_text(0, i)?;
+                let token_t0_ms = token.t0 as f32 * ms_per_token_time;
+                //println!("{i} {:?} {:?}", token_text, token);
+                let ms_to_delete = num_samples_to_delete as f32 / (sampling_freq / 1000.0);
+
+                // Save tokens for whisper context
+                if (loop_num > NUM_ITERS) && token_t0_ms < ms_to_delete {
+                    tokens_saved.push(token.id);
+                }
+            }
+            num_chars_to_delete = words.chars().count();
+            if loop_num > NUM_ITERS {
+                num_chars_to_delete -= tokens_saved.iter().map(|x| ctx.token_to_str(*x).expect("Error")).collect::<String>().chars().count();
+            }
+            iter_tokens.push_overwrite(tokens_saved.clone());
+            //println!("");
+            //println!("TOKENS_SAVED : {}", tokens_saved.iter().map(|x| ctx.token_to_str(*x).unwrap()).collect::<Vec<_>>().join(""));
+            //println!("CHARS_DELETED: {}", words[words.len()-num_chars_to_delete..].to_owned());
+            //println!("ITER_TOKENS  : {}", iter_tokens.iter().flatten().map(|x| ctx.token_to_str(*x).unwrap()).collect::<Vec<_>>().join(""));
+            //println!("WORDS        : {}", words);
+            //println!("NUM_CHARS    : {} {}", words.len(), num_chars_to_delete);
+        }
+
 
         // Make the model params
         let mut params = FullParams::new(SamplingStrategy::default());
@@ -181,67 +198,40 @@ pub fn run_example() -> Result<(), anyhow::Error> {
         params.set_print_special(false);
         params.set_print_realtime(false);
         params.set_print_timestamps(false);
-        params.set_single_segment(true);
-        params.set_language(Some("en"));
         params.set_suppress_blank(true);
-        params.set_no_speech_thold(0.3);
-        params.set_no_context(true);
-        params.set_split_on_word(true);
+        params.set_language(Some("en"));
         params.set_token_timestamps(true);
-
-        // Go to a new line every five seconds
-        // Set the tokens for the model to be the last five seconds
-        iterations += 1;
-        if iterations > 5 {
-            iterations = 0;
-            final_ring.clear();
-            samples.iter_mut().map(|x| *x = 0.0).count();
-            tokens = ctx.tokenize(&words, state.full_n_tokens(0)? as usize)?;
-            params.set_tokens(&tokens);
-            println!();
-        }
-
-        // Get the new samples
-        final_ring.push_iter_overwrite(consumer.pop_iter());
-        let (head, tail) = final_ring.as_slices();
-        samples[0..head.len()].copy_from_slice(head);
-        samples[head.len()..head.len() + tail.len()].copy_from_slice(tail);
-
-        // Get the new samples
-        //let current_samples = consumer.pop_iter().map(|x| (x * i16::MAX as f32) as i16).collect::<Vec<i16>>();
-        //let is_voice_segment = vad.is_voice_segment(&current_samples);
-        
-        // [TESTING] Only use the samples from the last second
-        //let mut samples = vec![0_f32; final_ring.len() as usize];
-        //final_ring.pop_slice(&mut samples[..]);
+        params.set_duration_ms(LATENCY_MS as i32);
+        params.set_no_context(true);
+        //let tokens = iter_tokens.clone().into_iter().flatten().collect::<Vec<WhisperToken>>();
+        let (head, tail) = iter_tokens.as_slices();
+        let tokens = [head, tail].concat().into_iter().flatten().collect::<Vec<WhisperToken>>();
+        params.set_tokens(&tokens);
+        //params.set_no_speech_thold(0.3);
+        //params.set_single_segment(true);
+        //params.set_split_on_word(true);
 
         // Run the model
         state
-            .full(params, &samples)
+            .full(params, &current_samples)
             .expect("failed to convert samples");
 
-        //for i in 0..state.full_n_tokens(0)? {
-        //    let token = state.full_get_token_data(0, i)?;
-        //    let token_text = state.full_get_token_text(0, i)?;
-        //    
-        //    //println!("{i} {:?} {:?}", token_text, token);
-        //}
-        //println!("TESTING: {}", (0..state.full_n_tokens(0)?).map(|i| state.full_get_token_text(0, i).expect("Invalid token")).collect::<String>());
-
-        // Output the results
-        let segment = state
-            .full_get_segment_text(0)
-            .expect("failed to get segment");
-        words = segment
-            .replace("[BLANK_AUDIO]", "")
-            .replace("[ Silence ]", "")
-            .trim_end()
-            .to_owned();
-        print!("\x1B[2K\r{words}");
+        // Update the words on screen
+        if num_chars_to_delete != 0 { // TODO: JPB: Potentially unneeded if statement
+            print!("\x1B[{}D{}\x1B[{}D", num_chars_to_delete, " ".repeat(num_chars_to_delete), num_chars_to_delete);
+        }
+        let num_tokens = state.full_n_tokens(0)?;
+        words = (1..num_tokens-1).map(|i| state.full_get_token_text(0, i).expect("Error")).collect::<String>();
+        print!("{}", words);
         std::io::stdout().flush().unwrap();
-        //println!("{words} ");
     }
+
+    Ok(())
 }
+
+//fn run_whisper() -> Result<(), anyhow::Error>{
+//   Ok(()) 
+//}
 
 fn err_fn(err: cpal::StreamError) {
     eprintln!("an error occurred on stream: {}", err);
@@ -250,3 +240,4 @@ fn err_fn(err: cpal::StreamError) {
 fn main() -> Result<(), anyhow::Error> {
     run_example()
 }
+
