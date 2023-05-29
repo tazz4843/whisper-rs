@@ -34,11 +34,18 @@ fn main() {
     #[cfg(feature = "cuda")]
     {
         println!("cargo:rustc-link-lib=cublas");
-        println!("cargo:rustc-link-lib=culibos");
         println!("cargo:rustc-link-lib=cudart");
         println!("cargo:rustc-link-lib=cublasLt");
-        println!("cargo:rustc-link-search=/usr/local/cuda/lib64");
-        println!("cargo:rustc-link-search=/opt/cuda/lib64");
+        cfg_if! {
+            if #[cfg(target_os = "windows")] {
+                let cuda_path = PathBuf::from(env::var("CUDA_PATH").unwrap()).join("lib/x64");
+                println!("cargo:rustc-link-search={}", cuda_path.display());
+            } else {
+                println!("cargo:rustc-link-lib=culibos");
+                println!("cargo:rustc-link-search=/usr/local/cuda/lib64");
+                println!("cargo:rustc-link-search=/opt/cuda/lib64");
+            }
+        }
     }
     println!("cargo:rerun-if-changed=wrapper.h");
 
