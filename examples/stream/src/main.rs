@@ -25,6 +25,10 @@ const LATENCY_MS: f32 = 5000.0;
 const NUM_ITERS: usize = 2;
 const NUM_ITERS_SAVED: usize = 2;
 
+// TODO: JPB: Add clean way to exit besides ctrl+C (which sometimes doesn't work)
+// TODO: JPB: Make sure this works with other LATENCY_MS, NUM_ITERS, and NUM_ITERS_SAVED
+// TODO: JPB: I think there is an issue where it doesn't compute fast enough and so it loses data
+
 pub fn run_example() -> Result<(), anyhow::Error> {
     let host = cpal::default_host();
 
@@ -138,6 +142,8 @@ pub fn run_example() -> Result<(), anyhow::Error> {
         if duration < latency {
             let sleep_time = latency - duration;
             thread::sleep(sleep_time);
+        } else {
+            panic!("Classification got behind. It took to long. Try using a smaller model and/or more threads"); 
         }
         start_time = Instant::now();
 
@@ -256,6 +262,7 @@ fn gen_whisper_params<'a>() -> FullParams<'a, 'a> {
     params.set_token_timestamps(true);
     params.set_duration_ms(LATENCY_MS as i32);
     params.set_no_context(true);
+    //params.set_n_threads(4);
 
     //params.set_no_speech_thold(0.3);
     //params.set_split_on_word(true);
