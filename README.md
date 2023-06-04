@@ -7,34 +7,37 @@ Rust bindings to [whisper.cpp](https://github.com/ggerganov/whisper.cpp/)
 use whisper_rs::{WhisperContext, FullParams, SamplingStrategy};
 
 fn main() {
+    let path_to_model = std::env::args().nth(1).unwrap();
+
     // load a context and model
-    let mut ctx = WhisperContext::new("path/to/model").expect("failed to load model");
+    let ctx = WhisperContext::new(&path_to_model).expect("failed to load model");
 
     // create a params object
-    let mut params = FullParams::new(SamplingStrategy::Greedy { best_of: 1 });
+    let params = FullParams::new(SamplingStrategy::Greedy { best_of: 1 });
 
     // assume we have a buffer of audio data
     // here we'll make a fake one, floating point samples, 32 bit, 16KHz, mono
     let audio_data = vec![0_f32; 16000 * 2];
 
     // now we can run the model
-    let state = ctx.create_state().expect("failed to create state");
-    ctx.full(&state, params, &audio_data[..])
+    let mut state = ctx.create_state().expect("failed to create state");
+    state
+        .full(params, &audio_data[..])
         .expect("failed to run model");
 
     // fetch the results
-    let num_segments = ctx
-        .full_n_segments(&state)
+    let num_segments = state
+        .full_n_segments()
         .expect("failed to get number of segments");
     for i in 0..num_segments {
-        let segment = ctx
-            .full_get_segment_text(&state, i)
+        let segment = state
+            .full_get_segment_text(i)
             .expect("failed to get segment");
-        let start_timestamp = ctx
-            .full_get_segment_t0(&state, i)
+        let start_timestamp = state
+            .full_get_segment_t0(i)
             .expect("failed to get segment start timestamp");
-        let end_timestamp = ctx
-            .full_get_segment_t1(&state, i)
+        let end_timestamp = state
+            .full_get_segment_t1(i)
             .expect("failed to get segment end timestamp");
         println!("[{} - {}]: {}", start_timestamp, end_timestamp, segment);
     }
