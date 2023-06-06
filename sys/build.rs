@@ -163,8 +163,6 @@ fn main() {
     // clean the whisper build directory to prevent Cargo from complaining during crate publish
     env::set_current_dir("..").expect("Unable to change directory to whisper.cpp");
     _ = std::fs::remove_dir_all("build");
-    // for whatever reason this file is generated during build and triggers cargo complaining
-    _ = std::fs::remove_file("bindings/javascript/package.json");
 }
 
 // From https://github.com/alexcrichton/cc-rs/blob/fba7feded71ee4f63cfe885673ead6d7b4f2f454/src/lib.rs#L2462
