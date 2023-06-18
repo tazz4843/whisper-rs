@@ -1,3 +1,7 @@
+# Version 0.8.0 (-sys bindings 0.6.1) (2023-06-18)
+* Fix CUDA and OpenCL build broken due to missing API headers.
+* Use PIC when building whisper.cpp (fixes building a cdylib on x86 Linux)
+
 # Version 0.8.0 (2023-05-14)
 * Update upstream whisper.cpp to v1.4.2 (OpenCL support)
 * Add CUDA and OpenCL support to bindings
