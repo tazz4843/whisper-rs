@@ -3,6 +3,17 @@
 Rust bindings to [whisper.cpp](https://github.com/ggerganov/whisper.cpp/)
 
 ## Usage
+
+```bash
+git clone --recursive https://github.com/tazz4843/whisper-rs.git
+
+cd whisper-rs
+
+cargo run --example basic_use
+
+cargo run --example audio_transcription
+```
+
 ```rust
 use whisper_rs::{WhisperContext, FullParams, SamplingStrategy};
 
