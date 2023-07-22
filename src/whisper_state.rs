@@ -123,12 +123,14 @@ impl<'a> WhisperState<'a> {
     /// # C++ equivalent
     /// `int whisper_set_mel(struct whisper_context * ctx, const float * data, int n_len, int n_mel)`
     pub fn set_mel(&mut self, data: &[f32]) -> Result<(), WhisperError> {
+        let hop_size = 160;
+        let n_len = (data.len() / hop_size) * 2;
         let ret = unsafe {
             whisper_rs_sys::whisper_set_mel_with_state(
                 self.ctx,
                 self.ptr,
                 data.as_ptr(),
-                data.len() as c_int,
+                n_len as c_int,
                 80 as c_int,
             )
         };
