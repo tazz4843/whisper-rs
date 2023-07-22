@@ -1,5 +1,5 @@
 #[cfg(feature = "simd")]
-use std::simd::{f32x16, i16x16};
+use std::simd::{f32x16, i16x16, SimdInt};
 
 /// Convert an array of 16 bit mono audio samples to a vector of 32 bit floats.
 ///
