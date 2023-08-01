@@ -15,6 +15,9 @@ pub use whisper_ctx::WhisperContext;
 pub use whisper_params::{FullParams, SamplingStrategy};
 pub use whisper_state::WhisperState;
 
+pub type WhisperSysContext = whisper_rs_sys::whisper_context;
+pub type WhisperSysState = whisper_rs_sys::whisper_state;
+
 pub type WhisperTokenData = whisper_rs_sys::whisper_token_data;
 pub type WhisperToken = whisper_rs_sys::whisper_token;
 pub type WhisperNewSegmentCallback = whisper_rs_sys::whisper_new_segment_callback;
