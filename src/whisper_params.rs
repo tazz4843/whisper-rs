@@ -24,6 +24,7 @@ pub struct FullParams<'a, 'b> {
     pub(crate) fp: whisper_rs_sys::whisper_full_params,
     phantom_lang: PhantomData<&'a str>,
     phantom_tokens: PhantomData<&'b [c_int]>,
+    progess_callback_safe: Option<Box<dyn FnMut(i32)>>,
 }
 
 impl<'a, 'b> FullParams<'a, 'b> {
@@ -57,6 +58,7 @@ impl<'a, 'b> FullParams<'a, 'b> {
             fp,
             phantom_lang: PhantomData,
             phantom_tokens: PhantomData,
+            progess_callback_safe: None,
         }
     }
 
@@ -368,6 +370,44 @@ impl<'a, 'b> FullParams<'a, 'b> {
         progress_callback: crate::WhisperProgressCallback,
     ) {
         self.fp.progress_callback = progress_callback;
+    }
+
+    /// Set the callback for progress updates, potentially using a closure.
+    ///
+    /// Note that, in order to ensure safety, the callback only accepts the progress in percent.
+    ///
+    /// Defaults to None.
+    pub fn set_progress_callback_safe<F>(&mut self, closure: Option<F>)
+    where
+        F: FnMut(i32) + 'static,
+    {
+        use std::ffi::c_void;
+        use whisper_rs_sys::{whisper_context, whisper_state};
+
+        unsafe extern "C" fn trampoline<F>(
+            _: *mut whisper_context,
+            _: *mut whisper_state,
+            progress: c_int,
+            user_data: *mut c_void,
+        ) where
+            F: FnMut(i32),
+        {
+            let user_data = &mut *(user_data as *mut F);
+            user_data(progress);
+        }
+
+        match closure {
+            Some(mut closure) => {
+                self.fp.progress_callback = Some(trampoline::<F>);
+                self.fp.progress_callback_user_data = &mut closure as *mut F as *mut c_void;
+                self.progess_callback_safe = Some(Box::new(closure));
+            }
+            None => {
+                self.fp.progress_callback = None;
+                self.fp.progress_callback_user_data = 0 as *mut c_void;
+                self.progess_callback_safe = None;
+            }
+        }
     }
 
     /// Set the user data to be passed to the progress callback.

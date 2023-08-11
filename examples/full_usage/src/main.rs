@@ -47,7 +47,8 @@ fn main() {
 
     let ctx = WhisperContext::new(&whisper_path.to_string_lossy()).expect("failed to open model");
     let mut state = ctx.create_state().expect("failed to create key");
-    let params = FullParams::new(SamplingStrategy::default());
+    let mut params = FullParams::new(SamplingStrategy::default());
+    params.set_progress_callback_safe(|progress| println!("Progress callback: {}%", progress));
 
     let st = std::time::Instant::now();
     state
