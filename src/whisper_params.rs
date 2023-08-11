@@ -356,8 +356,8 @@ impl<'a, 'b> FullParams<'a, 'b> {
 
     /// Set the callback for progress updates.
     ///
-    /// Note that this callback has not been Rustified yet (and likely never will be, unless someone else feels the need to do so).
-    /// It is still a C callback.
+    /// Note that is still a C callback.
+    /// See `set_progress_callback_safe` for a limited yet safe version.
     ///
     /// # Safety
     /// Do not use this function unless you know what you are doing.
@@ -375,11 +375,14 @@ impl<'a, 'b> FullParams<'a, 'b> {
     /// Set the callback for progress updates, potentially using a closure.
     ///
     /// Note that, in order to ensure safety, the callback only accepts the progress in percent.
+    /// See `set_progress_callback` if you need to use `whisper_context` and `whisper_state`
+    /// (or extend this one to support their use).
     ///
     /// Defaults to None.
-    pub fn set_progress_callback_safe<F>(&mut self, closure: Option<F>)
+    pub fn set_progress_callback_safe<O, F>(&mut self, closure: O)
     where
         F: FnMut(i32) + 'static,
+        O: Into<Option<F>>,
     {
         use std::ffi::c_void;
         use whisper_rs_sys::{whisper_context, whisper_state};
@@ -396,10 +399,11 @@ impl<'a, 'b> FullParams<'a, 'b> {
             user_data(progress);
         }
 
-        match closure {
+        match closure.into() {
             Some(mut closure) => {
                 self.fp.progress_callback = Some(trampoline::<F>);
                 self.fp.progress_callback_user_data = &mut closure as *mut F as *mut c_void;
+                // store the closure internally to make sure that the pointer above remains valid
                 self.progess_callback_safe = Some(Box::new(closure));
             }
             None => {
