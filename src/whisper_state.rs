@@ -413,6 +413,26 @@ impl<'a> WhisperState<'a> {
         Ok(r_str.to_string())
     }
 
+    /// Get the bytes of the specified segment.
+    ///
+    /// # Arguments
+    /// * segment: Segment index.
+    ///
+    /// # Returns
+    /// Ok(Vec<u8>) on success, Err(WhisperError) on failure.
+    ///
+    /// # C++ equivalent
+    /// `const char * whisper_full_get_segment_text(struct whisper_context * ctx, int i_segment)`
+    pub fn full_get_segment_bytes(&self, segment: c_int) -> Result<Vec<u8>, WhisperError> {
+        let ret =
+            unsafe { whisper_rs_sys::whisper_full_get_segment_text_from_state(self.ptr, segment) };
+        if ret.is_null() {
+            return Err(WhisperError::NullPointer);
+        }
+        let c_str = unsafe { CStr::from_ptr(ret) };
+        Ok(c_str.to_bytes().to_vec())
+    }
+
     /// Get number of tokens in the specified segment.
     ///
     /// # Arguments
