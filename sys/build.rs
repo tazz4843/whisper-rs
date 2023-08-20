@@ -59,6 +59,7 @@ fn main() {
         let bindings = bindgen::Builder::default()
             .header("wrapper.h")
             .clang_arg("-I./whisper.cpp")
+            .clang_arg("-I./ggml.c")
             .parse_callbacks(Box::new(bindgen::CargoCallbacks))
             .generate();
 
