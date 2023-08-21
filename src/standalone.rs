@@ -80,3 +80,33 @@ pub fn print_system_info() -> &'static str {
     let c_str = unsafe { CStr::from_ptr(c_buf) };
     c_str.to_str().unwrap()
 }
+
+/// Programmatically exposes the information provided by `print_system_info`
+///
+/// # C++ equivalent
+/// `int ggml_cpu_has_...`
+pub struct SystemInfo {
+    pub avx: bool,
+    pub avx2: bool,
+    pub fma: bool,
+    pub f16c: bool,
+    pub blas: bool,
+    pub clblast: bool,
+    pub cublas: bool,
+}
+
+impl Default for SystemInfo {
+    fn default() -> Self {
+        unsafe {
+            Self {
+                avx: whisper_rs_sys::ggml_cpu_has_avx() != 0,
+                avx2: whisper_rs_sys::ggml_cpu_has_avx2() != 0,
+                fma: whisper_rs_sys::ggml_cpu_has_fma() != 0,
+                f16c: whisper_rs_sys::ggml_cpu_has_f16c() != 0,
+                blas: whisper_rs_sys::ggml_cpu_has_blas() != 0,
+                clblast: whisper_rs_sys::ggml_cpu_has_clblast() != 0,
+                cublas: whisper_rs_sys::ggml_cpu_has_cublas() != 0,
+            }
+        }
+    }
+}
