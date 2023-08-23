@@ -18,6 +18,8 @@ whisper-rs-sys = { path = "sys", version = "0.6" }
 
 [dev-dependencies]
 hound = "3.5.0"
+[target.'cfg(target_os = "linux")'.dev-dependencies]
+procfs = "0.15.1"
 
 [features]
 default = []

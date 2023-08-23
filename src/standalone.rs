@@ -110,3 +110,23 @@ impl Default for SystemInfo {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::SystemInfo;
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn avx_enabled() {
+        let cpuinfo = procfs::CpuInfo::new().expect("cpuinfo failed");
+        let flags = cpuinfo.flags(0).expect("flags failed");
+        let avx_enabled = flags.contains(&"avx");
+        if avx_enabled {
+            let info = SystemInfo::default();
+            assert!(
+                info.avx,
+                "Whisper should be compiled with AVX support if supported by the platform"
+            );
+        }
+    }
+}
