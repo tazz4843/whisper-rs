@@ -26,7 +26,6 @@ fn main() {
         );
     }
 
-
     let target = env::var("TARGET").unwrap();
     // Link C++ standard library
     if let Some(cpp_stdlib) = get_cpp_link_stdlib(&target) {

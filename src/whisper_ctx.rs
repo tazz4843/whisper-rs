@@ -79,7 +79,12 @@ impl WhisperContext {
     /// # C++ equivalent
     /// `int whisper_ctx_init_openvino_encoder(struct whisper_context * ctx, const char * model_path, const char * device, const char * cache_dir);`
     #[cfg(feature = "openvino")]
-    pub fn init_openvino_encoder(&mut self, model_path: Option<&str>, device: &str, cache_dir: Option<&str>) -> bool {
+    pub fn init_openvino_encoder(
+        &mut self,
+        model_path: Option<&str>,
+        device: &str,
+        cache_dir: Option<&str>,
+    ) -> bool {
         let model_path = model_path.map(|s| CString::new(s).unwrap());
         let device = CString::new(device).unwrap();
         let cache_dir = cache_dir.map(|s| CString::new(s).unwrap());
