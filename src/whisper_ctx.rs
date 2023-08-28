@@ -432,6 +432,23 @@ impl WhisperContext {
     pub fn reset_timings(&self) {
         unsafe { whisper_rs_sys::whisper_reset_timings(self.ctx) }
     }
+
+    // task tokens
+    /// Get the ID of the translate task token.
+    ///
+    /// # C++ equivalent
+    /// `whisper_token whisper_token_translate ()`
+    pub fn token_translate(&self) -> WhisperToken {
+        unsafe { whisper_rs_sys::whisper_token_translate(self.ctx) }
+    }
+
+    /// Get the ID of the transcribe task token.
+    ///
+    /// # C++ equivalent
+    /// `whisper_token whisper_token_transcribe()`
+    pub fn token_transcribe(&self) -> WhisperToken {
+        unsafe { whisper_rs_sys::whisper_token_transcribe(self.ctx) }
+    }
 }
 
 impl Drop for WhisperContext {
