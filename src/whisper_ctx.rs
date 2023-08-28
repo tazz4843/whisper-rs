@@ -405,6 +405,15 @@ impl WhisperContext {
         unsafe { whisper_rs_sys::whisper_token_sot(self.ctx) }
     }
 
+    /// Get the ID of the solm token.
+    ///
+    /// # C++ equivalent
+    /// `whisper_token whisper_token_solm(struct whisper_context * ctx)`
+    #[inline]
+    pub fn token_solm(&self) -> WhisperToken {
+        unsafe { whisper_rs_sys::whisper_token_solm(self.ctx) }
+    }
+
     /// Get the ID of the prev token.
     ///
     /// # C++ equivalent
@@ -414,13 +423,13 @@ impl WhisperContext {
         unsafe { whisper_rs_sys::whisper_token_prev(self.ctx) }
     }
 
-    /// Get the ID of the solm token.
+    /// Get the ID of the nosp token.
     ///
     /// # C++ equivalent
-    /// `whisper_token whisper_token_solm(struct whisper_context * ctx)`
+    /// `whisper_token whisper_token_nosp(struct whisper_context * ctx)`
     #[inline]
-    pub fn token_solm(&self) -> WhisperToken {
-        unsafe { whisper_rs_sys::whisper_token_solm(self.ctx) }
+    pub fn token_nosp(&self) -> WhisperToken {
+        unsafe { whisper_rs_sys::whisper_token_nosp(self.ctx) }
     }
 
     /// Get the ID of the not token.
