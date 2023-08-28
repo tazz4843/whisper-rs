@@ -33,6 +33,7 @@ include = [
 coreml = []
 cuda = []
 opencl = []
+openvino = []
 
 [dependencies]
 

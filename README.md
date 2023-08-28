@@ -62,7 +62,9 @@ See the docs: https://docs.rs/whisper-rs/ for more details.
 
 ## Building
 
-See [BUILDING.md](BUILDING.md) for instructions for building whisper-rs on Windows and OSX M1. Linux builds should just work out of the box.
+See [BUILDING.md](BUILDING.md) for instructions for building whisper-rs on Windows and OSX M1,
+or with OpenVINO on any OS.
+Besides OpenVINO, Linux builds should just work out of the box.
 
 ## Troubleshooting
 
