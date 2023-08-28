@@ -67,7 +67,7 @@ See [BUILDING.md](BUILDING.md) for instructions for building whisper-rs on Windo
 ## Troubleshooting
 
 * Something other than Windows/macOS/Linux isn't working!
-  * I don't have a way to test this platforms, so I can't really help you.
+  * I don't have a way to test these platforms, so I can't really help you.
     * If you can get it working, please open a PR with any changes to make it work and build instructions in BUILDING.md!
 * I get a panic during binding generation build!
   * You can attempt to fix it yourself, or you can set the `WHISPER_DONT_GENERATE_BINDINGS` environment variable.
