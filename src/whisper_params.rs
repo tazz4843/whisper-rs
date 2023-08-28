@@ -208,12 +208,31 @@ impl<'a, 'b> FullParams<'a, 'b> {
 
     /// # EXPERIMENTAL
     ///
+    /// Enables debug mode, such as dumping the log mel spectrogram.
+    ///
+    /// Defaults to false.
+    pub fn set_debug_mode(&mut self, debug: bool) {
+        self.fp.debug_mode = debug;
+    }
+
+    /// # EXPERIMENTAL
+    ///
     /// Overwrite the audio context size. 0 = default.
     /// As with [set_speed_up](FullParams::set_speed_up), this can significantly reduce the accuracy of the transcription.
     ///
     /// Defaults to 0.
     pub fn set_audio_ctx(&mut self, audio_ctx: c_int) {
         self.fp.audio_ctx = audio_ctx;
+    }
+
+    /// # EXPERIMENTAL
+    ///
+    /// Enable tinydiarize support.
+    /// Experimental speaker turn detection.
+    ///
+    /// Defaults to false.
+    pub fn set_tdrz_enable(&mut self, tdrz_enable: bool) {
+        self.fp.tdrz_enable = tdrz_enable;
     }
 
     /// Set tokens to provide the model as initial input.
