@@ -63,8 +63,10 @@ This build may take a significant amount of time, but can save massive headaches
 First, the `openvino` feature must be enabled in your Cargo.toml.
 
 Next, you must set the `OpenVINO_DIR` environment variable to the path where CMake can find
-`OpenVINOConfig.cmake`.
-This is usually in the `cmake` directory of the OpenVINO installation.
+`OpenVINOConfig.cmake`, and the `OpenVINO_SO_DIR` tothe path where the OpenVINO shared
+libraries are located.
+The former is usually in the `runtime/cmake` directory of the OpenVINO installation, and the latter
+is usually in `runtime/lib/intel64`.
 
 If you used the AUR package to install OpenVINO, the location of this file is `/opt/intel/openvino/runtime/cmake`.
 

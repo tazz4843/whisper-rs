@@ -9,21 +9,39 @@ use std::path::PathBuf;
 fn main() {
     // Fail-fast test for OpenVINO
     #[cfg(feature = "openvino")]
-    if let Ok(openvino_dir) = env::var("OpenVINO_DIR") {
-        // see if we can find OpenVINOConfig.cmake
-        let openvino_config_path = PathBuf::from(&openvino_dir).join("OpenVINOConfig.cmake");
-        if !openvino_config_path.exists() {
-            panic!(
-                "Couldn't find OpenVINOConfig.cmake in OpenVINO_DIR. Please set it to the path where `OpenVINOConfig.cmake` can be found.\n\
+    {
+        if let Ok(openvino_dir) = env::var("OpenVINO_DIR") {
+            // see if we can find OpenVINOConfig.cmake
+            let openvino_config_path = PathBuf::from(&openvino_dir).join("OpenVINOConfig.cmake");
+            if !openvino_config_path.exists() {
+                panic!(
+                    "Couldn't find OpenVINOConfig.cmake in OpenVINO_DIR. Please set it to the path where `OpenVINOConfig.cmake` can be found.\n\
                 On Arch Linux, if you installed the AUR package, this path is `/opt/intel/openvino/runtime/cmake/`.\n\
                 Note the `/cmake/` at the end of the path."
+                );
+            }
+        } else {
+            panic!(
+                "Couldn't find the OpenVINO_DIR environment variable. Please set it to the path where `OpenVINOConfig.cmake` can be found.\n\
+            On Arch Linux, if you installed the AUR package, this path is `/opt/intel/openvino/runtime/cmake/`."
             );
         }
-    } else {
-        panic!(
-            "Couldn't find the OpenVINO_DIR environment variable. Please set it to the path where `OpenVINOConfig.cmake` can be found.\n\
-            On Arch Linux, if you installed the AUR package, this path is `/opt/intel/openvino/runtime/cmake/`."
-        );
+
+        if let Ok(openvino_so_dir) = env::var("OpenVINO_SO_DIR") {
+            // check if `libopenvino.so` exists in the directory
+            let openvino_so_path = PathBuf::from(&openvino_so_dir).join("libopenvino.so");
+            if !openvino_so_path.exists() {
+                panic!(
+                    "Couldn't find libopenvino.so in OpenVINO_SO_DIR. Please set it to the path where `libopenvino.so` can be found.\n\
+                On Arch Linux, if you installed the AUR package, this path is `/opt/intel/openvino/runtime/lib/intel64/`."
+                );
+            }
+        } else {
+            panic!(
+                "Couldn't find the OpenVINO_SO_DIR environment variable. Please set it to the path where `libopenvino.so` can be found.\n\
+                 On Arch Linux, if you installed the AUR package, this path is `/opt/intel/openvino/runtime/lib/intel64/`."
+            )
+        }
     }
 
     let target = env::var("TARGET").unwrap();
@@ -65,6 +83,11 @@ fn main() {
                 println!("cargo:rustc-link-search=/opt/cuda/lib64");
             }
         }
+    }
+    #[cfg(feature = "openvino")]
+    {
+        println!("cargo:rustc-link-lib=openvino");
+        println!("cargo:rustc-link-search={}", env::var("OpenVINO_SO_DIR").unwrap());
     }
     println!("cargo:rerun-if-changed=wrapper.h");
 
