@@ -427,7 +427,7 @@ impl<'a, 'b> FullParams<'a, 'b> {
             }
             None => {
                 self.fp.progress_callback = None;
-                self.fp.progress_callback_user_data = 0 as *mut c_void;
+                self.fp.progress_callback_user_data = std::ptr::null_mut::<c_void>();
                 self.progess_callback_safe = None;
             }
         }
