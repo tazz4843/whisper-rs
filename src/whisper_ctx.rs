@@ -367,6 +367,15 @@ impl WhisperContext {
         unsafe { whisper_rs_sys::whisper_token_sot(self.ctx) }
     }
 
+    /// Get the ID of the solm token.
+    ///
+    /// # C++ equivalent
+    /// `whisper_token whisper_token_solm(struct whisper_context * ctx)`
+    #[inline]
+    pub fn token_solm(&self) -> WhisperToken {
+        unsafe { whisper_rs_sys::whisper_token_solm(self.ctx) }
+    }
+
     /// Get the ID of the prev token.
     ///
     /// # C++ equivalent
@@ -376,13 +385,13 @@ impl WhisperContext {
         unsafe { whisper_rs_sys::whisper_token_prev(self.ctx) }
     }
 
-    /// Get the ID of the solm token.
+    /// Get the ID of the nosp token.
     ///
     /// # C++ equivalent
-    /// `whisper_token whisper_token_solm(struct whisper_context * ctx)`
+    /// `whisper_token whisper_token_nosp(struct whisper_context * ctx)`
     #[inline]
-    pub fn token_solm(&self) -> WhisperToken {
-        unsafe { whisper_rs_sys::whisper_token_solm(self.ctx) }
+    pub fn token_nosp(&self) -> WhisperToken {
+        unsafe { whisper_rs_sys::whisper_token_nosp(self.ctx) }
     }
 
     /// Get the ID of the not token.
@@ -431,6 +440,23 @@ impl WhisperContext {
     #[inline]
     pub fn reset_timings(&self) {
         unsafe { whisper_rs_sys::whisper_reset_timings(self.ctx) }
+    }
+
+    // task tokens
+    /// Get the ID of the translate task token.
+    ///
+    /// # C++ equivalent
+    /// `whisper_token whisper_token_translate ()`
+    pub fn token_translate(&self) -> WhisperToken {
+        unsafe { whisper_rs_sys::whisper_token_translate(self.ctx) }
+    }
+
+    /// Get the ID of the transcribe task token.
+    ///
+    /// # C++ equivalent
+    /// `whisper_token whisper_token_transcribe()`
+    pub fn token_transcribe(&self) -> WhisperToken {
+        unsafe { whisper_rs_sys::whisper_token_transcribe(self.ctx) }
     }
 }
 

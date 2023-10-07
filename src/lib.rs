@@ -24,3 +24,5 @@ pub type WhisperNewSegmentCallback = whisper_rs_sys::whisper_new_segment_callbac
 pub type WhisperStartEncoderCallback = whisper_rs_sys::whisper_encoder_begin_callback;
 pub type WhisperProgressCallback = whisper_rs_sys::whisper_progress_callback;
 pub type WhisperLogitsFilterCallback = whisper_rs_sys::whisper_logits_filter_callback;
+pub type WhisperAbortCallback = whisper_rs_sys::whisper_abort_callback;
+pub type WhisperLogCallback = whisper_rs_sys::whisper_log_callback;

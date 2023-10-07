@@ -208,12 +208,31 @@ impl<'a, 'b> FullParams<'a, 'b> {
 
     /// # EXPERIMENTAL
     ///
+    /// Enables debug mode, such as dumping the log mel spectrogram.
+    ///
+    /// Defaults to false.
+    pub fn set_debug_mode(&mut self, debug: bool) {
+        self.fp.debug_mode = debug;
+    }
+
+    /// # EXPERIMENTAL
+    ///
     /// Overwrite the audio context size. 0 = default.
     /// As with [set_speed_up](FullParams::set_speed_up), this can significantly reduce the accuracy of the transcription.
     ///
     /// Defaults to 0.
     pub fn set_audio_ctx(&mut self, audio_ctx: c_int) {
         self.fp.audio_ctx = audio_ctx;
+    }
+
+    /// # EXPERIMENTAL
+    ///
+    /// Enable tinydiarize support.
+    /// Experimental speaker turn detection.
+    ///
+    /// Defaults to false.
+    pub fn set_tdrz_enable(&mut self, tdrz_enable: bool) {
+        self.fp.tdrz_enable = tdrz_enable;
     }
 
     /// Set tokens to provide the model as initial input.
@@ -484,6 +503,31 @@ impl<'a, 'b> FullParams<'a, 'b> {
         user_data: *mut std::ffi::c_void,
     ) {
         self.fp.logits_filter_callback_user_data = user_data;
+    }
+
+    /// Set the callback that is called each time before ggml computation starts.
+    ///
+    /// Note that this callback has not been Rustified yet (and likely never will be, unless someone else feels the need to do so).
+    /// It is still a C callback.
+    ///
+    /// # Safety
+    /// Do not use this function unless you know what you are doing.
+    /// * Be careful not to mutate the state of the whisper_context pointer returned in the callback.
+    ///   This could cause undefined behavior, as this violates the thread-safety guarantees of the underlying C library.
+    ///
+    /// Defaults to None.
+    pub unsafe fn set_abort_callback(&mut self, abort_callback: crate::WhisperAbortCallback) {
+        self.fp.abort_callback = abort_callback;
+    }
+
+    /// Set the user data to be passed to the abort callback.
+    ///
+    /// # Safety
+    /// See the safety notes for `set_abort_callback`.
+    ///
+    /// Defaults to None.
+    pub unsafe fn set_abort_callback_user_data(&mut self, user_data: *mut std::ffi::c_void) {
+        self.fp.abort_callback_user_data = user_data;
     }
 }
 
