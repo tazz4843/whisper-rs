@@ -504,6 +504,31 @@ impl<'a, 'b> FullParams<'a, 'b> {
     ) {
         self.fp.logits_filter_callback_user_data = user_data;
     }
+
+    /// Set the callback that is called each time before ggml computation starts.
+    ///
+    /// Note that this callback has not been Rustified yet (and likely never will be, unless someone else feels the need to do so).
+    /// It is still a C callback.
+    ///
+    /// # Safety
+    /// Do not use this function unless you know what you are doing.
+    /// * Be careful not to mutate the state of the whisper_context pointer returned in the callback.
+    ///   This could cause undefined behavior, as this violates the thread-safety guarantees of the underlying C library.
+    ///
+    /// Defaults to None.
+    pub unsafe fn set_abort_callback(&mut self, abort_callback: crate::WhisperAbortCallback) {
+        self.fp.abort_callback = abort_callback;
+    }
+
+    /// Set the user data to be passed to the abort callback.
+    ///
+    /// # Safety
+    /// See the safety notes for `set_abort_callback`.
+    ///
+    /// Defaults to None.
+    pub unsafe fn set_abort_callback_user_data(&mut self, user_data: *mut std::ffi::c_void) {
+        self.fp.abort_callback_user_data = user_data;
+    }
 }
 
 // following implementations are safe
