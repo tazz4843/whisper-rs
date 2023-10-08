@@ -22,6 +22,8 @@ include = [
     "whisper.cpp/ggml-alloc.h",
     "whisper.cpp/ggml-alloc.c",
     "whisper.cpp/ggml-metal.metal",
+    "whisper.cpp/ggml-metal.m",
+    "whisper.cpp/ggml-metal.h",
     "whisper.cpp/LICENSE",
     "whisper.cpp/whisper.cpp",
     "whisper.cpp/whisper.h",
