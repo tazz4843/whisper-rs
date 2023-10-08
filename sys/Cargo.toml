@@ -38,6 +38,7 @@ include = [
 coreml = []
 cuda = []
 opencl = []
+openblas = []
 
 [dependencies]
 
