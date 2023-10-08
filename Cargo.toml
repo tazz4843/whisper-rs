@@ -26,6 +26,7 @@ simd = []
 coreml = ["whisper-rs-sys/coreml"]
 cuda = ["whisper-rs-sys/cuda"]
 opencl = ["whisper-rs-sys/opencl"]
+openblas = ["whisper-rs-sys/openblas"]
 test-with-tiny-model = []
 
 [package.metadata.docs.rs]
