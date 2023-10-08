@@ -31,6 +31,10 @@ fn main() {
         println!("cargo:rustc-link-lib=clblast");
         println!("cargo:rustc-link-lib=OpenCL");
     }
+    #[cfg(feature = "openblas")]
+    {
+        println!("cargo:rustc-link-lib=openblas");
+    }
     #[cfg(feature = "cuda")]
     {
         println!("cargo:rustc-link-lib=cublas");
@@ -108,6 +112,9 @@ fn main() {
 
     #[cfg(feature = "cuda")]
     cmd.arg("-DWHISPER_CUBLAS=ON");
+
+    #[cfg(feature = "openblas")]
+    cmd.arg("-DWHISPER_OPENBLAS=ON");
 
     #[cfg(feature = "opencl")]
     cmd.arg("-DWHISPER_CLBLAST=ON");
