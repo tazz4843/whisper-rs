@@ -98,6 +98,7 @@ fn main() {
         .arg("-DCMAKE_BUILD_TYPE=Release")
         .arg("-DBUILD_SHARED_LIBS=OFF")
         .arg("-DWHISPER_ALL_WARNINGS=OFF")
+        .arg("-DWHISPER_NO_AVX=ON")
         .arg("-DWHISPER_ALL_WARNINGS_3RD_PARTY=OFF")
         .arg("-DWHISPER_BUILD_TESTS=OFF")
         .arg("-DWHISPER_BUILD_EXAMPLES=OFF");
