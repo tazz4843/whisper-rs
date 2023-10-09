@@ -124,7 +124,7 @@ fn main() {
 
     #[cfg(feature = "opencl")]
     cmd.arg("-DWHISPER_CLBLAST=ON");
-    
+
     cfg_if! {
         if #[cfg(feature = "metal")] {
             cmd.arg("-DWHISPER_METAL=ON");
