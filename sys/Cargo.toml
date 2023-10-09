@@ -39,6 +39,7 @@ coreml = []
 cuda = []
 opencl = []
 openblas = []
+metal = []
 
 [dependencies]
 

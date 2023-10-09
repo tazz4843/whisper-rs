@@ -20,6 +20,12 @@ fn main() {
             println!("cargo:rustc-link-lib=framework=Foundation");
             println!("cargo:rustc-link-lib=framework=CoreML");
         }
+        #[cfg(feature = "metal")]
+        {
+            println!("cargo:rustc-link-lib=framework=Foundation");
+            println!("cargo:rustc-link-lib=framework=Metal");
+            println!("cargo:rustc-link-lib=framework=MetalKit");
+        }
     }
 
     println!("cargo:rustc-link-search={}", env::var("OUT_DIR").unwrap());
@@ -118,6 +124,15 @@ fn main() {
 
     #[cfg(feature = "opencl")]
     cmd.arg("-DWHISPER_CLBLAST=ON");
+    
+    cfg_if! {
+        if #[cfg(feature = "metal")] {
+            cmd.arg("-DWHISPER_METAL=ON");
+        } else {
+            // Metal is enabled by default so we need to explicitly disable it
+            cmd.arg("-DWHISPER_METAL=OFF");
+        }
+    };
 
     cmd.arg("-DCMAKE_POSITION_INDEPENDENT_CODE=ON");
 
