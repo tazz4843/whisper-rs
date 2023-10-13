@@ -2,7 +2,7 @@
 
 extern crate bindgen;
 
-use cfg_if::cfg_if;
+use cmake::Config;
 use std::env;
 use std::path::PathBuf;
 
@@ -22,8 +22,6 @@ fn main() {
         }
     }
 
-    println!("cargo:rustc-link-search={}", env::var("OUT_DIR").unwrap());
-    println!("cargo:rustc-link-lib=static=whisper");
     #[cfg(feature = "coreml")]
     println!("cargo:rustc-link-lib=static=whisper.coreml");
     #[cfg(feature = "opencl")]
@@ -40,7 +38,7 @@ fn main() {
         println!("cargo:rustc-link-lib=cublas");
         println!("cargo:rustc-link-lib=cudart");
         println!("cargo:rustc-link-lib=cublasLt");
-        cfg_if! {
+        cfg_if::cfg_if! {
             if #[cfg(target_os = "windows")] {
                 let cuda_path = PathBuf::from(env::var("CUDA_PATH").unwrap()).join("lib/x64");
                 println!("cargo:rustc-link-search={}", cuda_path.display());
@@ -53,17 +51,27 @@ fn main() {
     }
     println!("cargo:rerun-if-changed=wrapper.h");
 
+    let out = PathBuf::from(env::var("OUT_DIR").unwrap());
+    let whisper_root = out.join("whisper.cpp/");
+
+    if !whisper_root.exists() {
+        std::fs::create_dir_all(&whisper_root).unwrap();
+        fs_extra::dir::copy("./whisper.cpp", &out, &Default::default()).unwrap_or_else(|e| {
+            panic!(
+                "Failed to copy whisper sources into {}: {}",
+                whisper_root.display(),
+                e
+            )
+        });
+    }
+
     if env::var("WHISPER_DONT_GENERATE_BINDINGS").is_ok() {
-        let _: u64 = std::fs::copy(
-            "src/bindings.rs",
-            env::var("OUT_DIR").unwrap() + "/bindings.rs",
-        )
-        .expect("Failed to copy bindings.rs");
+        let _: u64 = std::fs::copy("src/bindings.rs", out.join("bindings.rs"))
+            .expect("Failed to copy bindings.rs");
     } else {
         let bindings = bindgen::Builder::default()
             .header("wrapper.h")
             .clang_arg("-I./whisper.cpp")
-            .clang_arg("-I./ggml.c")
             .parse_callbacks(Box::new(bindgen::CargoCallbacks))
             .generate();
 
@@ -77,11 +85,8 @@ fn main() {
                 println!("cargo:warning=Unable to generate bindings: {}", e);
                 println!("cargo:warning=Using bundled bindings.rs, which may be out of date");
                 // copy src/bindings.rs to OUT_DIR
-                std::fs::copy(
-                    "src/bindings.rs",
-                    env::var("OUT_DIR").unwrap() + "/bindings.rs",
-                )
-                .expect("Unable to copy bindings.rs");
+                std::fs::copy("src/bindings.rs", out.join("bindings.rs"))
+                    .expect("Unable to copy bindings.rs");
             }
         }
     };
@@ -91,86 +96,48 @@ fn main() {
         return;
     }
 
-    // build libwhisper.a
-    env::set_current_dir("whisper.cpp").expect("Unable to change directory to whisper.cpp");
-    _ = std::fs::remove_dir_all("build");
-    _ = std::fs::create_dir("build");
-    env::set_current_dir("build").expect("Unable to change directory to whisper.cpp build");
+    let mut config = Config::new(&whisper_root);
 
-    let mut cmd = std::process::Command::new("cmake");
-    cmd.arg("..")
-        .arg("-DCMAKE_BUILD_TYPE=Release")
-        .arg("-DBUILD_SHARED_LIBS=OFF")
-        .arg("-DWHISPER_ALL_WARNINGS=OFF")
-        .arg("-DWHISPER_ALL_WARNINGS_3RD_PARTY=OFF")
-        .arg("-DWHISPER_BUILD_TESTS=OFF")
-        .arg("-DWHISPER_BUILD_EXAMPLES=OFF");
+    config
+        .profile("Release")
+        .define("BUILD_SHARED_LIBS", "OFF")
+        .define("WHISPER_ALL_WARNINGS", "OFF")
+        .define("WHISPER_ALL_WARNINGS_3RD_PARTY", "OFF")
+        .define("WHISPER_BUILD_TESTS", "OFF")
+        .define("WHISPER_BUILD_EXAMPLES", "OFF")
+        .very_verbose(true)
+        .pic(true);
 
-    #[cfg(feature = "coreml")]
-    cmd.arg("-DWHISPER_COREML=ON")
-        .arg("-DWHISPER_COREML_ALLOW_FALLBACK=1");
-
-    #[cfg(feature = "cuda")]
-    cmd.arg("-DWHISPER_CUBLAS=ON");
-
-    #[cfg(feature = "openblas")]
-    cmd.arg("-DWHISPER_OPENBLAS=ON");
-
-    #[cfg(feature = "opencl")]
-    cmd.arg("-DWHISPER_CLBLAST=ON");
-
-    cmd.arg("-DCMAKE_POSITION_INDEPENDENT_CODE=ON");
-
-    let code = cmd
-        .status()
-        .expect("Failed to run `cmake` (is CMake installed?)");
-    if code.code() != Some(0) {
-        panic!("Failed to run `cmake` (is CMake installed?)");
+    if cfg!(feature = "coreml") {
+        config.define("WHISPER_COREML", "ON");
+        config.define("WHISPER_COREML_ALLOW_FALLBACK", "1");
     }
 
-    let code = std::process::Command::new("cmake")
-        .arg("--build")
-        .arg(".")
-        .arg("--config")
-        .arg("Release")
-        .status()
-        .expect("Failed to build libwhisper.a (is CMake installed?)");
-    if code.code() != Some(0) {
-        panic!("Failed to build libwhisper.a (is CMake installed?)");
+    if cfg!(feature = "cuda") {
+        config.define("WHISPER_CUBLAS", "ON");
     }
 
-    // move libwhisper.a to where Cargo expects it (OUT_DIR)
-    cfg_if! {
-        if #[cfg(target_os = "windows")] {
-            std::fs::copy(
-                "Release/whisper.lib",
-                format!("{}/whisper.lib", env::var("OUT_DIR").unwrap()),
-            )
-            .expect("Failed to copy libwhisper.lib");
-        } else {
-            std::fs::copy(
-                "libwhisper.a",
-                format!("{}/libwhisper.a", env::var("OUT_DIR").unwrap()),
-            )
-            .expect("Failed to copy libwhisper.a");
-        }
+    if cfg!(feature = "openblas") {
+        config.define("WHISPER_OPENBLAS", "ON");
     }
 
-    // if on iOS or macOS, with coreml feature enabled, copy libwhisper.coreml.a as well
-    cfg_if! {
-        if #[cfg(all(feature = "coreml", any(target_os = "ios", target_os = "macos")))]
-        {
-            std::fs::copy(
-                "libwhisper.coreml.a",
-                format!("{}/libwhisper.coreml.a", env::var("OUT_DIR").unwrap()),
-            )
-            .expect("Failed to copy libwhisper.coreml.a");
-        }
+    if cfg!(feature = "opencl") {
+        config.define("WHISPER_CLBLAST", "ON");
     }
 
-    // clean the whisper build directory to prevent Cargo from complaining during crate publish
-    env::set_current_dir("..").expect("Unable to change directory to whisper.cpp");
-    _ = std::fs::remove_dir_all("build");
+    let destination = config.build();
+
+    if env::var("TARGET").unwrap().contains("window") {
+        println!(
+            "cargo:rustc-link-search={}",
+            out.join("build").join("Release").display()
+        );
+    } else {
+        println!("cargo:rustc-link-search={}", out.join("build").display());
+    }
+    println!("cargo:rustc-link-search=native={}", destination.display());
+    println!("cargo:rustc-link-lib=static=whisper");
+
     // for whatever reason this file is generated during build and triggers cargo complaining
     _ = std::fs::remove_file("bindings/javascript/package.json");
 }
