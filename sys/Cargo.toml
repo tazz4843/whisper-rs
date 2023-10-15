@@ -1,6 +1,6 @@
 [package]
 name = "whisper-rs-sys"
-version = "0.7.2"
+version = "0.7.3"
 edition = "2021"
 description = "Rust bindings for whisper.cpp (FFI bindings)"
 license = "Unlicense"
@@ -40,8 +40,8 @@ cuda = []
 opencl = []
 openblas = []
 
-[dependencies]
-
 [build-dependencies]
-bindgen = "0.64"
+cmake = "0.1"
+bindgen = "0.68"
 cfg-if = "1"
+fs_extra = "1.3"
