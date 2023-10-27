@@ -130,6 +130,13 @@ fn main() {
     if cfg!(feature = "opencl") {
         config.define("WHISPER_CLBLAST", "ON");
     }
+    
+    if cfg!(feature = "metal") {
+        config.define("WHISPER_METAL", "ON");
+    } else {
+        // Metal is enabled by default, so we need to explicitly disable it
+        config.define("WHISPER_METAL", "OFF");
+    }
 
     let destination = config.build();
 
