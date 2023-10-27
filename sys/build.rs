@@ -130,7 +130,7 @@ fn main() {
     if cfg!(feature = "opencl") {
         config.define("WHISPER_CLBLAST", "ON");
     }
-    
+
     if cfg!(feature = "metal") {
         config.define("WHISPER_METAL", "ON");
     } else {
