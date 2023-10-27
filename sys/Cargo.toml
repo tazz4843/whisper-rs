@@ -39,6 +39,7 @@ coreml = []
 cuda = []
 opencl = []
 openblas = []
+metal = []
 
 [build-dependencies]
 cmake = "0.1"

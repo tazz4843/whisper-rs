@@ -20,6 +20,12 @@ fn main() {
             println!("cargo:rustc-link-lib=framework=Foundation");
             println!("cargo:rustc-link-lib=framework=CoreML");
         }
+        #[cfg(feature = "metal")]
+        {
+            println!("cargo:rustc-link-lib=framework=Foundation");
+            println!("cargo:rustc-link-lib=framework=Metal");
+            println!("cargo:rustc-link-lib=framework=MetalKit");
+        }
     }
 
     #[cfg(feature = "coreml")]
@@ -123,6 +129,13 @@ fn main() {
 
     if cfg!(feature = "opencl") {
         config.define("WHISPER_CLBLAST", "ON");
+    }
+
+    if cfg!(feature = "metal") {
+        config.define("WHISPER_METAL", "ON");
+    } else {
+        // Metal is enabled by default, so we need to explicitly disable it
+        config.define("WHISPER_METAL", "OFF");
     }
 
     let destination = config.build();
