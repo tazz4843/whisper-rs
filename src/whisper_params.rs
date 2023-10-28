@@ -21,7 +21,7 @@ impl Default for SamplingStrategy {
 }
 
 #[derive(Debug, Clone)]
-pub struct SegmentCallbackData {    
+pub struct SegmentCallbackData {
     pub segment: i32,
     pub start_timestamp: i64,
     pub end_timestamp: i64,
@@ -33,7 +33,7 @@ pub struct FullParams<'a, 'b> {
     phantom_lang: PhantomData<&'a str>,
     phantom_tokens: PhantomData<&'b [c_int]>,
     progess_callback_safe: Option<Box<dyn FnMut(i32)>>,
-    segment_calllback_safe: Option<Box<dyn FnMut(SegmentCallbackData)>>
+    segment_calllback_safe: Option<Box<dyn FnMut(SegmentCallbackData)>>,
 }
 
 impl<'a, 'b> FullParams<'a, 'b> {
@@ -384,24 +384,23 @@ impl<'a, 'b> FullParams<'a, 'b> {
     }
 
     /// Set the callback for segment updates.
-    /// 
+    ///
     /// Provides a limited segment_callback to ensure safety
     pub fn set_segment_callback_safe<O, F>(&mut self, closure: O)
     where
         F: FnMut(SegmentCallbackData) + 'static,
         O: Into<Option<F>>,
     {
-        use whisper_rs_sys::{whisper_context, whisper_state};
         use std::ffi::{c_void, CStr};
+        use whisper_rs_sys::{whisper_context, whisper_state};
 
         unsafe extern "C" fn trampoline<F>(
             _: *mut whisper_context,
             state: *mut whisper_state,
             n_new: i32,
             user_data: *mut c_void,
-        ) 
-        where
-            F: FnMut(SegmentCallbackData) + 'static
+        ) where
+            F: FnMut(SegmentCallbackData) + 'static,
         {
             let n_segments = whisper_rs_sys::whisper_full_n_segments_from_state(state);
             let s0 = n_segments - n_new;
@@ -416,13 +415,13 @@ impl<'a, 'b> FullParams<'a, 'b> {
 
                 match text.to_str() {
                     Ok(n) => {
-                        user_data(SegmentCallbackData { 
-                            segment: i, 
-                            start_timestamp: t0, 
-                            end_timestamp: t1, 
-                            text: n.to_string() 
+                        user_data(SegmentCallbackData {
+                            segment: i,
+                            start_timestamp: t0,
+                            end_timestamp: t1,
+                            text: n.to_string(),
                         });
-                    },
+                    }
                     Err(_) => {}
                 }
             }
@@ -430,10 +429,10 @@ impl<'a, 'b> FullParams<'a, 'b> {
 
         match closure.into() {
             Some(mut closure) => {
-                self.fp.new_segment_callback_user_data = &mut closure as *mut F as *mut c_void; 
+                self.fp.new_segment_callback_user_data = &mut closure as *mut F as *mut c_void;
                 self.fp.new_segment_callback = Some(trampoline::<F>);
                 self.segment_calllback_safe = Some(Box::new(closure));
-            },
+            }
             None => {
                 self.segment_calllback_safe = None;
                 self.fp.new_segment_callback = None;
@@ -501,7 +500,6 @@ impl<'a, 'b> FullParams<'a, 'b> {
             }
         }
     }
-
 
     /// Set the user data to be passed to the progress callback.
     ///
