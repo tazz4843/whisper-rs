@@ -407,15 +407,12 @@ impl<'a, 'b> FullParams<'a, 'b> {
             let s0 = n_segments - n_new;
             let user_data = &mut *(user_data as *mut F);
 
-            let mut t0: i64;
-            let mut t1: i64;
-
             for i in s0..n_segments {
                 let text = whisper_rs_sys::whisper_full_get_segment_text_from_state(state, i);
                 let text = CStr::from_ptr(text);
 
-                t0 = whisper_rs_sys::whisper_full_get_segment_t0_from_state(state, i);
-                t1 = whisper_rs_sys::whisper_full_get_segment_t1_from_state(state, i);
+                let t0 = whisper_rs_sys::whisper_full_get_segment_t0_from_state(state, i);
+                let t1 = whisper_rs_sys::whisper_full_get_segment_t1_from_state(state, i);
 
                 match text.to_str() {
                     Ok(n) => {
