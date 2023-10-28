@@ -22,10 +22,10 @@ impl Default for SamplingStrategy {
 
 #[derive(Debug, Clone)]
 pub struct SegmentCallbackData {    
-    segment: i32,
-    start_timestamp: i64,
-    end_timestamp: i64,
-    text: String,
+    pub segment: i32,
+    pub start_timestamp: i64,
+    pub end_timestamp: i64,
+    pub text: String,
 }
 
 pub struct FullParams<'a, 'b> {
