@@ -25,6 +25,7 @@ pub struct FullParams<'a, 'b> {
     phantom_lang: PhantomData<&'a str>,
     phantom_tokens: PhantomData<&'b [c_int]>,
     progess_callback_safe: Option<Box<dyn FnMut(i32)>>,
+    segment_calllback_safe: Option<Box<dyn FnMut(String)>>
 }
 
 impl<'a, 'b> FullParams<'a, 'b> {
@@ -59,6 +60,7 @@ impl<'a, 'b> FullParams<'a, 'b> {
             phantom_lang: PhantomData,
             phantom_tokens: PhantomData,
             progess_callback_safe: None,
+            segment_calllback_safe: None,
         }
     }
 
@@ -373,6 +375,54 @@ impl<'a, 'b> FullParams<'a, 'b> {
         self.fp.new_segment_callback_user_data = user_data;
     }
 
+    pub fn set_segment_callback_safe<O, F>(&mut self, closure: O)
+    where
+        F: FnMut(String) + 'static,
+        O: Into<Option<F>>,
+    {
+        use whisper_rs_sys::{whisper_context, whisper_state};
+        use std::ffi::{c_void, CStr};
+
+        unsafe extern "C" fn trampoline<F>(
+            _: *mut whisper_context,
+            state: *mut whisper_state,
+            n_new: i32,
+            user_data: *mut c_void,
+        ) 
+        where
+            F: FnMut(String) + 'static
+        {
+            let n_segments = whisper_rs_sys::whisper_full_n_segments_from_state(state);
+            let s0 = n_segments - n_new;
+            let user_data = &mut *(user_data as *mut F);
+
+            for i in s0..n_segments {
+                let text = whisper_rs_sys::whisper_full_get_segment_text_from_state(state, i);
+                let text = CStr::from_ptr(text);
+
+                match text.to_str() {
+                    Ok(n) => {
+                        user_data(n.to_string());
+                    },
+                    Err(_) => {}
+                }
+            }
+        }
+
+        match closure.into() {
+            Some(mut closure) => {
+                self.fp.new_segment_callback_user_data = &mut closure as *mut F as *mut c_void; 
+                self.fp.new_segment_callback = Some(trampoline::<F>);
+                self.segment_calllback_safe = Some(Box::new(closure));
+            },
+            None => {
+                self.segment_calllback_safe = None;
+                self.fp.new_segment_callback = None;
+                self.fp.new_segment_callback_user_data = std::ptr::null_mut::<c_void>();
+            }
+        }
+    }
+
     /// Set the callback for progress updates.
     ///
     /// Note that is still a C callback.
@@ -432,6 +482,7 @@ impl<'a, 'b> FullParams<'a, 'b> {
             }
         }
     }
+
 
     /// Set the user data to be passed to the progress callback.
     ///
