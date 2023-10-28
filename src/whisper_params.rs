@@ -20,12 +20,20 @@ impl Default for SamplingStrategy {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct SegmentCallbackData {    
+    segment: i32,
+    start_timestamp: i64,
+    end_timestamp: i64,
+    text: String,
+}
+
 pub struct FullParams<'a, 'b> {
     pub(crate) fp: whisper_rs_sys::whisper_full_params,
     phantom_lang: PhantomData<&'a str>,
     phantom_tokens: PhantomData<&'b [c_int]>,
     progess_callback_safe: Option<Box<dyn FnMut(i32)>>,
-    segment_calllback_safe: Option<Box<dyn FnMut(String)>>
+    segment_calllback_safe: Option<Box<dyn FnMut(SegmentCallbackData)>>
 }
 
 impl<'a, 'b> FullParams<'a, 'b> {
@@ -375,9 +383,12 @@ impl<'a, 'b> FullParams<'a, 'b> {
         self.fp.new_segment_callback_user_data = user_data;
     }
 
+    /// Set the callback for segment updates.
+    /// 
+    /// Provides a limited segment_callback to ensure safety
     pub fn set_segment_callback_safe<O, F>(&mut self, closure: O)
     where
-        F: FnMut(String) + 'static,
+        F: FnMut(SegmentCallbackData) + 'static,
         O: Into<Option<F>>,
     {
         use whisper_rs_sys::{whisper_context, whisper_state};
@@ -390,19 +401,30 @@ impl<'a, 'b> FullParams<'a, 'b> {
             user_data: *mut c_void,
         ) 
         where
-            F: FnMut(String) + 'static
+            F: FnMut(SegmentCallbackData) + 'static
         {
             let n_segments = whisper_rs_sys::whisper_full_n_segments_from_state(state);
             let s0 = n_segments - n_new;
             let user_data = &mut *(user_data as *mut F);
 
+            let mut t0: i64;
+            let mut t1: i64;
+
             for i in s0..n_segments {
                 let text = whisper_rs_sys::whisper_full_get_segment_text_from_state(state, i);
                 let text = CStr::from_ptr(text);
 
+                t0 = whisper_rs_sys::whisper_full_get_segment_t0_from_state(state, i);
+                t1 = whisper_rs_sys::whisper_full_get_segment_t1_from_state(state, i);
+
                 match text.to_str() {
                     Ok(n) => {
-                        user_data(n.to_string());
+                        user_data(SegmentCallbackData { 
+                            segment: i, 
+                            start_timestamp: t0, 
+                            end_timestamp: t1, 
+                            text: n.to_string() 
+                        });
                     },
                     Err(_) => {}
                 }
