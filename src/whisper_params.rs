@@ -385,7 +385,10 @@ impl<'a, 'b> FullParams<'a, 'b> {
 
     /// Set the callback for segment updates.
     ///
-    /// Provides a limited segment_callback to ensure safety
+    /// Provides a limited segment_callback to ensure safety.
+    /// See `set_new_segment_callback` if you need to use `whisper_context` and `whisper_state`
+    /// 
+    /// Defaults to None.
     pub fn set_segment_callback_safe<O, F>(&mut self, closure: O)
     where
         F: FnMut(SegmentCallbackData) + 'static,
