@@ -28,12 +28,14 @@ pub struct SegmentCallbackData {
     pub text: String,
 }
 
+type SegmentCallbackFn = Box<dyn FnMut(SegmentCallbackData)>;
+
 pub struct FullParams<'a, 'b> {
     pub(crate) fp: whisper_rs_sys::whisper_full_params,
     phantom_lang: PhantomData<&'a str>,
     phantom_tokens: PhantomData<&'b [c_int]>,
     progess_callback_safe: Option<Box<dyn FnMut(i32)>>,
-    segment_calllback_safe: Option<Box<dyn FnMut(SegmentCallbackData)>>,
+    segment_calllback_safe: Option<SegmentCallbackFn>,
 }
 
 impl<'a, 'b> FullParams<'a, 'b> {
@@ -397,7 +399,7 @@ impl<'a, 'b> FullParams<'a, 'b> {
         use std::ffi::{c_void, CStr};
         use whisper_rs_sys::{whisper_context, whisper_state};
 
-        unsafe extern "C" fn trampoline<F>(
+        extern "C" fn trampoline<F>(
             _: *mut whisper_context,
             state: *mut whisper_state,
             n_new: i32,
@@ -405,36 +407,46 @@ impl<'a, 'b> FullParams<'a, 'b> {
         ) where
             F: FnMut(SegmentCallbackData) + 'static,
         {
-            let n_segments = whisper_rs_sys::whisper_full_n_segments_from_state(state);
-            let s0 = n_segments - n_new;
-            let user_data = &mut *(user_data as *mut F);
+            unsafe {
+                let user_data = &mut *(user_data as *mut SegmentCallbackFn);
+                let n_segments = whisper_rs_sys::whisper_full_n_segments_from_state(state);
+                let s0 = n_segments - n_new;
+                //let user_data = user_data as *mut Box<dyn FnMut(SegmentCallbackData)>;
 
-            for i in s0..n_segments {
-                let text = whisper_rs_sys::whisper_full_get_segment_text_from_state(state, i);
-                let text = CStr::from_ptr(text);
+                for i in s0..n_segments {
+                    let text = whisper_rs_sys::whisper_full_get_segment_text_from_state(state, i);
+                    let text = CStr::from_ptr(text);
 
-                let t0 = whisper_rs_sys::whisper_full_get_segment_t0_from_state(state, i);
-                let t1 = whisper_rs_sys::whisper_full_get_segment_t1_from_state(state, i);
+                    let t0 = whisper_rs_sys::whisper_full_get_segment_t0_from_state(state, i);
+                    let t1 = whisper_rs_sys::whisper_full_get_segment_t1_from_state(state, i);
 
-                match text.to_str() {
-                    Ok(n) => {
-                        user_data(SegmentCallbackData {
-                            segment: i,
-                            start_timestamp: t0,
-                            end_timestamp: t1,
-                            text: n.to_string(),
-                        });
+                    match text.to_str() {
+                        Ok(n) => {
+                            user_data(SegmentCallbackData {
+                                segment: i,
+                                start_timestamp: t0,
+                                end_timestamp: t1,
+                                text: n.to_string(),
+                            })
+                        }
+                        Err(_) => {}
                     }
-                    Err(_) => {}
                 }
             }
         }
 
         match closure.into() {
-            Some(mut closure) => {
-                self.fp.new_segment_callback_user_data = &mut closure as *mut F as *mut c_void;
-                self.fp.new_segment_callback = Some(trampoline::<F>);
-                self.segment_calllback_safe = Some(Box::new(closure));
+            Some(closure) => {
+                // Stable address
+                let closure = Box::new(closure) as SegmentCallbackFn;
+                // Thin pointer
+                let closure = Box::new(closure);
+                // Raw pointer 
+                let closure = Box::into_raw(closure);
+
+                self.fp.new_segment_callback_user_data = closure as *mut c_void;
+                self.fp.new_segment_callback = Some(trampoline::<SegmentCallbackFn>);
+                self.segment_calllback_safe = None; 
             }
             None => {
                 self.segment_calllback_safe = None;
