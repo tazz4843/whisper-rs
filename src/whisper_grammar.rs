@@ -5,7 +5,8 @@ use whisper_rs_sys::{
     whisper_gretype_WHISPER_GRETYPE_RULE_REF,
 };
 
-#[repr(u32)]
+#[cfg_attr(not(windows), repr(u32))]
+#[cfg_attr(windows, repr(i32))] // windows being *special* again
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum WhisperGrammarElementType {
     /// End of rule definition
