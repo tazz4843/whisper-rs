@@ -1,3 +1,4 @@
+use crate::whisper_grammar::WhisperGrammarElement;
 use std::ffi::{c_float, c_int, CString};
 use std::marker::PhantomData;
 use whisper_rs_sys::whisper_token;
@@ -24,6 +25,7 @@ pub struct FullParams<'a, 'b> {
     pub(crate) fp: whisper_rs_sys::whisper_full_params,
     phantom_lang: PhantomData<&'a str>,
     phantom_tokens: PhantomData<&'b [c_int]>,
+    grammar: Option<Vec<whisper_rs_sys::whisper_grammar_element>>,
     progess_callback_safe: Option<Box<dyn FnMut(i32)>>,
 }
 
@@ -58,6 +60,7 @@ impl<'a, 'b> FullParams<'a, 'b> {
             fp,
             phantom_lang: PhantomData,
             phantom_tokens: PhantomData,
+            grammar: None,
             progess_callback_safe: None,
         }
     }
@@ -102,6 +105,13 @@ impl<'a, 'b> FullParams<'a, 'b> {
     /// Defaults to false.
     pub fn set_no_context(&mut self, no_context: bool) {
         self.fp.no_context = no_context;
+    }
+
+    /// Do not generate timestamps.
+    ///
+    /// Defaults to false.
+    pub fn set_no_timestamps(&mut self, no_timestamps: bool) {
+        self.fp.no_timestamps = no_timestamps;
     }
 
     /// Force single segment output. This may be useful for streaming.
@@ -528,6 +538,46 @@ impl<'a, 'b> FullParams<'a, 'b> {
     /// Defaults to None.
     pub unsafe fn set_abort_callback_user_data(&mut self, user_data: *mut std::ffi::c_void) {
         self.fp.abort_callback_user_data = user_data;
+    }
+
+    /// Enable an array of grammar elements to be passed to the whisper model.
+    ///
+    /// Defaults to an empty vector.
+    pub fn set_grammar(&mut self, grammar: Option<&[WhisperGrammarElement]>) {
+        if let Some(grammar) = grammar {
+            // convert to c types
+            let inner = grammar.iter().map(|e| e.to_c_type()).collect::<Vec<_>>();
+            // turn into ptr and len
+            let grammar_ptr = inner.as_ptr() as *mut _;
+            let grammar_len = inner.len();
+
+            self.grammar = Some(inner);
+
+            // set the grammar
+            self.fp.grammar_rules = grammar_ptr;
+            self.fp.n_grammar_rules = grammar_len;
+        } else {
+            self.grammar = None;
+            self.fp.grammar_rules = std::ptr::null_mut();
+            self.fp.n_grammar_rules = 0;
+            self.fp.i_start_rule = 0;
+        }
+    }
+
+    /// Set the start grammar rule. Does nothing if no grammar is set.
+    ///
+    /// Defaults to 0.
+    pub fn set_start_rule(&mut self, start_rule: usize) {
+        if self.grammar.is_some() {
+            self.fp.i_start_rule = start_rule;
+        }
+    }
+
+    /// Set grammar penalty.
+    ///
+    /// Defaults to 100.0.
+    pub fn set_grammar_penalty(&mut self, grammar_penalty: f32) {
+        self.fp.grammar_penalty = grammar_penalty;
     }
 }
 

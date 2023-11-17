@@ -5,7 +5,7 @@ use std::ffi::{c_int, CStr, CString};
 
 /// Safe Rust wrapper around a Whisper context.
 ///
-/// You likely want to create this with [WhisperContext::new],
+/// You likely want to create this with [WhisperContext::new_with_params],
 /// then run a full transcription with [WhisperContext::full].
 #[derive(Debug)]
 pub struct WhisperContext {
@@ -13,6 +13,63 @@ pub struct WhisperContext {
 }
 
 impl WhisperContext {
+    /// Create a new WhisperContext from a file, with parameters.
+    ///
+    /// # Arguments
+    /// * path: The path to the model file.
+    /// * parameters: A parameter struct containing the parameters to use.
+    ///
+    /// # Returns
+    /// Ok(Self) on success, Err(WhisperError) on failure.
+    ///
+    /// # C++ equivalent
+    /// `struct whisper_context * whisper_init_from_file_with_params_no_state(const char * path_model, struct whisper_context_params params);`
+    pub fn new_with_params(
+        path: &str,
+        parameters: WhisperContextParameters,
+    ) -> Result<Self, WhisperError> {
+        let path_cstr = CString::new(path)?;
+        let ctx = unsafe {
+            whisper_rs_sys::whisper_init_from_file_with_params_no_state(
+                path_cstr.as_ptr(),
+                parameters.to_c_struct(),
+            )
+        };
+        if ctx.is_null() {
+            Err(WhisperError::InitError)
+        } else {
+            Ok(Self { ctx })
+        }
+    }
+
+    /// Create a new WhisperContext from a buffer.
+    ///
+    /// # Arguments
+    /// * buffer: The buffer containing the model.
+    ///
+    /// # Returns
+    /// Ok(Self) on success, Err(WhisperError) on failure.
+    ///
+    /// # C++ equivalent
+    /// `struct whisper_context * whisper_init_from_buffer_with_params_no_state(void * buffer, size_t buffer_size, struct whisper_context_params params);`
+    pub fn new_from_buffer_with_params(
+        buffer: &[u8],
+        parameters: WhisperContextParameters,
+    ) -> Result<Self, WhisperError> {
+        let ctx = unsafe {
+            whisper_rs_sys::whisper_init_from_buffer_with_params_no_state(
+                buffer.as_ptr() as _,
+                buffer.len(),
+                parameters.to_c_struct(),
+            )
+        };
+        if ctx.is_null() {
+            Err(WhisperError::InitError)
+        } else {
+            Ok(Self { ctx })
+        }
+    }
+
     /// Create a new WhisperContext from a file.
     ///
     /// # Arguments
@@ -22,7 +79,8 @@ impl WhisperContext {
     /// Ok(Self) on success, Err(WhisperError) on failure.
     ///
     /// # C++ equivalent
-    /// `struct whisper_context * whisper_init_from_file(const char * path_model);`
+    /// `struct whisper_context * whisper_init_from_file_no_state(const char * path_model)`
+    #[deprecated = "Use `new_with_params` instead"]
     pub fn new(path: &str) -> Result<Self, WhisperError> {
         let path_cstr = CString::new(path)?;
         let ctx = unsafe { whisper_rs_sys::whisper_init_from_file_no_state(path_cstr.as_ptr()) };
@@ -42,7 +100,8 @@ impl WhisperContext {
     /// Ok(Self) on success, Err(WhisperError) on failure.
     ///
     /// # C++ equivalent
-    /// `struct whisper_context * whisper_init_from_buffer(const char * buffer, int n_bytes);`
+    /// `struct whisper_context * whisper_init_from_buffer_no_state(void * buffer, size_t buffer_size)`
+    #[deprecated = "Use `new_from_buffer_with_params` instead"]
     pub fn new_from_buffer(buffer: &[u8]) -> Result<Self, WhisperError> {
         let ctx = unsafe {
             whisper_rs_sys::whisper_init_from_buffer_no_state(buffer.as_ptr() as _, buffer.len())
@@ -471,6 +530,37 @@ impl Drop for WhisperContext {
 // see https://github.com/ggerganov/whisper.cpp/issues/32#issuecomment-1272790388
 unsafe impl Send for WhisperContext {}
 unsafe impl Sync for WhisperContext {}
+
+pub struct WhisperContextParameters {
+    /// Use GPU if available.
+    ///
+    /// **Warning**: Does not have an effect if OpenCL is selected as GPU backend
+    /// (in that case, GPU is always enabled).
+    pub use_gpu: bool,
+}
+
+#[allow(clippy::derivable_impls)] // this impl cannot be derived
+impl Default for WhisperContextParameters {
+    fn default() -> Self {
+        Self {
+            use_gpu: cfg!(feature = "_gpu"),
+        }
+    }
+}
+impl WhisperContextParameters {
+    pub fn new() -> Self {
+        Self::default()
+    }
+    pub fn use_gpu(mut self, use_gpu: bool) -> Self {
+        self.use_gpu = use_gpu;
+        self
+    }
+    fn to_c_struct(&self) -> whisper_rs_sys::whisper_context_params {
+        whisper_rs_sys::whisper_context_params {
+            use_gpu: self.use_gpu,
+        }
+    }
+}
 
 #[cfg(test)]
 #[cfg(feature = "test-with-tiny-model")]
