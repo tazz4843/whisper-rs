@@ -15,13 +15,16 @@ cargo run --example audio_transcription
 ```
 
 ```rust
-use whisper_rs::{WhisperContext, FullParams, SamplingStrategy};
+use whisper_rs::{WhisperContext, WhisperContextParameters, FullParams, SamplingStrategy};
 
 fn main() {
     let path_to_model = std::env::args().nth(1).unwrap();
 
     // load a context and model
-    let ctx = WhisperContext::new(&path_to_model).expect("failed to load model");
+    let ctx = WhisperContext::new_with_params(
+        path_to_model,
+        WhisperContextParameters::default()
+    ).expect("failed to load model");
 
     // create a params object
     let params = FullParams::new(SamplingStrategy::Greedy { best_of: 1 });

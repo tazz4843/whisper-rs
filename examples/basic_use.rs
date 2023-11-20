@@ -1,13 +1,16 @@
 #![allow(clippy::uninlined_format_args)]
 
-use whisper_rs::{FullParams, SamplingStrategy, WhisperContext};
+use whisper_rs::{FullParams, SamplingStrategy, WhisperContext, WhisperContextParameters};
 
 // note that running this example will not do anything, as it is just a
 // demonstration of how to use the library, and actual usage requires
 // more dependencies than the base library.
 pub fn usage() -> Result<(), &'static str> {
     // load a context and model
-    let ctx = WhisperContext::new("path/to/model").expect("failed to load model");
+    let ctx = WhisperContext::new_with_params(
+        "path/to/model",
+        WhisperContextParameters::default()
+    ).expect("failed to load model");
     // make a state
     let mut state = ctx.create_state().expect("failed to create state");
 

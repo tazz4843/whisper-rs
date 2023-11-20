@@ -4,13 +4,15 @@
 use hound;
 use std::fs::File;
 use std::io::Write;
-use whisper_rs::{FullParams, SamplingStrategy, WhisperContext};
+use whisper_rs::{FullParams, SamplingStrategy, WhisperContext, WhisperContextParameters};
 
 /// Loads a context and model, processes an audio file, and prints the resulting transcript to stdout.
 fn main() -> Result<(), &'static str> {
     // Load a context and model.
-    let ctx = WhisperContext::new("example/path/to/model/whisper.cpp/models/ggml-base.en.bin")
-        .expect("failed to load model");
+    let ctx = WhisperContext::new_with_params(
+        "example/path/to/model/whisper.cpp/models/ggml-base.en.bin",
+        WhisperContextParameters::default()
+    ).expect("failed to load model");
     // Create a state
     let mut state = ctx.create_state().expect("failed to create key");
 
