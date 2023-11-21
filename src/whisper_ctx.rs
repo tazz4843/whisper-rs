@@ -551,7 +551,7 @@ impl WhisperContextParameters {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn use_gpu(mut self, use_gpu: bool) -> Self {
+    pub fn use_gpu(&mut self, use_gpu: bool) -> &mut Self {
         self.use_gpu = use_gpu;
         self
     }
