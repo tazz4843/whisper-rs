@@ -14,6 +14,7 @@ pub use standalone::*;
 pub use utilities::*;
 pub use whisper_ctx::WhisperContext;
 pub use whisper_ctx::WhisperContextParameters;
+pub use whisper_grammar::{WhisperGrammarElement, WhisperGrammarElementType};
 pub use whisper_params::{FullParams, SamplingStrategy};
 pub use whisper_state::WhisperState;
 
