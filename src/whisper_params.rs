@@ -590,6 +590,13 @@ impl<'a, 'b> FullParams<'a, 'b> {
     ///
     /// # Panics
     /// This method will panic if `initial_prompt` contains a null byte, as it cannot be converted into a `CString`.
+    ///
+    /// # Examples
+    /// ```
+    /// let mut params = FullParams::new(SamplingStrategy::default());
+    /// params.set_initial_prompt("Hello, world!");
+    /// // ... further usage of params ...
+    /// ```
     pub fn set_initial_prompt(&mut self, initial_prompt: &str) {
         self.fp.initial_prompt = CString::new(initial_prompt)
             .expect("Initial prompt contains null byte")
