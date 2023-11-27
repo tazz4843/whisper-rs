@@ -55,10 +55,16 @@ pub fn get_lang_str(id: i32) -> Option<&'static str> {
 
 /// Callback to control logging output: default behaviour is to print to stderr.
 ///
+/// # Safety
+/// The callback must be safe to call from C (i.e. no panicking, no unwinding, etc).
+///
 /// # C++ equivalent
 /// `void whisper_set_log_callback(whisper_log_callback callback);`
-pub unsafe fn set_log_callback(callback: whisper_rs_sys::whisper_log_callback) {
-    unsafe { whisper_rs_sys::whisper_set_log_callback(callback) }
+pub unsafe fn set_log_callback(
+    log_callback: crate::WhisperLogCallback,
+    user_data: *mut std::ffi::c_void,
+) {
+    unsafe { whisper_rs_sys::whisper_log_set(log_callback, user_data) }
 }
 
 /// Print system information.

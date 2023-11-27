@@ -4,7 +4,7 @@ exclude = ["examples/full_usage"]
 
 [package]
 name = "whisper-rs"
-version = "0.9.0-rc.2"
+version = "0.10.0"
 edition = "2021"
 description = "Rust bindings for whisper.cpp"
 license = "Unlicense"
@@ -14,7 +14,7 @@ repository = "https://github.com/tazz4843/whisper-rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-whisper-rs-sys = { path = "sys", version = "0.7" }
+whisper-rs-sys = { path = "sys", version = "0.8" }
 
 [dev-dependencies]
 hound = "3.5.0"
@@ -24,10 +24,11 @@ default = []
 
 simd = []
 coreml = ["whisper-rs-sys/coreml"]
-cuda = ["whisper-rs-sys/cuda"]
+cuda = ["whisper-rs-sys/cuda", "_gpu"]
 opencl = ["whisper-rs-sys/opencl"]
 openblas = ["whisper-rs-sys/openblas"]
-metal = ["whisper-rs-sys/metal"]
+metal = ["whisper-rs-sys/metal", "_gpu"]
+_gpu = []
 test-with-tiny-model = []
 
 [package.metadata.docs.rs]

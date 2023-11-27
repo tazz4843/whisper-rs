@@ -78,7 +78,7 @@ fn main() {
         let bindings = bindgen::Builder::default()
             .header("wrapper.h")
             .clang_arg("-I./whisper.cpp")
-            .parse_callbacks(Box::new(bindgen::CargoCallbacks))
+            .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
             .generate();
 
         match bindings {
