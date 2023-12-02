@@ -51,6 +51,7 @@ fn main() {
     ).expect("failed to open model");
     let mut state = ctx.create_state().expect("failed to create key");
     let mut params = FullParams::new(SamplingStrategy::default());
+    params.set_initial_prompt("experience");
     params.set_progress_callback_safe(|progress| println!("Progress callback: {}%", progress));
 
     let st = std::time::Instant::now();
