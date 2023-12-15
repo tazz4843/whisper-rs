@@ -138,6 +138,10 @@ fn main() {
         config.define("WHISPER_METAL", "OFF");
     }
 
+    if cfg!(debug_assertions) {
+        config.define("CMAKE_BUILD_TYPE", "Debug");
+    }
+
     let destination = config.build();
 
     if env::var("TARGET").unwrap().contains("window") {
