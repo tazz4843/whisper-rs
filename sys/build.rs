@@ -139,7 +139,9 @@ fn main() {
     }
 
     if cfg!(debug_assertions) {
-        config.define("CMAKE_BUILD_TYPE", "Debug");
+        // debug builds are too slow to even remotely be usable,
+        // so we build with optimizations even in debug mode
+        config.define("CMAKE_BUILD_TYPE", "RelWithDebugInfo");
     }
 
     let destination = config.build();
