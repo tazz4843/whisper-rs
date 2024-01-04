@@ -108,6 +108,7 @@ impl std::fmt::Display for WhisperError {
                 "Generic whisper error. Varies depending on the function. Error code: {}",
                 c_int
             ),
+            NoSamples => write!(f, "Input sample buffer was empty."),
         }
     }
 }
