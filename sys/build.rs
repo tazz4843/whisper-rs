@@ -138,6 +138,12 @@ fn main() {
         config.define("WHISPER_METAL", "OFF");
     }
 
+    if cfg!(debug_assertions) || cfg!(feature = "force-debug") {
+        // debug builds are too slow to even remotely be usable,
+        // so we build with optimizations even in debug mode
+        config.define("CMAKE_BUILD_TYPE", "RelWithDebInfo");
+    }
+
     let destination = config.build();
 
     if env::var("TARGET").unwrap().contains("window") {

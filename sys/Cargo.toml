@@ -46,6 +46,7 @@ cuda = []
 opencl = []
 openblas = []
 metal = []
+force-debug = []
 
 [build-dependencies]
 cmake = "0.1"
