@@ -327,6 +327,11 @@ impl<'a> WhisperState<'a> {
     /// # C++ equivalent
     /// `int whisper_full(struct whisper_context * ctx, struct whisper_full_params params, const float * samples, int n_samples)`
     pub fn full(&mut self, params: FullParams, data: &[f32]) -> Result<c_int, WhisperError> {
+        if data.is_empty() {
+            // can randomly trigger segmentation faults if we don't check this
+            return Err(WhisperError::NoSamples);
+        }
+
         let ret = unsafe {
             whisper_rs_sys::whisper_full_with_state(
                 self.ctx,
