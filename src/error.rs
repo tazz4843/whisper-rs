@@ -39,6 +39,8 @@ pub enum WhisperError {
     InvalidText,
     /// Creating a state pointer failed. Check stderr for more information.
     FailedToCreateState,
+    /// No samples were provided.
+    NoSamples,
 }
 
 impl From<Utf8Error> for WhisperError {
