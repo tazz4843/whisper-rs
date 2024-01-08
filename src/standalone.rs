@@ -53,6 +53,23 @@ pub fn get_lang_str(id: i32) -> Option<&'static str> {
     }
 }
 
+/// Get the full string of the specified language name (e.g. 2 -> "german").
+///
+/// # Returns
+/// The full string of the language, None if not found.
+///
+/// # C++ equivalent
+/// `const char * whisper_lang_str_full(int id)`
+pub fn get_lang_str_full(id: i32) -> Option<&'static str> {
+    let c_buf = unsafe { whisper_rs_sys::whisper_lang_str_full(id) };
+    if c_buf.is_null() {
+        None
+    } else {
+        let c_str = unsafe { CStr::from_ptr(c_buf) };
+        Some(c_str.to_str().unwrap())
+    }
+}
+
 /// Callback to control logging output: default behaviour is to print to stderr.
 ///
 /// # Safety
