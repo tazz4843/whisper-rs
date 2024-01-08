@@ -179,10 +179,10 @@ fn bindgen_test_layout___fsid_t() {
         unsafe { ::std::ptr::addr_of!((*ptr).__val) as usize - ptr as usize },
         0usize,
         concat!(
-        "Offset of field: ",
-        stringify!(__fsid_t),
-        "::",
-        stringify!(__val)
+            "Offset of field: ",
+            stringify!(__fsid_t),
+            "::",
+            stringify!(__val)
         )
     );
 }
@@ -259,20 +259,20 @@ fn bindgen_test_layout_max_align_t() {
         unsafe { ::std::ptr::addr_of!((*ptr).__clang_max_align_nonce1) as usize - ptr as usize },
         0usize,
         concat!(
-        "Offset of field: ",
-        stringify!(max_align_t),
-        "::",
-        stringify!(__clang_max_align_nonce1)
+            "Offset of field: ",
+            stringify!(max_align_t),
+            "::",
+            stringify!(__clang_max_align_nonce1)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).__clang_max_align_nonce2) as usize - ptr as usize },
         16usize,
         concat!(
-        "Offset of field: ",
-        stringify!(max_align_t),
-        "::",
-        stringify!(__clang_max_align_nonce2)
+            "Offset of field: ",
+            stringify!(max_align_t),
+            "::",
+            stringify!(__clang_max_align_nonce2)
         )
     );
 }
@@ -449,50 +449,50 @@ fn bindgen_test_layout_ggml_object() {
         unsafe { ::std::ptr::addr_of!((*ptr).offs) as usize - ptr as usize },
         0usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_object),
-        "::",
-        stringify!(offs)
+            "Offset of field: ",
+            stringify!(ggml_object),
+            "::",
+            stringify!(offs)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).size) as usize - ptr as usize },
         8usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_object),
-        "::",
-        stringify!(size)
+            "Offset of field: ",
+            stringify!(ggml_object),
+            "::",
+            stringify!(size)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).next) as usize - ptr as usize },
         16usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_object),
-        "::",
-        stringify!(next)
+            "Offset of field: ",
+            stringify!(ggml_object),
+            "::",
+            stringify!(next)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).type_) as usize - ptr as usize },
         24usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_object),
-        "::",
-        stringify!(type_)
+            "Offset of field: ",
+            stringify!(ggml_object),
+            "::",
+            stringify!(type_)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).padding) as usize - ptr as usize },
         28usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_object),
-        "::",
-        stringify!(padding)
+            "Offset of field: ",
+            stringify!(ggml_object),
+            "::",
+            stringify!(padding)
         )
     );
 }
@@ -539,200 +539,200 @@ fn bindgen_test_layout_ggml_tensor() {
         unsafe { ::std::ptr::addr_of!((*ptr).type_) as usize - ptr as usize },
         0usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_tensor),
-        "::",
-        stringify!(type_)
+            "Offset of field: ",
+            stringify!(ggml_tensor),
+            "::",
+            stringify!(type_)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).backend) as usize - ptr as usize },
         4usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_tensor),
-        "::",
-        stringify!(backend)
+            "Offset of field: ",
+            stringify!(ggml_tensor),
+            "::",
+            stringify!(backend)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).buffer) as usize - ptr as usize },
         8usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_tensor),
-        "::",
-        stringify!(buffer)
+            "Offset of field: ",
+            stringify!(ggml_tensor),
+            "::",
+            stringify!(buffer)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).n_dims) as usize - ptr as usize },
         16usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_tensor),
-        "::",
-        stringify!(n_dims)
+            "Offset of field: ",
+            stringify!(ggml_tensor),
+            "::",
+            stringify!(n_dims)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).ne) as usize - ptr as usize },
         24usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_tensor),
-        "::",
-        stringify!(ne)
+            "Offset of field: ",
+            stringify!(ggml_tensor),
+            "::",
+            stringify!(ne)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).nb) as usize - ptr as usize },
         56usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_tensor),
-        "::",
-        stringify!(nb)
+            "Offset of field: ",
+            stringify!(ggml_tensor),
+            "::",
+            stringify!(nb)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).op) as usize - ptr as usize },
         88usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_tensor),
-        "::",
-        stringify!(op)
+            "Offset of field: ",
+            stringify!(ggml_tensor),
+            "::",
+            stringify!(op)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).op_params) as usize - ptr as usize },
         92usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_tensor),
-        "::",
-        stringify!(op_params)
+            "Offset of field: ",
+            stringify!(ggml_tensor),
+            "::",
+            stringify!(op_params)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).is_param) as usize - ptr as usize },
         156usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_tensor),
-        "::",
-        stringify!(is_param)
+            "Offset of field: ",
+            stringify!(ggml_tensor),
+            "::",
+            stringify!(is_param)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).grad) as usize - ptr as usize },
         160usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_tensor),
-        "::",
-        stringify!(grad)
+            "Offset of field: ",
+            stringify!(ggml_tensor),
+            "::",
+            stringify!(grad)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).src) as usize - ptr as usize },
         168usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_tensor),
-        "::",
-        stringify!(src)
+            "Offset of field: ",
+            stringify!(ggml_tensor),
+            "::",
+            stringify!(src)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).perf_runs) as usize - ptr as usize },
         216usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_tensor),
-        "::",
-        stringify!(perf_runs)
+            "Offset of field: ",
+            stringify!(ggml_tensor),
+            "::",
+            stringify!(perf_runs)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).perf_cycles) as usize - ptr as usize },
         224usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_tensor),
-        "::",
-        stringify!(perf_cycles)
+            "Offset of field: ",
+            stringify!(ggml_tensor),
+            "::",
+            stringify!(perf_cycles)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).perf_time_us) as usize - ptr as usize },
         232usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_tensor),
-        "::",
-        stringify!(perf_time_us)
+            "Offset of field: ",
+            stringify!(ggml_tensor),
+            "::",
+            stringify!(perf_time_us)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).view_src) as usize - ptr as usize },
         240usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_tensor),
-        "::",
-        stringify!(view_src)
+            "Offset of field: ",
+            stringify!(ggml_tensor),
+            "::",
+            stringify!(view_src)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).view_offs) as usize - ptr as usize },
         248usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_tensor),
-        "::",
-        stringify!(view_offs)
+            "Offset of field: ",
+            stringify!(ggml_tensor),
+            "::",
+            stringify!(view_offs)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).data) as usize - ptr as usize },
         256usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_tensor),
-        "::",
-        stringify!(data)
+            "Offset of field: ",
+            stringify!(ggml_tensor),
+            "::",
+            stringify!(data)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).name) as usize - ptr as usize },
         264usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_tensor),
-        "::",
-        stringify!(name)
+            "Offset of field: ",
+            stringify!(ggml_tensor),
+            "::",
+            stringify!(name)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).extra) as usize - ptr as usize },
         328usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_tensor),
-        "::",
-        stringify!(extra)
+            "Offset of field: ",
+            stringify!(ggml_tensor),
+            "::",
+            stringify!(extra)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).padding) as usize - ptr as usize },
         336usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_tensor),
-        "::",
-        stringify!(padding)
+            "Offset of field: ",
+            stringify!(ggml_tensor),
+            "::",
+            stringify!(padding)
         )
     );
 }
@@ -744,7 +744,7 @@ pub struct ggml_cplan {
     pub work_data: *mut u8,
     pub n_threads: ::std::os::raw::c_int,
     pub abort_callback:
-    ::std::option::Option<unsafe extern "C" fn(data: *mut ::std::os::raw::c_void) -> bool>,
+        ::std::option::Option<unsafe extern "C" fn(data: *mut ::std::os::raw::c_void) -> bool>,
     pub abort_callback_data: *mut ::std::os::raw::c_void,
 }
 #[test]
@@ -765,50 +765,50 @@ fn bindgen_test_layout_ggml_cplan() {
         unsafe { ::std::ptr::addr_of!((*ptr).work_size) as usize - ptr as usize },
         0usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_cplan),
-        "::",
-        stringify!(work_size)
+            "Offset of field: ",
+            stringify!(ggml_cplan),
+            "::",
+            stringify!(work_size)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).work_data) as usize - ptr as usize },
         8usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_cplan),
-        "::",
-        stringify!(work_data)
+            "Offset of field: ",
+            stringify!(ggml_cplan),
+            "::",
+            stringify!(work_data)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).n_threads) as usize - ptr as usize },
         16usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_cplan),
-        "::",
-        stringify!(n_threads)
+            "Offset of field: ",
+            stringify!(ggml_cplan),
+            "::",
+            stringify!(n_threads)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).abort_callback) as usize - ptr as usize },
         24usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_cplan),
-        "::",
-        stringify!(abort_callback)
+            "Offset of field: ",
+            stringify!(ggml_cplan),
+            "::",
+            stringify!(abort_callback)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).abort_callback_data) as usize - ptr as usize },
         32usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_cplan),
-        "::",
-        stringify!(abort_callback_data)
+            "Offset of field: ",
+            stringify!(ggml_cplan),
+            "::",
+            stringify!(abort_callback_data)
         )
     );
 }
@@ -840,20 +840,20 @@ fn bindgen_test_layout_ggml_hash_set() {
         unsafe { ::std::ptr::addr_of!((*ptr).size) as usize - ptr as usize },
         0usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_hash_set),
-        "::",
-        stringify!(size)
+            "Offset of field: ",
+            stringify!(ggml_hash_set),
+            "::",
+            stringify!(size)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).keys) as usize - ptr as usize },
         8usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_hash_set),
-        "::",
-        stringify!(keys)
+            "Offset of field: ",
+            stringify!(ggml_hash_set),
+            "::",
+            stringify!(keys)
         )
     );
 }
@@ -890,110 +890,110 @@ fn bindgen_test_layout_ggml_cgraph() {
         unsafe { ::std::ptr::addr_of!((*ptr).size) as usize - ptr as usize },
         0usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_cgraph),
-        "::",
-        stringify!(size)
+            "Offset of field: ",
+            stringify!(ggml_cgraph),
+            "::",
+            stringify!(size)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).n_nodes) as usize - ptr as usize },
         4usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_cgraph),
-        "::",
-        stringify!(n_nodes)
+            "Offset of field: ",
+            stringify!(ggml_cgraph),
+            "::",
+            stringify!(n_nodes)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).n_leafs) as usize - ptr as usize },
         8usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_cgraph),
-        "::",
-        stringify!(n_leafs)
+            "Offset of field: ",
+            stringify!(ggml_cgraph),
+            "::",
+            stringify!(n_leafs)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).nodes) as usize - ptr as usize },
         16usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_cgraph),
-        "::",
-        stringify!(nodes)
+            "Offset of field: ",
+            stringify!(ggml_cgraph),
+            "::",
+            stringify!(nodes)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).grads) as usize - ptr as usize },
         24usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_cgraph),
-        "::",
-        stringify!(grads)
+            "Offset of field: ",
+            stringify!(ggml_cgraph),
+            "::",
+            stringify!(grads)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).leafs) as usize - ptr as usize },
         32usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_cgraph),
-        "::",
-        stringify!(leafs)
+            "Offset of field: ",
+            stringify!(ggml_cgraph),
+            "::",
+            stringify!(leafs)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).visited_hash_table) as usize - ptr as usize },
         40usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_cgraph),
-        "::",
-        stringify!(visited_hash_table)
+            "Offset of field: ",
+            stringify!(ggml_cgraph),
+            "::",
+            stringify!(visited_hash_table)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).order) as usize - ptr as usize },
         56usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_cgraph),
-        "::",
-        stringify!(order)
+            "Offset of field: ",
+            stringify!(ggml_cgraph),
+            "::",
+            stringify!(order)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).perf_runs) as usize - ptr as usize },
         60usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_cgraph),
-        "::",
-        stringify!(perf_runs)
+            "Offset of field: ",
+            stringify!(ggml_cgraph),
+            "::",
+            stringify!(perf_runs)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).perf_cycles) as usize - ptr as usize },
         64usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_cgraph),
-        "::",
-        stringify!(perf_cycles)
+            "Offset of field: ",
+            stringify!(ggml_cgraph),
+            "::",
+            stringify!(perf_cycles)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).perf_time_us) as usize - ptr as usize },
         72usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_cgraph),
-        "::",
-        stringify!(perf_time_us)
+            "Offset of field: ",
+            stringify!(ggml_cgraph),
+            "::",
+            stringify!(perf_time_us)
         )
     );
 }
@@ -1022,30 +1022,30 @@ fn bindgen_test_layout_ggml_scratch() {
         unsafe { ::std::ptr::addr_of!((*ptr).offs) as usize - ptr as usize },
         0usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_scratch),
-        "::",
-        stringify!(offs)
+            "Offset of field: ",
+            stringify!(ggml_scratch),
+            "::",
+            stringify!(offs)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).size) as usize - ptr as usize },
         8usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_scratch),
-        "::",
-        stringify!(size)
+            "Offset of field: ",
+            stringify!(ggml_scratch),
+            "::",
+            stringify!(size)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).data) as usize - ptr as usize },
         16usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_scratch),
-        "::",
-        stringify!(data)
+            "Offset of field: ",
+            stringify!(ggml_scratch),
+            "::",
+            stringify!(data)
         )
     );
 }
@@ -1074,30 +1074,30 @@ fn bindgen_test_layout_ggml_init_params() {
         unsafe { ::std::ptr::addr_of!((*ptr).mem_size) as usize - ptr as usize },
         0usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_init_params),
-        "::",
-        stringify!(mem_size)
+            "Offset of field: ",
+            stringify!(ggml_init_params),
+            "::",
+            stringify!(mem_size)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).mem_buffer) as usize - ptr as usize },
         8usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_init_params),
-        "::",
-        stringify!(mem_buffer)
+            "Offset of field: ",
+            stringify!(ggml_init_params),
+            "::",
+            stringify!(mem_buffer)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).no_alloc) as usize - ptr as usize },
         16usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_init_params),
-        "::",
-        stringify!(no_alloc)
+            "Offset of field: ",
+            stringify!(ggml_init_params),
+            "::",
+            stringify!(no_alloc)
         )
     );
 }
@@ -1132,50 +1132,50 @@ fn bindgen_test_layout_ggml_compute_params() {
         unsafe { ::std::ptr::addr_of!((*ptr).type_) as usize - ptr as usize },
         0usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_compute_params),
-        "::",
-        stringify!(type_)
+            "Offset of field: ",
+            stringify!(ggml_compute_params),
+            "::",
+            stringify!(type_)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).ith) as usize - ptr as usize },
         4usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_compute_params),
-        "::",
-        stringify!(ith)
+            "Offset of field: ",
+            stringify!(ggml_compute_params),
+            "::",
+            stringify!(ith)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).nth) as usize - ptr as usize },
         8usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_compute_params),
-        "::",
-        stringify!(nth)
+            "Offset of field: ",
+            stringify!(ggml_compute_params),
+            "::",
+            stringify!(nth)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).wsize) as usize - ptr as usize },
         16usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_compute_params),
-        "::",
-        stringify!(wsize)
+            "Offset of field: ",
+            stringify!(ggml_compute_params),
+            "::",
+            stringify!(wsize)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).wdata) as usize - ptr as usize },
         24usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_compute_params),
-        "::",
-        stringify!(wdata)
+            "Offset of field: ",
+            stringify!(ggml_compute_params),
+            "::",
+            stringify!(wdata)
         )
     );
 }
@@ -1672,7 +1672,7 @@ extern "C" {
 }
 extern "C" {
     pub fn ggml_gelu_quick_inplace(ctx: *mut ggml_context, a: *mut ggml_tensor)
-                                   -> *mut ggml_tensor;
+        -> *mut ggml_tensor;
 }
 extern "C" {
     pub fn ggml_silu(ctx: *mut ggml_context, a: *mut ggml_tensor) -> *mut ggml_tensor;
@@ -1699,7 +1699,7 @@ extern "C" {
 }
 extern "C" {
     pub fn ggml_rms_norm(ctx: *mut ggml_context, a: *mut ggml_tensor, eps: f32)
-                         -> *mut ggml_tensor;
+        -> *mut ggml_tensor;
 }
 extern "C" {
     pub fn ggml_rms_norm_inplace(
@@ -2340,7 +2340,7 @@ pub type ggml_binary_op_f32_t = ::std::option::Option<
     ),
 >;
 pub type ggml_custom1_op_f32_t =
-::std::option::Option<unsafe extern "C" fn(arg1: *mut ggml_tensor, arg2: *const ggml_tensor)>;
+    ::std::option::Option<unsafe extern "C" fn(arg1: *mut ggml_tensor, arg2: *const ggml_tensor)>;
 pub type ggml_custom2_op_f32_t = ::std::option::Option<
     unsafe extern "C" fn(
         arg1: *mut ggml_tensor,
@@ -2728,110 +2728,110 @@ fn bindgen_test_layout_ggml_opt_params__bindgen_ty_1() {
         unsafe { ::std::ptr::addr_of!((*ptr).n_iter) as usize - ptr as usize },
         0usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params__bindgen_ty_1),
-        "::",
-        stringify!(n_iter)
+            "Offset of field: ",
+            stringify!(ggml_opt_params__bindgen_ty_1),
+            "::",
+            stringify!(n_iter)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).sched) as usize - ptr as usize },
         4usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params__bindgen_ty_1),
-        "::",
-        stringify!(sched)
+            "Offset of field: ",
+            stringify!(ggml_opt_params__bindgen_ty_1),
+            "::",
+            stringify!(sched)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).decay) as usize - ptr as usize },
         8usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params__bindgen_ty_1),
-        "::",
-        stringify!(decay)
+            "Offset of field: ",
+            stringify!(ggml_opt_params__bindgen_ty_1),
+            "::",
+            stringify!(decay)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).decay_min_ndim) as usize - ptr as usize },
         12usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params__bindgen_ty_1),
-        "::",
-        stringify!(decay_min_ndim)
+            "Offset of field: ",
+            stringify!(ggml_opt_params__bindgen_ty_1),
+            "::",
+            stringify!(decay_min_ndim)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).alpha) as usize - ptr as usize },
         16usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params__bindgen_ty_1),
-        "::",
-        stringify!(alpha)
+            "Offset of field: ",
+            stringify!(ggml_opt_params__bindgen_ty_1),
+            "::",
+            stringify!(alpha)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).beta1) as usize - ptr as usize },
         20usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params__bindgen_ty_1),
-        "::",
-        stringify!(beta1)
+            "Offset of field: ",
+            stringify!(ggml_opt_params__bindgen_ty_1),
+            "::",
+            stringify!(beta1)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).beta2) as usize - ptr as usize },
         24usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params__bindgen_ty_1),
-        "::",
-        stringify!(beta2)
+            "Offset of field: ",
+            stringify!(ggml_opt_params__bindgen_ty_1),
+            "::",
+            stringify!(beta2)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).eps) as usize - ptr as usize },
         28usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params__bindgen_ty_1),
-        "::",
-        stringify!(eps)
+            "Offset of field: ",
+            stringify!(ggml_opt_params__bindgen_ty_1),
+            "::",
+            stringify!(eps)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).eps_f) as usize - ptr as usize },
         32usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params__bindgen_ty_1),
-        "::",
-        stringify!(eps_f)
+            "Offset of field: ",
+            stringify!(ggml_opt_params__bindgen_ty_1),
+            "::",
+            stringify!(eps_f)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).eps_g) as usize - ptr as usize },
         36usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params__bindgen_ty_1),
-        "::",
-        stringify!(eps_g)
+            "Offset of field: ",
+            stringify!(ggml_opt_params__bindgen_ty_1),
+            "::",
+            stringify!(eps_g)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).gclip) as usize - ptr as usize },
         40usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params__bindgen_ty_1),
-        "::",
-        stringify!(gclip)
+            "Offset of field: ",
+            stringify!(ggml_opt_params__bindgen_ty_1),
+            "::",
+            stringify!(gclip)
         )
     );
 }
@@ -2867,90 +2867,90 @@ fn bindgen_test_layout_ggml_opt_params__bindgen_ty_2() {
         unsafe { ::std::ptr::addr_of!((*ptr).m) as usize - ptr as usize },
         0usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params__bindgen_ty_2),
-        "::",
-        stringify!(m)
+            "Offset of field: ",
+            stringify!(ggml_opt_params__bindgen_ty_2),
+            "::",
+            stringify!(m)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).n_iter) as usize - ptr as usize },
         4usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params__bindgen_ty_2),
-        "::",
-        stringify!(n_iter)
+            "Offset of field: ",
+            stringify!(ggml_opt_params__bindgen_ty_2),
+            "::",
+            stringify!(n_iter)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).max_linesearch) as usize - ptr as usize },
         8usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params__bindgen_ty_2),
-        "::",
-        stringify!(max_linesearch)
+            "Offset of field: ",
+            stringify!(ggml_opt_params__bindgen_ty_2),
+            "::",
+            stringify!(max_linesearch)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).eps) as usize - ptr as usize },
         12usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params__bindgen_ty_2),
-        "::",
-        stringify!(eps)
+            "Offset of field: ",
+            stringify!(ggml_opt_params__bindgen_ty_2),
+            "::",
+            stringify!(eps)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).ftol) as usize - ptr as usize },
         16usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params__bindgen_ty_2),
-        "::",
-        stringify!(ftol)
+            "Offset of field: ",
+            stringify!(ggml_opt_params__bindgen_ty_2),
+            "::",
+            stringify!(ftol)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).wolfe) as usize - ptr as usize },
         20usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params__bindgen_ty_2),
-        "::",
-        stringify!(wolfe)
+            "Offset of field: ",
+            stringify!(ggml_opt_params__bindgen_ty_2),
+            "::",
+            stringify!(wolfe)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).min_step) as usize - ptr as usize },
         24usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params__bindgen_ty_2),
-        "::",
-        stringify!(min_step)
+            "Offset of field: ",
+            stringify!(ggml_opt_params__bindgen_ty_2),
+            "::",
+            stringify!(min_step)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).max_step) as usize - ptr as usize },
         28usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params__bindgen_ty_2),
-        "::",
-        stringify!(max_step)
+            "Offset of field: ",
+            stringify!(ggml_opt_params__bindgen_ty_2),
+            "::",
+            stringify!(max_step)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).linesearch) as usize - ptr as usize },
         32usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params__bindgen_ty_2),
-        "::",
-        stringify!(linesearch)
+            "Offset of field: ",
+            stringify!(ggml_opt_params__bindgen_ty_2),
+            "::",
+            stringify!(linesearch)
         )
     );
 }
@@ -2972,110 +2972,110 @@ fn bindgen_test_layout_ggml_opt_params() {
         unsafe { ::std::ptr::addr_of!((*ptr).type_) as usize - ptr as usize },
         0usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params),
-        "::",
-        stringify!(type_)
+            "Offset of field: ",
+            stringify!(ggml_opt_params),
+            "::",
+            stringify!(type_)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).graph_size) as usize - ptr as usize },
         8usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params),
-        "::",
-        stringify!(graph_size)
+            "Offset of field: ",
+            stringify!(ggml_opt_params),
+            "::",
+            stringify!(graph_size)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).n_threads) as usize - ptr as usize },
         16usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params),
-        "::",
-        stringify!(n_threads)
+            "Offset of field: ",
+            stringify!(ggml_opt_params),
+            "::",
+            stringify!(n_threads)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).past) as usize - ptr as usize },
         20usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params),
-        "::",
-        stringify!(past)
+            "Offset of field: ",
+            stringify!(ggml_opt_params),
+            "::",
+            stringify!(past)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).delta) as usize - ptr as usize },
         24usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params),
-        "::",
-        stringify!(delta)
+            "Offset of field: ",
+            stringify!(ggml_opt_params),
+            "::",
+            stringify!(delta)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).max_no_improvement) as usize - ptr as usize },
         28usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params),
-        "::",
-        stringify!(max_no_improvement)
+            "Offset of field: ",
+            stringify!(ggml_opt_params),
+            "::",
+            stringify!(max_no_improvement)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).print_forward_graph) as usize - ptr as usize },
         32usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params),
-        "::",
-        stringify!(print_forward_graph)
+            "Offset of field: ",
+            stringify!(ggml_opt_params),
+            "::",
+            stringify!(print_forward_graph)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).print_backward_graph) as usize - ptr as usize },
         33usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params),
-        "::",
-        stringify!(print_backward_graph)
+            "Offset of field: ",
+            stringify!(ggml_opt_params),
+            "::",
+            stringify!(print_backward_graph)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).n_gradient_accumulation) as usize - ptr as usize },
         36usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params),
-        "::",
-        stringify!(n_gradient_accumulation)
+            "Offset of field: ",
+            stringify!(ggml_opt_params),
+            "::",
+            stringify!(n_gradient_accumulation)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).adam) as usize - ptr as usize },
         40usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params),
-        "::",
-        stringify!(adam)
+            "Offset of field: ",
+            stringify!(ggml_opt_params),
+            "::",
+            stringify!(adam)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).lbfgs) as usize - ptr as usize },
         84usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_params),
-        "::",
-        stringify!(lbfgs)
+            "Offset of field: ",
+            stringify!(ggml_opt_params),
+            "::",
+            stringify!(lbfgs)
         )
     );
 }
@@ -3122,70 +3122,70 @@ fn bindgen_test_layout_ggml_opt_context__bindgen_ty_1() {
         unsafe { ::std::ptr::addr_of!((*ptr).g) as usize - ptr as usize },
         0usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context__bindgen_ty_1),
-        "::",
-        stringify!(g)
+            "Offset of field: ",
+            stringify!(ggml_opt_context__bindgen_ty_1),
+            "::",
+            stringify!(g)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).m) as usize - ptr as usize },
         8usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context__bindgen_ty_1),
-        "::",
-        stringify!(m)
+            "Offset of field: ",
+            stringify!(ggml_opt_context__bindgen_ty_1),
+            "::",
+            stringify!(m)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).v) as usize - ptr as usize },
         16usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context__bindgen_ty_1),
-        "::",
-        stringify!(v)
+            "Offset of field: ",
+            stringify!(ggml_opt_context__bindgen_ty_1),
+            "::",
+            stringify!(v)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).pf) as usize - ptr as usize },
         24usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context__bindgen_ty_1),
-        "::",
-        stringify!(pf)
+            "Offset of field: ",
+            stringify!(ggml_opt_context__bindgen_ty_1),
+            "::",
+            stringify!(pf)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).fx_best) as usize - ptr as usize },
         32usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context__bindgen_ty_1),
-        "::",
-        stringify!(fx_best)
+            "Offset of field: ",
+            stringify!(ggml_opt_context__bindgen_ty_1),
+            "::",
+            stringify!(fx_best)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).fx_prev) as usize - ptr as usize },
         36usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context__bindgen_ty_1),
-        "::",
-        stringify!(fx_prev)
+            "Offset of field: ",
+            stringify!(ggml_opt_context__bindgen_ty_1),
+            "::",
+            stringify!(fx_prev)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).n_no_improvement) as usize - ptr as usize },
         40usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context__bindgen_ty_1),
-        "::",
-        stringify!(n_no_improvement)
+            "Offset of field: ",
+            stringify!(ggml_opt_context__bindgen_ty_1),
+            "::",
+            stringify!(n_no_improvement)
         )
     );
 }
@@ -3228,160 +3228,160 @@ fn bindgen_test_layout_ggml_opt_context__bindgen_ty_2() {
         unsafe { ::std::ptr::addr_of!((*ptr).x) as usize - ptr as usize },
         0usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context__bindgen_ty_2),
-        "::",
-        stringify!(x)
+            "Offset of field: ",
+            stringify!(ggml_opt_context__bindgen_ty_2),
+            "::",
+            stringify!(x)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).xp) as usize - ptr as usize },
         8usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context__bindgen_ty_2),
-        "::",
-        stringify!(xp)
+            "Offset of field: ",
+            stringify!(ggml_opt_context__bindgen_ty_2),
+            "::",
+            stringify!(xp)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).g) as usize - ptr as usize },
         16usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context__bindgen_ty_2),
-        "::",
-        stringify!(g)
+            "Offset of field: ",
+            stringify!(ggml_opt_context__bindgen_ty_2),
+            "::",
+            stringify!(g)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).gp) as usize - ptr as usize },
         24usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context__bindgen_ty_2),
-        "::",
-        stringify!(gp)
+            "Offset of field: ",
+            stringify!(ggml_opt_context__bindgen_ty_2),
+            "::",
+            stringify!(gp)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).d) as usize - ptr as usize },
         32usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context__bindgen_ty_2),
-        "::",
-        stringify!(d)
+            "Offset of field: ",
+            stringify!(ggml_opt_context__bindgen_ty_2),
+            "::",
+            stringify!(d)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).pf) as usize - ptr as usize },
         40usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context__bindgen_ty_2),
-        "::",
-        stringify!(pf)
+            "Offset of field: ",
+            stringify!(ggml_opt_context__bindgen_ty_2),
+            "::",
+            stringify!(pf)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).lmal) as usize - ptr as usize },
         48usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context__bindgen_ty_2),
-        "::",
-        stringify!(lmal)
+            "Offset of field: ",
+            stringify!(ggml_opt_context__bindgen_ty_2),
+            "::",
+            stringify!(lmal)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).lmys) as usize - ptr as usize },
         56usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context__bindgen_ty_2),
-        "::",
-        stringify!(lmys)
+            "Offset of field: ",
+            stringify!(ggml_opt_context__bindgen_ty_2),
+            "::",
+            stringify!(lmys)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).lms) as usize - ptr as usize },
         64usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context__bindgen_ty_2),
-        "::",
-        stringify!(lms)
+            "Offset of field: ",
+            stringify!(ggml_opt_context__bindgen_ty_2),
+            "::",
+            stringify!(lms)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).lmy) as usize - ptr as usize },
         72usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context__bindgen_ty_2),
-        "::",
-        stringify!(lmy)
+            "Offset of field: ",
+            stringify!(ggml_opt_context__bindgen_ty_2),
+            "::",
+            stringify!(lmy)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).fx_best) as usize - ptr as usize },
         80usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context__bindgen_ty_2),
-        "::",
-        stringify!(fx_best)
+            "Offset of field: ",
+            stringify!(ggml_opt_context__bindgen_ty_2),
+            "::",
+            stringify!(fx_best)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).step) as usize - ptr as usize },
         84usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context__bindgen_ty_2),
-        "::",
-        stringify!(step)
+            "Offset of field: ",
+            stringify!(ggml_opt_context__bindgen_ty_2),
+            "::",
+            stringify!(step)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).j) as usize - ptr as usize },
         88usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context__bindgen_ty_2),
-        "::",
-        stringify!(j)
+            "Offset of field: ",
+            stringify!(ggml_opt_context__bindgen_ty_2),
+            "::",
+            stringify!(j)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).k) as usize - ptr as usize },
         92usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context__bindgen_ty_2),
-        "::",
-        stringify!(k)
+            "Offset of field: ",
+            stringify!(ggml_opt_context__bindgen_ty_2),
+            "::",
+            stringify!(k)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).end) as usize - ptr as usize },
         96usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context__bindgen_ty_2),
-        "::",
-        stringify!(end)
+            "Offset of field: ",
+            stringify!(ggml_opt_context__bindgen_ty_2),
+            "::",
+            stringify!(end)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).n_no_improvement) as usize - ptr as usize },
         100usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context__bindgen_ty_2),
-        "::",
-        stringify!(n_no_improvement)
+            "Offset of field: ",
+            stringify!(ggml_opt_context__bindgen_ty_2),
+            "::",
+            stringify!(n_no_improvement)
         )
     );
 }
@@ -3403,90 +3403,90 @@ fn bindgen_test_layout_ggml_opt_context() {
         unsafe { ::std::ptr::addr_of!((*ptr).ctx) as usize - ptr as usize },
         0usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context),
-        "::",
-        stringify!(ctx)
+            "Offset of field: ",
+            stringify!(ggml_opt_context),
+            "::",
+            stringify!(ctx)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).params) as usize - ptr as usize },
         8usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context),
-        "::",
-        stringify!(params)
+            "Offset of field: ",
+            stringify!(ggml_opt_context),
+            "::",
+            stringify!(params)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).iter) as usize - ptr as usize },
         128usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context),
-        "::",
-        stringify!(iter)
+            "Offset of field: ",
+            stringify!(ggml_opt_context),
+            "::",
+            stringify!(iter)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).nx) as usize - ptr as usize },
         136usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context),
-        "::",
-        stringify!(nx)
+            "Offset of field: ",
+            stringify!(ggml_opt_context),
+            "::",
+            stringify!(nx)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).just_initialized) as usize - ptr as usize },
         144usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context),
-        "::",
-        stringify!(just_initialized)
+            "Offset of field: ",
+            stringify!(ggml_opt_context),
+            "::",
+            stringify!(just_initialized)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).loss_before) as usize - ptr as usize },
         148usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context),
-        "::",
-        stringify!(loss_before)
+            "Offset of field: ",
+            stringify!(ggml_opt_context),
+            "::",
+            stringify!(loss_before)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).loss_after) as usize - ptr as usize },
         152usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context),
-        "::",
-        stringify!(loss_after)
+            "Offset of field: ",
+            stringify!(ggml_opt_context),
+            "::",
+            stringify!(loss_after)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).adam) as usize - ptr as usize },
         160usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context),
-        "::",
-        stringify!(adam)
+            "Offset of field: ",
+            stringify!(ggml_opt_context),
+            "::",
+            stringify!(adam)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).lbfgs) as usize - ptr as usize },
         208usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_opt_context),
-        "::",
-        stringify!(lbfgs)
+            "Offset of field: ",
+            stringify!(ggml_opt_context),
+            "::",
+            stringify!(lbfgs)
         )
     );
 }
@@ -3670,20 +3670,20 @@ fn bindgen_test_layout_gguf_init_params() {
         unsafe { ::std::ptr::addr_of!((*ptr).no_alloc) as usize - ptr as usize },
         0usize,
         concat!(
-        "Offset of field: ",
-        stringify!(gguf_init_params),
-        "::",
-        stringify!(no_alloc)
+            "Offset of field: ",
+            stringify!(gguf_init_params),
+            "::",
+            stringify!(no_alloc)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).ctx) as usize - ptr as usize },
         8usize,
         concat!(
-        "Offset of field: ",
-        stringify!(gguf_init_params),
-        "::",
-        stringify!(ctx)
+            "Offset of field: ",
+            stringify!(gguf_init_params),
+            "::",
+            stringify!(ctx)
         )
     );
 }
@@ -4004,90 +4004,90 @@ fn bindgen_test_layout_ggml_type_traits_t() {
         unsafe { ::std::ptr::addr_of!((*ptr).type_name) as usize - ptr as usize },
         0usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_type_traits_t),
-        "::",
-        stringify!(type_name)
+            "Offset of field: ",
+            stringify!(ggml_type_traits_t),
+            "::",
+            stringify!(type_name)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).blck_size) as usize - ptr as usize },
         8usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_type_traits_t),
-        "::",
-        stringify!(blck_size)
+            "Offset of field: ",
+            stringify!(ggml_type_traits_t),
+            "::",
+            stringify!(blck_size)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).type_size) as usize - ptr as usize },
         16usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_type_traits_t),
-        "::",
-        stringify!(type_size)
+            "Offset of field: ",
+            stringify!(ggml_type_traits_t),
+            "::",
+            stringify!(type_size)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).is_quantized) as usize - ptr as usize },
         24usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_type_traits_t),
-        "::",
-        stringify!(is_quantized)
+            "Offset of field: ",
+            stringify!(ggml_type_traits_t),
+            "::",
+            stringify!(is_quantized)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).to_float) as usize - ptr as usize },
         32usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_type_traits_t),
-        "::",
-        stringify!(to_float)
+            "Offset of field: ",
+            stringify!(ggml_type_traits_t),
+            "::",
+            stringify!(to_float)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).from_float) as usize - ptr as usize },
         40usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_type_traits_t),
-        "::",
-        stringify!(from_float)
+            "Offset of field: ",
+            stringify!(ggml_type_traits_t),
+            "::",
+            stringify!(from_float)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).from_float_reference) as usize - ptr as usize },
         48usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_type_traits_t),
-        "::",
-        stringify!(from_float_reference)
+            "Offset of field: ",
+            stringify!(ggml_type_traits_t),
+            "::",
+            stringify!(from_float_reference)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).vec_dot) as usize - ptr as usize },
         56usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_type_traits_t),
-        "::",
-        stringify!(vec_dot)
+            "Offset of field: ",
+            stringify!(ggml_type_traits_t),
+            "::",
+            stringify!(vec_dot)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).vec_dot_type) as usize - ptr as usize },
         64usize,
         concat!(
-        "Offset of field: ",
-        stringify!(ggml_type_traits_t),
-        "::",
-        stringify!(vec_dot_type)
+            "Offset of field: ",
+            stringify!(ggml_type_traits_t),
+            "::",
+            stringify!(vec_dot_type)
         )
     );
 }
@@ -4131,10 +4131,10 @@ fn bindgen_test_layout_whisper_context_params() {
         unsafe { ::std::ptr::addr_of!((*ptr).use_gpu) as usize - ptr as usize },
         0usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_context_params),
-        "::",
-        stringify!(use_gpu)
+            "Offset of field: ",
+            stringify!(whisper_context_params),
+            "::",
+            stringify!(use_gpu)
         )
     );
 }
@@ -4169,90 +4169,90 @@ fn bindgen_test_layout_whisper_token_data() {
         unsafe { ::std::ptr::addr_of!((*ptr).id) as usize - ptr as usize },
         0usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_token_data),
-        "::",
-        stringify!(id)
+            "Offset of field: ",
+            stringify!(whisper_token_data),
+            "::",
+            stringify!(id)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).tid) as usize - ptr as usize },
         4usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_token_data),
-        "::",
-        stringify!(tid)
+            "Offset of field: ",
+            stringify!(whisper_token_data),
+            "::",
+            stringify!(tid)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).p) as usize - ptr as usize },
         8usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_token_data),
-        "::",
-        stringify!(p)
+            "Offset of field: ",
+            stringify!(whisper_token_data),
+            "::",
+            stringify!(p)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).plog) as usize - ptr as usize },
         12usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_token_data),
-        "::",
-        stringify!(plog)
+            "Offset of field: ",
+            stringify!(whisper_token_data),
+            "::",
+            stringify!(plog)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).pt) as usize - ptr as usize },
         16usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_token_data),
-        "::",
-        stringify!(pt)
+            "Offset of field: ",
+            stringify!(whisper_token_data),
+            "::",
+            stringify!(pt)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).ptsum) as usize - ptr as usize },
         20usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_token_data),
-        "::",
-        stringify!(ptsum)
+            "Offset of field: ",
+            stringify!(whisper_token_data),
+            "::",
+            stringify!(ptsum)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).t0) as usize - ptr as usize },
         24usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_token_data),
-        "::",
-        stringify!(t0)
+            "Offset of field: ",
+            stringify!(whisper_token_data),
+            "::",
+            stringify!(t0)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).t1) as usize - ptr as usize },
         32usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_token_data),
-        "::",
-        stringify!(t1)
+            "Offset of field: ",
+            stringify!(whisper_token_data),
+            "::",
+            stringify!(t1)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).vlen) as usize - ptr as usize },
         40usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_token_data),
-        "::",
-        stringify!(vlen)
+            "Offset of field: ",
+            stringify!(whisper_token_data),
+            "::",
+            stringify!(vlen)
         )
     );
 }
@@ -4288,40 +4288,40 @@ fn bindgen_test_layout_whisper_model_loader() {
         unsafe { ::std::ptr::addr_of!((*ptr).context) as usize - ptr as usize },
         0usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_model_loader),
-        "::",
-        stringify!(context)
+            "Offset of field: ",
+            stringify!(whisper_model_loader),
+            "::",
+            stringify!(context)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).read) as usize - ptr as usize },
         8usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_model_loader),
-        "::",
-        stringify!(read)
+            "Offset of field: ",
+            stringify!(whisper_model_loader),
+            "::",
+            stringify!(read)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).eof) as usize - ptr as usize },
         16usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_model_loader),
-        "::",
-        stringify!(eof)
+            "Offset of field: ",
+            stringify!(whisper_model_loader),
+            "::",
+            stringify!(eof)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).close) as usize - ptr as usize },
         24usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_model_loader),
-        "::",
-        stringify!(close)
+            "Offset of field: ",
+            stringify!(whisper_model_loader),
+            "::",
+            stringify!(close)
         )
     );
 }
@@ -4358,20 +4358,20 @@ fn bindgen_test_layout_whisper_grammar_element() {
         unsafe { ::std::ptr::addr_of!((*ptr).type_) as usize - ptr as usize },
         0usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_grammar_element),
-        "::",
-        stringify!(type_)
+            "Offset of field: ",
+            stringify!(whisper_grammar_element),
+            "::",
+            stringify!(type_)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).value) as usize - ptr as usize },
         4usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_grammar_element),
-        "::",
-        stringify!(value)
+            "Offset of field: ",
+            stringify!(whisper_grammar_element),
+            "::",
+            stringify!(value)
         )
     );
 }
@@ -4721,7 +4721,7 @@ pub type whisper_encoder_begin_callback = ::std::option::Option<
     ) -> bool,
 >;
 pub type whisper_abort_callback =
-::std::option::Option<unsafe extern "C" fn(user_data: *mut ::std::os::raw::c_void) -> bool>;
+    ::std::option::Option<unsafe extern "C" fn(user_data: *mut ::std::os::raw::c_void) -> bool>;
 pub type whisper_logits_filter_callback = ::std::option::Option<
     unsafe extern "C" fn(
         ctx: *mut whisper_context,
@@ -4808,18 +4808,18 @@ fn bindgen_test_layout_whisper_full_params__bindgen_ty_1() {
         ::std::mem::align_of::<whisper_full_params__bindgen_ty_1>(),
         4usize,
         concat!(
-        "Alignment of ",
-        stringify!(whisper_full_params__bindgen_ty_1)
+            "Alignment of ",
+            stringify!(whisper_full_params__bindgen_ty_1)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).best_of) as usize - ptr as usize },
         0usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params__bindgen_ty_1),
-        "::",
-        stringify!(best_of)
+            "Offset of field: ",
+            stringify!(whisper_full_params__bindgen_ty_1),
+            "::",
+            stringify!(best_of)
         )
     );
 }
@@ -4843,28 +4843,28 @@ fn bindgen_test_layout_whisper_full_params__bindgen_ty_2() {
         ::std::mem::align_of::<whisper_full_params__bindgen_ty_2>(),
         4usize,
         concat!(
-        "Alignment of ",
-        stringify!(whisper_full_params__bindgen_ty_2)
+            "Alignment of ",
+            stringify!(whisper_full_params__bindgen_ty_2)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).beam_size) as usize - ptr as usize },
         0usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params__bindgen_ty_2),
-        "::",
-        stringify!(beam_size)
+            "Offset of field: ",
+            stringify!(whisper_full_params__bindgen_ty_2),
+            "::",
+            stringify!(beam_size)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).patience) as usize - ptr as usize },
         4usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params__bindgen_ty_2),
-        "::",
-        stringify!(patience)
+            "Offset of field: ",
+            stringify!(whisper_full_params__bindgen_ty_2),
+            "::",
+            stringify!(patience)
         )
     );
 }
@@ -4886,400 +4886,400 @@ fn bindgen_test_layout_whisper_full_params() {
         unsafe { ::std::ptr::addr_of!((*ptr).strategy) as usize - ptr as usize },
         0usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(strategy)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(strategy)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).n_threads) as usize - ptr as usize },
         4usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(n_threads)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(n_threads)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).n_max_text_ctx) as usize - ptr as usize },
         8usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(n_max_text_ctx)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(n_max_text_ctx)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).offset_ms) as usize - ptr as usize },
         12usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(offset_ms)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(offset_ms)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).duration_ms) as usize - ptr as usize },
         16usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(duration_ms)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(duration_ms)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).translate) as usize - ptr as usize },
         20usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(translate)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(translate)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).no_context) as usize - ptr as usize },
         21usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(no_context)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(no_context)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).no_timestamps) as usize - ptr as usize },
         22usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(no_timestamps)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(no_timestamps)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).single_segment) as usize - ptr as usize },
         23usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(single_segment)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(single_segment)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).print_special) as usize - ptr as usize },
         24usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(print_special)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(print_special)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).print_progress) as usize - ptr as usize },
         25usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(print_progress)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(print_progress)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).print_realtime) as usize - ptr as usize },
         26usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(print_realtime)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(print_realtime)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).print_timestamps) as usize - ptr as usize },
         27usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(print_timestamps)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(print_timestamps)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).token_timestamps) as usize - ptr as usize },
         28usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(token_timestamps)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(token_timestamps)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).thold_pt) as usize - ptr as usize },
         32usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(thold_pt)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(thold_pt)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).thold_ptsum) as usize - ptr as usize },
         36usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(thold_ptsum)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(thold_ptsum)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).max_len) as usize - ptr as usize },
         40usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(max_len)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(max_len)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).split_on_word) as usize - ptr as usize },
         44usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(split_on_word)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(split_on_word)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).max_tokens) as usize - ptr as usize },
         48usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(max_tokens)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(max_tokens)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).speed_up) as usize - ptr as usize },
         52usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(speed_up)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(speed_up)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).debug_mode) as usize - ptr as usize },
         53usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(debug_mode)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(debug_mode)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).audio_ctx) as usize - ptr as usize },
         56usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(audio_ctx)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(audio_ctx)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).tdrz_enable) as usize - ptr as usize },
         60usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(tdrz_enable)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(tdrz_enable)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).initial_prompt) as usize - ptr as usize },
         64usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(initial_prompt)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(initial_prompt)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).prompt_tokens) as usize - ptr as usize },
         72usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(prompt_tokens)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(prompt_tokens)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).prompt_n_tokens) as usize - ptr as usize },
         80usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(prompt_n_tokens)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(prompt_n_tokens)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).language) as usize - ptr as usize },
         88usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(language)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(language)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).detect_language) as usize - ptr as usize },
         96usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(detect_language)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(detect_language)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).suppress_blank) as usize - ptr as usize },
         97usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(suppress_blank)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(suppress_blank)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).suppress_non_speech_tokens) as usize - ptr as usize },
         98usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(suppress_non_speech_tokens)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(suppress_non_speech_tokens)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).temperature) as usize - ptr as usize },
         100usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(temperature)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(temperature)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).max_initial_ts) as usize - ptr as usize },
         104usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(max_initial_ts)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(max_initial_ts)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).length_penalty) as usize - ptr as usize },
         108usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(length_penalty)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(length_penalty)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).temperature_inc) as usize - ptr as usize },
         112usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(temperature_inc)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(temperature_inc)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).entropy_thold) as usize - ptr as usize },
         116usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(entropy_thold)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(entropy_thold)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).logprob_thold) as usize - ptr as usize },
         120usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(logprob_thold)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(logprob_thold)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).no_speech_thold) as usize - ptr as usize },
         124usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(no_speech_thold)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(no_speech_thold)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).greedy) as usize - ptr as usize },
         128usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(greedy)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(greedy)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).beam_search) as usize - ptr as usize },
         132usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(beam_search)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(beam_search)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).new_segment_callback) as usize - ptr as usize },
         144usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(new_segment_callback)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(new_segment_callback)
         )
     );
     assert_eq!(
@@ -5288,40 +5288,40 @@ fn bindgen_test_layout_whisper_full_params() {
         },
         152usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(new_segment_callback_user_data)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(new_segment_callback_user_data)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).progress_callback) as usize - ptr as usize },
         160usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(progress_callback)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(progress_callback)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).progress_callback_user_data) as usize - ptr as usize },
         168usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(progress_callback_user_data)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(progress_callback_user_data)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).encoder_begin_callback) as usize - ptr as usize },
         176usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(encoder_begin_callback)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(encoder_begin_callback)
         )
     );
     assert_eq!(
@@ -5330,40 +5330,40 @@ fn bindgen_test_layout_whisper_full_params() {
         },
         184usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(encoder_begin_callback_user_data)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(encoder_begin_callback_user_data)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).abort_callback) as usize - ptr as usize },
         192usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(abort_callback)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(abort_callback)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).abort_callback_user_data) as usize - ptr as usize },
         200usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(abort_callback_user_data)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(abort_callback_user_data)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).logits_filter_callback) as usize - ptr as usize },
         208usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(logits_filter_callback)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(logits_filter_callback)
         )
     );
     assert_eq!(
@@ -5372,50 +5372,50 @@ fn bindgen_test_layout_whisper_full_params() {
         },
         216usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(logits_filter_callback_user_data)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(logits_filter_callback_user_data)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).grammar_rules) as usize - ptr as usize },
         224usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(grammar_rules)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(grammar_rules)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).n_grammar_rules) as usize - ptr as usize },
         232usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(n_grammar_rules)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(n_grammar_rules)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).i_start_rule) as usize - ptr as usize },
         240usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(i_start_rule)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(i_start_rule)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).grammar_penalty) as usize - ptr as usize },
         248usize,
         concat!(
-        "Offset of field: ",
-        stringify!(whisper_full_params),
-        "::",
-        stringify!(grammar_penalty)
+            "Offset of field: ",
+            stringify!(whisper_full_params),
+            "::",
+            stringify!(grammar_penalty)
         )
     );
 }
