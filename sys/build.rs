@@ -146,7 +146,7 @@ fn main() {
 
     let destination = config.build();
 
-    if env::var("TARGET").unwrap().contains("window") {
+    if target.contains("window") && !target.contains("gnu") {
         println!(
             "cargo:rustc-link-search={}",
             out.join("build").join("Release").display()
