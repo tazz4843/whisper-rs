@@ -23,7 +23,6 @@ rand = "0.8.4"
 [features]
 default = []
 
-simd = []
 coreml = ["whisper-rs-sys/coreml"]
 cuda = ["whisper-rs-sys/cuda", "_gpu"]
 opencl = ["whisper-rs-sys/opencl"]
