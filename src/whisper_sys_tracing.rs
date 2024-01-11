@@ -1,4 +1,3 @@
-use std::sync::Once;
 use tracing::{debug, error, info, warn};
 use whisper_rs_sys::ggml_log_level;
 
@@ -13,19 +12,19 @@ unsafe extern "C" fn whisper_cpp_tracing_trampoline(
 
     // SAFETY: we must trust whisper.cpp that it will not pass us a string that does not satisfy
     // from_ptr's requirements.
-    let log_str = unsafe { std::ffi::CStr::from_ptr(text) }
-        .to_string_lossy()
-        .trim();
+    let log_str = unsafe { std::ffi::CStr::from_ptr(text) }.to_string_lossy();
+    // whisper.cpp gives newlines at the end of its log messages, so we trim them
+    let trimmed = log_str.trim();
 
     match level {
-        whisper_rs_sys::ggml_log_level_GGML_LOG_LEVEL_DEBUG => debug!("{}", log_str),
-        whisper_rs_sys::ggml_log_level_GGML_LOG_LEVEL_INFO => info!("{}", log_str),
-        whisper_rs_sys::ggml_log_level_GGML_LOG_LEVEL_WARN => warn!("{}", log_str),
-        whisper_rs_sys::ggml_log_level_GGML_LOG_LEVEL_ERROR => error!("{}", log_str),
+        whisper_rs_sys::ggml_log_level_GGML_LOG_LEVEL_DEBUG => debug!("{}", trimmed),
+        whisper_rs_sys::ggml_log_level_GGML_LOG_LEVEL_INFO => info!("{}", trimmed),
+        whisper_rs_sys::ggml_log_level_GGML_LOG_LEVEL_WARN => warn!("{}", trimmed),
+        whisper_rs_sys::ggml_log_level_GGML_LOG_LEVEL_ERROR => error!("{}", trimmed),
         _ => {
             warn!(
                 "whisper_cpp_tracing_trampoline: unknown log level {}: message: {}",
-                level, log_str
+                level, trimmed
             )
         }
     }
