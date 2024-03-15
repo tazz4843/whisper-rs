@@ -4,7 +4,7 @@ exclude = ["examples/full_usage"]
 
 [package]
 name = "whisper-rs"
-version = "0.10.1"
+version = "0.11.0"
 edition = "2021"
 description = "Rust bindings for whisper.cpp"
 license = "Unlicense"
@@ -18,11 +18,11 @@ whisper-rs-sys = { path = "sys", version = "0.8" }
 
 [dev-dependencies]
 hound = "3.5.0"
+rand = "0.8.4"
 
 [features]
 default = []
 
-simd = []
 coreml = ["whisper-rs-sys/coreml"]
 cuda = ["whisper-rs-sys/cuda", "_gpu"]
 opencl = ["whisper-rs-sys/opencl"]
