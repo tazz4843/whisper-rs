@@ -1,4 +1,5 @@
 #![allow(clippy::uninlined_format_args)]
+#![cfg_attr(test, feature(test))]
 
 mod error;
 mod standalone;
