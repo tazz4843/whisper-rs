@@ -121,7 +121,7 @@ impl<'a, 'b> FullParams<'a, 'b> {
         self.fp.single_segment = single_segment;
     }
 
-    /// Print special tokens (e.g. <SOT>, <EOT>, <BEG>, etc.)
+    /// Print special tokens (e.g. `<SOT>`, `<EOT>`, `<BEG>`, etc.)
     ///
     /// Defaults to false.
     pub fn set_print_special(&mut self, print_special: bool) {
@@ -285,7 +285,8 @@ impl<'a, 'b> FullParams<'a, 'b> {
         self.fp.detect_language = detect_language;
     }
 
-    /// Set suppress_blank. See https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/decoding.py#L89
+    /// Set suppress_blank.
+    /// See <https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/decoding.py#L89>
     /// for more information.
     ///
     /// Defaults to true.
@@ -293,7 +294,8 @@ impl<'a, 'b> FullParams<'a, 'b> {
         self.fp.suppress_blank = suppress_blank;
     }
 
-    /// Set suppress_non_speech_tokens. See https://github.com/openai/whisper/blob/7858aa9c08d98f75575035ecd6481f462d66ca27/whisper/tokenizer.py#L224-L253
+    /// Set suppress_non_speech_tokens.
+    /// See <https://github.com/openai/whisper/blob/7858aa9c08d98f75575035ecd6481f462d66ca27/whisper/tokenizer.py#L224-L253>
     /// for more information.
     ///
     /// Defaults to false.
@@ -301,14 +303,16 @@ impl<'a, 'b> FullParams<'a, 'b> {
         self.fp.suppress_non_speech_tokens = suppress_non_speech_tokens;
     }
 
-    /// Set initial decoding temperature. See https://ai.stackexchange.com/a/32478 for more information.
+    /// Set initial decoding temperature.
+    /// See <https://ai.stackexchange.com/a/32478> for more information.
     ///
     /// Defaults to 0.0.
     pub fn set_temperature(&mut self, temperature: f32) {
         self.fp.temperature = temperature;
     }
 
-    /// Set max_initial_ts. See https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/decoding.py#L97
+    /// Set max_initial_ts.
+    /// See <https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/decoding.py#L97>
     /// for more information.
     ///
     /// Defaults to 1.0.
@@ -316,7 +320,8 @@ impl<'a, 'b> FullParams<'a, 'b> {
         self.fp.max_initial_ts = max_initial_ts;
     }
 
-    /// Set length_penalty. See https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/transcribe.py#L267
+    /// Set length_penalty.
+    /// See <https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/transcribe.py#L267>
     /// for more information.
     ///
     /// Defaults to -1.0.
@@ -324,7 +329,8 @@ impl<'a, 'b> FullParams<'a, 'b> {
         self.fp.length_penalty = length_penalty;
     }
 
-    /// Set temperature_inc. See https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/transcribe.py#L274-L278
+    /// Set temperature_inc.
+    /// See <https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/transcribe.py#L274-L278>
     /// for more information.
     ///
     /// Defaults to 0.2.
@@ -333,14 +339,15 @@ impl<'a, 'b> FullParams<'a, 'b> {
     }
 
     /// Set entropy_thold. Similar to OpenAI's compression_ratio_threshold.
-    /// See https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/transcribe.py#L274-L278 for more information.
+    /// See <https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/transcribe.py#L274-L278> for more information.
     ///
     /// Defaults to 2.4.
     pub fn set_entropy_thold(&mut self, entropy_thold: f32) {
         self.fp.entropy_thold = entropy_thold;
     }
 
-    /// Set logprob_thold. See https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/transcribe.py#L274-L278
+    /// Set logprob_thold.
+    /// See <https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/transcribe.py#L274-L278>
     /// for more information.
     ///
     /// Defaults to -1.0.

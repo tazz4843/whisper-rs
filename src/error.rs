@@ -1,7 +1,10 @@
 use std::ffi::{c_int, NulError};
 use std::str::Utf8Error;
 
-/// Whisper tends to output errors to stderr, so if an error occurs, check stderr.
+/// If you have not configured a logging trampoline with [crate::whisper_sys_log::install_whisper_log_trampoline] or
+/// [crate::whisper_sys_tracing::install_whisper_tracing_trampoline],
+/// then `whisper.cpp`'s errors will be output to stderr,
+/// so you can check there for more information upon receiving a `WhisperError`.
 #[derive(Debug, Copy, Clone)]
 pub enum WhisperError {
     /// Failed to create a new context.

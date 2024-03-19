@@ -6,7 +6,8 @@ use std::ffi::{c_int, CStr, CString};
 /// Safe Rust wrapper around a Whisper context.
 ///
 /// You likely want to create this with [WhisperContext::new_with_params],
-/// then run a full transcription with [WhisperContext::full].
+/// create a state with [WhisperContext::create_state],
+/// then run a full transcription with [WhisperState::full].
 #[derive(Debug)]
 pub struct WhisperContext {
     ctx: *mut whisper_rs_sys::whisper_context,
@@ -138,7 +139,7 @@ impl WhisperContext {
     /// * text: The text to convert.
     ///
     /// # Returns
-    /// Ok(Vec<WhisperToken>) on success, Err(WhisperError) on failure.
+    /// `Ok(Vec<WhisperToken>)` on success, `Err(WhisperError)` on failure.
     ///
     /// # C++ equivalent
     /// `int whisper_tokenize(struct whisper_context * ctx, const char * text, whisper_token * tokens, int n_max_tokens);`

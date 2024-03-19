@@ -112,7 +112,7 @@ impl<'a> WhisperState<'a> {
     /// # Note
     /// This is a low-level function.
     /// If you're a typical user, you probably don't want to use this function.
-    /// See instead [WhisperContext::pcm_to_mel].
+    /// See instead [WhisperState::pcm_to_mel].
     ///
     /// # Arguments
     /// * data: The log mel spectrogram.
@@ -144,7 +144,7 @@ impl<'a> WhisperState<'a> {
     }
 
     /// Run the Whisper encoder on the log mel spectrogram stored inside the provided whisper state.
-    /// Make sure to call [WhisperContext::pcm_to_mel] or [WhisperContext::set_mel] first.
+    /// Make sure to call [WhisperState::pcm_to_mel] or [WhisperState::set_mel] first.
     ///
     /// # Arguments
     /// * offset: Can be used to specify the offset of the first frame in the spectrogram. Usually 0.
@@ -177,7 +177,7 @@ impl<'a> WhisperState<'a> {
     }
 
     /// Run the Whisper decoder to obtain the logits and probabilities for the next token.
-    /// Make sure to call [WhisperContext::encode] first.
+    /// Make sure to call [WhisperState::encode] first.
     /// tokens + n_tokens is the provided context for the decoder.
     ///
     /// # Arguments
@@ -228,7 +228,7 @@ impl<'a> WhisperState<'a> {
     /// * n_threads: How many threads to use. Defaults to 1. Must be at least 1, returns an error otherwise.
     ///
     /// # Returns
-    /// Ok(Vec<f32>) on success, Err(WhisperError) on failure.
+    /// `Ok(Vec<f32>)` on success, `Err(WhisperError)` on failure.
     ///
     /// # C++ equivalent
     /// `int whisper_lang_auto_detect(struct whisper_context * ctx, int offset_ms, int n_threads, float * lang_probs)`
@@ -270,7 +270,7 @@ impl<'a> WhisperState<'a> {
     }
 
     // logit functions
-    /// Gets logits obtained from the last call to [WhisperContext::decode].
+    /// Gets logits obtained from the last call to [WhisperState::decode].
     /// As of whisper.cpp 1.4.1, only a single row of logits is available, corresponding to the last token in the input.
     ///
     /// # Returns
@@ -319,7 +319,8 @@ impl<'a> WhisperState<'a> {
     ///
     /// # Arguments
     /// * params: [crate::FullParams] struct.
-    /// * pcm: PCM audio data.
+    /// * pcm: raw PCM audio data, 32 bit floating point at a sample rate of 16 kHz, 1 channel.
+    ///   See utilities in the root of this crate for functions to convert audio to this format.
     ///
     /// # Returns
     /// Ok(c_int) on success, Err(WhisperError) on failure.
@@ -424,7 +425,7 @@ impl<'a> WhisperState<'a> {
     /// * segment: Segment index.
     ///
     /// # Returns
-    /// Ok(Vec<u8>) on success, Err(WhisperError) on failure.
+    /// `Ok(Vec<u8>)` on success, `Err(WhisperError)` on failure.
     ///
     /// # C++ equivalent
     /// `const char * whisper_full_get_segment_text(struct whisper_context * ctx, int i_segment)`
