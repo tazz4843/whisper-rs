@@ -44,6 +44,10 @@ pub enum WhisperError {
     FailedToCreateState,
     /// No samples were provided.
     NoSamples,
+    /// Input and output slices were not the same length.
+    InputOutputLengthMismatch { input_len: usize, output_len: usize },
+    /// Input slice was not an even number of samples.
+    HalfSampleMissing(usize),
 }
 
 impl From<Utf8Error> for WhisperError {
@@ -112,6 +116,24 @@ impl std::fmt::Display for WhisperError {
                 c_int
             ),
             NoSamples => write!(f, "Input sample buffer was empty."),
+            InputOutputLengthMismatch {
+                output_len,
+                input_len,
+            } => {
+                write!(
+                    f,
+                    "Input and output slices were not the same length. Input: {}, Output: {}",
+                    input_len, output_len
+                )
+            }
+            HalfSampleMissing(size) => {
+                write!(
+                    f,
+                    "Input slice was not an even number of samples, got {}, expected {}",
+                    size,
+                    size + 1
+                )
+            }
         }
     }
 }
