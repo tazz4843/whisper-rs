@@ -557,7 +557,9 @@ impl<'a> WhisperState<'a> {
     /// `bool whisper_full_get_segment_speaker_turn_next_from_state(struct whisper_state * state, int i_segment)`
     pub fn full_get_segment_speaker_turn_next(&mut self, i_segment: c_int) -> bool {
         unsafe {
-            whisper_rs_sys::whisper_full_get_segment_speaker_turn_next_from_state(self.ptr, i_segment)
+            whisper_rs_sys::whisper_full_get_segment_speaker_turn_next_from_state(
+                self.ptr, i_segment,
+            )
         }
     }
 }
