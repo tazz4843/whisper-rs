@@ -1,4 +1,5 @@
 #![allow(clippy::uninlined_format_args)]
+#![cfg_attr(test, feature(test))]
 
 mod error;
 mod standalone;
@@ -7,15 +8,26 @@ mod whisper_ctx;
 mod whisper_grammar;
 mod whisper_params;
 mod whisper_state;
+#[cfg(feature = "whisper-cpp-log")]
+mod whisper_sys_log;
+#[cfg(feature = "whisper-cpp-tracing")]
+mod whisper_sys_tracing;
+
+static LOG_TRAMPOLINE_INSTALL: Once = Once::new();
 
 pub use error::WhisperError;
 pub use standalone::*;
+use std::sync::Once;
 pub use utilities::*;
 pub use whisper_ctx::WhisperContext;
 pub use whisper_ctx::WhisperContextParameters;
 pub use whisper_grammar::{WhisperGrammarElement, WhisperGrammarElementType};
 pub use whisper_params::{FullParams, SamplingStrategy};
 pub use whisper_state::WhisperState;
+#[cfg(feature = "whisper-cpp-log")]
+pub use whisper_sys_log::install_whisper_log_trampoline;
+#[cfg(feature = "whisper-cpp-tracing")]
+pub use whisper_sys_tracing::install_whisper_tracing_trampoline;
 
 pub type WhisperSysContext = whisper_rs_sys::whisper_context;
 pub type WhisperSysState = whisper_rs_sys::whisper_state;
