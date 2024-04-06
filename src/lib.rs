@@ -18,6 +18,7 @@ static LOG_TRAMPOLINE_INSTALL: Once = Once::new();
 
 pub use error::WhisperError;
 pub use standalone::*;
+#[cfg(any(feature = "whisper-cpp-log", feature = "whisper-cpp-tracing"))]
 use std::sync::Once;
 pub use utilities::*;
 pub use whisper_ctx::WhisperContext;
