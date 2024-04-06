@@ -43,12 +43,15 @@ fn main() {
     }
 
     let original_samples = parse_wav_file(audio_path);
-    let samples = whisper_rs::convert_integer_to_float_audio(&original_samples);
+    let mut samples = Vec::with_capacity(original_samples.len());
+    whisper_rs::convert_integer_to_float_audio(&original_samples, &mut samples)
+        .expect("failed to convert samples");
 
     let ctx = WhisperContext::new_with_params(
         &whisper_path.to_string_lossy(),
-        WhisperContextParameters::default()
-    ).expect("failed to open model");
+        WhisperContextParameters::default(),
+    )
+    .expect("failed to open model");
     let mut state = ctx.create_state().expect("failed to create key");
     let mut params = FullParams::new(SamplingStrategy::default());
     params.set_initial_prompt("experience");

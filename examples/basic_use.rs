@@ -39,9 +39,11 @@ pub fn usage() -> Result<(), &'static str> {
     // note that you don't need to use these, you can do it yourself or any other way you want
     // these are just provided for convenience
     // SIMD variants of these functions are also available, but only on nightly Rust: see the docs
-    let audio_data = whisper_rs::convert_stereo_to_mono_audio(
-        &whisper_rs::convert_integer_to_float_audio(&audio_data),
-    )?;
+    let mut inter_audio_data = Vec::with_capacity(audio_data.len());
+    whisper_rs::convert_integer_to_float_audio(&audio_data, &mut inter_audio_data)
+        .expect("failed to convert audio data");
+    let audio_data = whisper_rs::convert_stereo_to_mono_audio(&inter_audio_data)
+        .expect("failed to convert audio data");
 
     // now we can run the model
     // note the key we use here is the one we created above
