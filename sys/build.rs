@@ -44,6 +44,7 @@ fn main() {
         println!("cargo:rustc-link-lib=cublas");
         println!("cargo:rustc-link-lib=cudart");
         println!("cargo:rustc-link-lib=cublasLt");
+        println!("cargo:rustc-link-lib=cuda");
         cfg_if::cfg_if! {
             if #[cfg(target_os = "windows")] {
                 let cuda_path = PathBuf::from(env::var("CUDA_PATH").unwrap()).join("lib/x64");

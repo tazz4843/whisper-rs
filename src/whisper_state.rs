@@ -576,4 +576,22 @@ impl<'a> WhisperState<'a> {
             },
         )
     }
+
+    /// Get whether the next segment is predicted as a speaker turn.
+    ///
+    /// # Arguments
+    /// * i_segment: Segment index.
+    ///
+    /// # Returns
+    /// bool
+    ///
+    /// # C++ equivalent
+    /// `bool whisper_full_get_segment_speaker_turn_next_from_state(struct whisper_state * state, int i_segment)`
+    pub fn full_get_segment_speaker_turn_next(&mut self, i_segment: c_int) -> bool {
+        unsafe {
+            whisper_rs_sys::whisper_full_get_segment_speaker_turn_next_from_state(
+                self.ptr, i_segment,
+            )
+        }
+    }
 }
