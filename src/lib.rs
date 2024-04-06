@@ -24,6 +24,8 @@ pub use whisper_ctx::WhisperContext;
 pub use whisper_ctx::WhisperContextParameters;
 pub use whisper_grammar::{WhisperGrammarElement, WhisperGrammarElementType};
 pub use whisper_params::{FullParams, SamplingStrategy};
+#[cfg(feature = "raw-api")]
+pub use whisper_rs_sys;
 pub use whisper_state::WhisperState;
 #[cfg(feature = "whisper-cpp-log")]
 pub use whisper_sys_log::install_whisper_log_trampoline;
