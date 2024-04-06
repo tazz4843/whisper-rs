@@ -13,6 +13,7 @@ mod whisper_sys_log;
 #[cfg(feature = "whisper-cpp-tracing")]
 mod whisper_sys_tracing;
 
+#[cfg(any(feature = "whisper-cpp-log", feature = "whisper-cpp-tracing"))]
 static LOG_TRAMPOLINE_INSTALL: Once = Once::new();
 
 pub use error::WhisperError;
