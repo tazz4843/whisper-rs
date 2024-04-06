@@ -483,6 +483,37 @@ impl<'a> WhisperState<'a> {
         Ok(r_str.to_string())
     }
 
+    /// Get the token text of the specified token in the specified segment.
+    /// This function differs from [WhisperState::full_get_token_text]
+    /// in that it ignores invalid UTF-8 in whisper strings,
+    /// instead opting to replace it with the replacement character.
+    ///
+    /// # Arguments
+    /// * segment: Segment index.
+    /// * token: Token index.
+    ///
+    /// # Returns
+    /// Ok(String) on success, Err(WhisperError) on failure.
+    ///
+    /// # C++ equivalent
+    /// `const char * whisper_full_get_token_text(struct whisper_context * ctx, int i_segment, int i_token)`
+    pub fn full_get_token_text_lossy(
+        &self,
+        segment: c_int,
+        token: c_int,
+    ) -> Result<String, WhisperError> {
+        let ret = unsafe {
+            whisper_rs_sys::whisper_full_get_token_text_from_state(
+                self.ctx, self.ptr, segment, token,
+            )
+        };
+        if ret.is_null() {
+            return Err(WhisperError::NullPointer);
+        }
+        let c_str = unsafe { CStr::from_ptr(ret) };
+        Ok(c_str.to_string_lossy().to_string())
+    }
+
     /// Get the token ID of the specified token in the specified segment.
     ///
     /// # Arguments
