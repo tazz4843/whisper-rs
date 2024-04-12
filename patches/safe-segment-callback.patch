@@ -1,0 +1,127 @@
+# https://github.com/tazz4843/whisper-rs/pull/97
+diff --git a/src/lib.rs b/src/lib.rs
+index 8c3ac3c..bd8319d 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -12,7 +12,7 @@ pub use error::WhisperError;
+ pub use standalone::*;
+ pub use utilities::*;
+ pub use whisper_ctx::WhisperContext;
+-pub use whisper_params::{FullParams, SamplingStrategy};
++pub use whisper_params::{FullParams, SamplingStrategy, SegmentCallbackData};
+ pub use whisper_state::WhisperState;
+ 
+ pub type WhisperSysContext = whisper_rs_sys::whisper_context;
+diff --git a/src/whisper_params.rs b/src/whisper_params.rs
+index 73e57be..d258d83 100644
+--- a/src/whisper_params.rs
++++ b/src/whisper_params.rs
+@@ -20,11 +20,22 @@ impl Default for SamplingStrategy {
+     }
+ }
+ 
++#[derive(Debug, Clone)]
++pub struct SegmentCallbackData {
++    pub segment: i32,
++    pub start_timestamp: i64,
++    pub end_timestamp: i64,
++    pub text: String,
++}
++
++type SegmentCallbackFn = Box<dyn FnMut(SegmentCallbackData)>;
++
+ pub struct FullParams<'a, 'b> {
+     pub(crate) fp: whisper_rs_sys::whisper_full_params,
+     phantom_lang: PhantomData<&'a str>,
+     phantom_tokens: PhantomData<&'b [c_int]>,
+     progess_callback_safe: Option<Box<dyn FnMut(i32)>>,
++    segment_calllback_safe: Option<SegmentCallbackFn>,
+ }
+ 
+ impl<'a, 'b> FullParams<'a, 'b> {
+@@ -59,6 +70,7 @@ impl<'a, 'b> FullParams<'a, 'b> {
+             phantom_lang: PhantomData,
+             phantom_tokens: PhantomData,
+             progess_callback_safe: None,
++            segment_calllback_safe: None,
+         }
+     }
+ 
+@@ -373,6 +385,77 @@ impl<'a, 'b> FullParams<'a, 'b> {
+         self.fp.new_segment_callback_user_data = user_data;
+     }
+ 
++    /// Set the callback for segment updates.
++    ///
++    /// Provides a limited segment_callback to ensure safety.
++    /// See `set_new_segment_callback` if you need to use `whisper_context` and `whisper_state`
++    /// 
++    /// Defaults to None.
++    pub fn set_segment_callback_safe<O, F>(&mut self, closure: O)
++    where
++        F: FnMut(SegmentCallbackData) + 'static,
++        O: Into<Option<F>>,
++    {
++        use std::ffi::{c_void, CStr};
++        use whisper_rs_sys::{whisper_context, whisper_state};
++
++        extern "C" fn trampoline<F>(
++            _: *mut whisper_context,
++            state: *mut whisper_state,
++            n_new: i32,
++            user_data: *mut c_void,
++        ) where
++            F: FnMut(SegmentCallbackData) + 'static,
++        {
++            unsafe {
++                let user_data = &mut *(user_data as *mut SegmentCallbackFn);
++                let n_segments = whisper_rs_sys::whisper_full_n_segments_from_state(state);
++                let s0 = n_segments - n_new;
++                //let user_data = user_data as *mut Box<dyn FnMut(SegmentCallbackData)>;
++
++                for i in s0..n_segments {
++                    let text = whisper_rs_sys::whisper_full_get_segment_text_from_state(state, i);
++                    let text = CStr::from_ptr(text);
++
++                    let t0 = whisper_rs_sys::whisper_full_get_segment_t0_from_state(state, i);
++                    let t1 = whisper_rs_sys::whisper_full_get_segment_t1_from_state(state, i);
++
++                    match text.to_str() {
++                        Ok(n) => {
++                            user_data(SegmentCallbackData {
++                                segment: i,
++                                start_timestamp: t0,
++                                end_timestamp: t1,
++                                text: n.to_string(),
++                            })
++                        }
++                        Err(_) => {}
++                    }
++                }
++            }
++        }
++
++        match closure.into() {
++            Some(closure) => {
++                // Stable address
++                let closure = Box::new(closure) as SegmentCallbackFn;
++                // Thin pointer
++                let closure = Box::new(closure);
++                // Raw pointer 
++                let closure = Box::into_raw(closure);
++
++                self.fp.new_segment_callback_user_data = closure as *mut c_void;
++                self.fp.new_segment_callback = Some(trampoline::<SegmentCallbackFn>);
++                self.segment_calllback_safe = Box::new(closure); 
++            }
++            None => {
++                self.segment_calllback_safe = None;
++                self.fp.new_segment_callback = None;
++                self.fp.new_segment_callback_user_data = std::ptr::null_mut::<c_void>();
++            }
++        }
++    }
++
+     /// Set the callback for progress updates.
+     ///
+     /// Note that is still a C callback.
