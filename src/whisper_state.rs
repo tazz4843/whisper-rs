@@ -419,6 +419,29 @@ impl<'a> WhisperState<'a> {
         Ok(r_str.to_string())
     }
 
+    /// Get the text of the specified segment.
+    /// This function differs from [WhisperState::full_get_segment_text]
+    /// in that it ignores invalid UTF-8 in whisper strings,
+    /// instead opting to replace it with the replacement character.
+    /// 
+    /// # Arguments
+    /// * segment: Segment index.
+    ///
+    /// # Returns
+    /// Ok(String) on success, Err(WhisperError) on failure.
+    ///
+    /// # C++ equivalent
+    /// `const char * whisper_full_get_segment_text(struct whisper_context * ctx, int i_segment)`
+    pub fn full_get_segment_text_lossy(&self, segment: c_int) -> Result<String, WhisperError> {
+        let ret =
+            unsafe { whisper_rs_sys::whisper_full_get_segment_text_from_state(self.ptr, segment) };
+        if ret.is_null() {
+            return Err(WhisperError::NullPointer);
+        }
+        let c_str = unsafe { CStr::from_ptr(ret) };
+        Ok(c_str.to_string_lossy().to_string())
+    }
+
     /// Get the bytes of the specified segment.
     ///
     /// # Arguments
