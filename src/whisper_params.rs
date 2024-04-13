@@ -463,7 +463,7 @@ impl<'a, 'b> FullParams<'a, 'b> {
 
                 self.fp.new_segment_callback_user_data = closure as *mut c_void;
                 self.fp.new_segment_callback = Some(trampoline::<SegmentCallbackFn>);
-                self.segment_calllback_safe = Box::new(closure); 
+                self.segment_calllback_safe = None; 
             }
             None => {
                 self.segment_calllback_safe = None;
