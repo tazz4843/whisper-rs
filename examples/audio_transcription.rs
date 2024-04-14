@@ -35,7 +35,7 @@ fn main() -> Result<(), &'static str> {
     params.set_print_timestamps(false);
 
     // Open the audio file.
-    let mut reader = hound::WavReader::open("audio.wav").expect("failed to open file");
+    let reader = hound::WavReader::open("audio.wav").expect("failed to open file");
     #[allow(unused_variables)]
     let hound::WavSpec {
         channels,
@@ -45,18 +45,18 @@ fn main() -> Result<(), &'static str> {
     } = reader.spec();
 
     // Convert the audio to floating point samples.
-    let mut audio = whisper_rs::convert_integer_to_float_audio(
-        &reader
-            .samples::<i16>()
-            .map(|s| s.expect("invalid sample"))
-            .collect::<Vec<_>>(),
-    );
+    let samples: Vec<i16> = reader
+        .into_samples::<i16>()
+        .map(|x| x.expect("Invalid sample"))
+        .collect();
+    let mut audio = vec![0.0f32; samples.len().try_into().unwrap()];
+    whisper_rs::convert_integer_to_float_audio(&samples, &mut audio).expect("Conversion error");
 
     // Convert audio to 16KHz mono f32 samples, as required by the model.
     // These utilities are provided for convenience, but can be replaced with custom conversion logic.
     // SIMD variants of these functions are also available on nightly Rust (see the docs).
     if channels == 2 {
-        audio = whisper_rs::convert_stereo_to_mono_audio(&audio)?;
+        audio = whisper_rs::convert_stereo_to_mono_audio(&audio).expect("Conversion error");
     } else if channels != 1 {
         panic!(">2 channels unsupported");
     }
