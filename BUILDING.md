@@ -1,5 +1,5 @@
 # Running on Arch Linux
-`sudo pacman -Syy cuda llvm clang cmake`
+`sudo pacman -Syy llvm clang cmake`
 `cargo build`
 
 # Running on Windows using MSYS2
