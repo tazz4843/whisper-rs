@@ -1,3 +1,6 @@
+# Running on Arch Linux
+`sudo pacman -Syy cuda llvm clang cmake`
+`cargo build`
 
 # Running on Windows using MSYS2
 
@@ -26,6 +29,15 @@ Make sure you have installed and in the path:
 - Visual Studio C++
 - cmake
 - LLVM(clang)
+
+### Instructions (for builds with `cuda` enabled)
+1. Download [CUDA](https://developer.nvidia.com/cuda-downloads?target_os=Windows)
+2. Download [Visual Studio with Desktop C++ and Clang enabled](https://visualstudio.microsoft.com/de/downloads/) (see clang link below for installer walkthrough)
+3. Download [CLANG](https://www.wikihow.com/Install-Clang-on-Windows)
+4. Download [CMAKE](https://cmake.org/download/)
+5. Run `where.exe clang`, then `setx LIBCLANG_PATH "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\bin"` or something like that
+6. Restart your shell!!!
+7. Cargo build
 
 # Running on M1 OSX
 
