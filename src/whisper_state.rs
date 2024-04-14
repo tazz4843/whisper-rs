@@ -423,7 +423,7 @@ impl<'a> WhisperState<'a> {
     /// This function differs from [WhisperState::full_get_segment_text]
     /// in that it ignores invalid UTF-8 in whisper strings,
     /// instead opting to replace it with the replacement character.
-    /// 
+    ///
     /// # Arguments
     /// * segment: Segment index.
     ///
