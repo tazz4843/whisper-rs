@@ -52,7 +52,9 @@ fn main() {
             } else {
                 println!("cargo:rustc-link-lib=culibos");
                 println!("cargo:rustc-link-search=/usr/local/cuda/lib64");
+                println!("cargo:rustc-link-search=/usr/local/cuda/lib64/stubs");
                 println!("cargo:rustc-link-search=/opt/cuda/lib64");
+                println!("cargo:rustc-link-search=/opt/cuda/lib64/stubs");
             }
         }
     }
