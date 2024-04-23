@@ -552,6 +552,21 @@ pub struct WhisperContextParameters {
     /// **Warning**: Does not have an effect if OpenCL is selected as GPU backend
     /// (in that case, GPU is always enabled).
     pub use_gpu: bool,
+    /// GPU device id, default 0
+    pub gpu_device: c_int,
+    /// [EXPERIMENTAL] Enable Token-level timestamps with DTW, default 0
+    pub dtw_token_timestamps: bool,
+    /// Preset id for DTW, default whisper_alignment_heads_preset_WHISPER_AHEADS_NONE
+    pub dtw_aheads_preset : whisper_rs_sys::whisper_alignment_heads_preset,
+    /// Number of top text layers used from model. Only with whisper_alignment_heads_preset_WHISPER_AHEADS_N_TOP_MOST preset.
+    pub dtw_n_top : c_int,
+    /// Custom aheads, only with whisper_alignment_heads_preset_WHISPER_AHEADS_CUSTOM preset
+    /// See details https://github.com/ggerganov/whisper.cpp/pull/1485#discussion_r1519681143
+    pub dtw_aheads: whisper_rs_sys::whisper_aheads,
+    /// Memory size for DTW
+    ///
+    /// **Warning**: Might be removed in next version of whisper.cpp
+    pub dtw_mem_size : usize
 }
 
 #[allow(clippy::derivable_impls)] // this impl cannot be derived
@@ -559,6 +574,12 @@ impl Default for WhisperContextParameters {
     fn default() -> Self {
         Self {
             use_gpu: cfg!(feature = "_gpu"),
+            gpu_device: 0,
+            dtw_token_timestamps: false,
+            dtw_aheads_preset : whisper_rs_sys::whisper_alignment_heads_preset_WHISPER_AHEADS_NONE,
+            dtw_n_top: -1,
+            dtw_aheads :  whisper_rs_sys::whisper_aheads { n_heads: 0, heads: std::ptr::null() },
+            dtw_mem_size : 1024 * 1024 * 128
         }
     }
 }
@@ -570,9 +591,39 @@ impl WhisperContextParameters {
         self.use_gpu = use_gpu;
         self
     }
+    pub fn gpu_device(&mut self, gpu_device: c_int) -> &mut Self {
+        self.gpu_device = gpu_device;
+        self
+    }
+    pub fn dtw_token_timestamps(&mut self, dtw_token_timestamps: bool) -> &mut Self {
+        self.dtw_token_timestamps = dtw_token_timestamps;
+        self
+    }
+    pub fn dtw_aheads_preset(&mut self, dtw_aheads_preset: whisper_rs_sys::whisper_alignment_heads_preset) -> &mut Self {
+        self.dtw_aheads_preset = dtw_aheads_preset;
+        self
+    }
+    pub fn dtw_n_top(&mut self, dtw_n_top: c_int) -> &mut Self {
+        self.dtw_n_top = dtw_n_top;
+        self
+    }
+    pub fn dtw_aheads(&mut self, dtw_aheads: whisper_rs_sys::whisper_aheads) -> &mut Self {
+        self.dtw_aheads = dtw_aheads;
+        self
+    }
+    pub fn dtw_mem_size(&mut self, dtw_mem_size: usize) -> &mut Self {
+        self.dtw_mem_size = dtw_mem_size;
+        self
+    }
     fn to_c_struct(&self) -> whisper_rs_sys::whisper_context_params {
         whisper_rs_sys::whisper_context_params {
             use_gpu: self.use_gpu,
+            gpu_device: self.gpu_device,
+            dtw_token_timestamps: self.dtw_token_timestamps,
+            dtw_aheads_preset: self.dtw_aheads_preset,
+            dtw_n_top: self.dtw_n_top,
+            dtw_aheads: self.dtw_aheads,
+            dtw_mem_size: self.dtw_mem_size,
         }
     }
 }
