@@ -43,7 +43,7 @@ fn main() {
     }
 
     let original_samples = parse_wav_file(audio_path);
-    let mut samples = Vec::with_capacity(original_samples.len());
+    let mut samples = vec![0.0f32; original_samples.len()]; 
     whisper_rs::convert_integer_to_float_audio(&original_samples, &mut samples)
         .expect("failed to convert samples");
 
