@@ -5,15 +5,15 @@ use std::ffi::{c_int, CStr, CString};
 
 /// Safe Rust wrapper around a Whisper context.
 ///
-/// You likely want to create this with [WhisperContext::new_with_params],
-/// create a state with [WhisperContext::create_state],
+/// You likely want to create this with [WhisperInnerContext::new_with_params],
+/// create a state with [WhisperInnerContext::create_state],
 /// then run a full transcription with [WhisperState::full].
 #[derive(Debug)]
-pub struct WhisperContext {
+pub struct WhisperInnerContext {
     pub(crate) ctx: *mut whisper_rs_sys::whisper_context,
 }
 
-impl WhisperContext {
+impl WhisperInnerContext {
     /// Create a new WhisperContext from a file, with parameters.
     ///
     /// # Arguments
@@ -516,7 +516,7 @@ impl WhisperContext {
     }
 }
 
-impl Drop for WhisperContext {
+impl Drop for WhisperInnerContext {
     #[inline]
     fn drop(&mut self) {
         unsafe { whisper_rs_sys::whisper_free(self.ctx) };
@@ -525,8 +525,8 @@ impl Drop for WhisperContext {
 
 // following implementations are safe
 // see https://github.com/ggerganov/whisper.cpp/issues/32#issuecomment-1272790388
-unsafe impl Send for WhisperContext {}
-unsafe impl Sync for WhisperContext {}
+unsafe impl Send for WhisperInnerContext {}
+unsafe impl Sync for WhisperInnerContext {}
 
 pub struct WhisperContextParameters {
     /// Use GPU if available.
@@ -570,7 +570,7 @@ mod test_with_tiny_model {
 
     #[test]
     fn test_tokenize_round_trip() {
-        let ctx = WhisperContext::new(MODEL_PATH).expect("Download the ggml-tiny.en model using 'sys/whisper.cpp/models/download-ggml-model.sh tiny.en'");
+        let ctx = WhisperInnerContext::new(MODEL_PATH).expect("Download the ggml-tiny.en model using 'sys/whisper.cpp/models/download-ggml-model.sh tiny.en'");
         let text_in = " And so my fellow Americans, ask not what your country can do for you, ask what you can do for your country.";
         let tokens = ctx.tokenize(text_in, 1024).unwrap();
         let text_out = tokens

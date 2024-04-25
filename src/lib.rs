@@ -22,7 +22,7 @@ pub use standalone::*;
 #[cfg(any(feature = "whisper-cpp-log", feature = "whisper-cpp-tracing"))]
 use std::sync::Once;
 pub use utilities::*;
-pub use whisper_ctx::WhisperContext;
+use whisper_ctx::WhisperInnerContext;
 pub use whisper_ctx_wrapper::WhisperContextWrapper;
 pub use whisper_ctx::WhisperContextParameters;
 pub use whisper_grammar::{WhisperGrammarElement, WhisperGrammarElementType};

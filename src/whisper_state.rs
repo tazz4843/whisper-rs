@@ -1,12 +1,12 @@
 use std::ffi::{c_int, CStr};
 use std::sync::Arc;
 
-use crate::{FullParams, WhisperContext, WhisperError, WhisperToken, WhisperTokenData};
+use crate::{FullParams, WhisperInnerContext, WhisperError, WhisperToken, WhisperTokenData};
 
 /// Rustified pointer to a Whisper state.
 #[derive(Debug)]
 pub struct WhisperState {
-    ctx: Arc<WhisperContext>,
+    ctx: Arc<WhisperInnerContext>,
     ptr: *mut whisper_rs_sys::whisper_state,
 }
 
@@ -24,7 +24,7 @@ impl Drop for WhisperState {
 
 impl WhisperState {
     pub(crate) fn new(
-        ctx: Arc<WhisperContext>,
+        ctx: Arc<WhisperInnerContext>,
         ptr: *mut whisper_rs_sys::whisper_state,
     ) -> Self {
         Self {

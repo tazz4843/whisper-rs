@@ -1,14 +1,14 @@
 use std::ffi::{c_int, CStr};
 use std::sync::Arc;
 
-use crate::{WhisperContext, WhisperContextParameters, WhisperError, WhisperState, WhisperToken};
+use crate::{WhisperInnerContext, WhisperContextParameters, WhisperError, WhisperState, WhisperToken};
 
 pub struct WhisperContextWrapper {
-    ctx: Arc<WhisperContext>,
+    ctx: Arc<WhisperInnerContext>,
 }
 
 impl WhisperContextWrapper {
-    fn wrap(ctx: WhisperContext) -> Self {
+    fn wrap(ctx: WhisperInnerContext) -> Self {
         Self {
             ctx: Arc::new(ctx),
         }
@@ -29,7 +29,7 @@ impl WhisperContextWrapper {
         path: &str,
         parameters: WhisperContextParameters,
     ) -> Result<Self, WhisperError> {
-        let ctx = WhisperContext::new_with_params(path, parameters)?;
+        let ctx = WhisperInnerContext::new_with_params(path, parameters)?;
         Ok(Self::wrap(ctx))
     }
 
@@ -47,7 +47,7 @@ impl WhisperContextWrapper {
         buffer: &[u8],
         parameters: WhisperContextParameters,
     ) -> Result<Self, WhisperError> {
-        let ctx = WhisperContext::new_from_buffer_with_params(buffer, parameters)?;
+        let ctx = WhisperInnerContext::new_from_buffer_with_params(buffer, parameters)?;
         Ok(Self::wrap(ctx))
     }
 
@@ -63,7 +63,7 @@ impl WhisperContextWrapper {
     /// `struct whisper_context * whisper_init_from_file_no_state(const char * path_model)`
     #[deprecated = "Use `new_with_params` instead"]
     pub fn new(path: &str) -> Result<Self, WhisperError> {
-        let ctx = WhisperContext::new(path)?;
+        let ctx = WhisperInnerContext::new(path)?;
         Ok(Self::wrap(ctx))
     }
 
@@ -79,7 +79,7 @@ impl WhisperContextWrapper {
     /// `struct whisper_context * whisper_init_from_buffer_no_state(void * buffer, size_t buffer_size)`
     #[deprecated = "Use `new_from_buffer_with_params` instead"]
     pub fn new_from_buffer(buffer: &[u8]) -> Result<Self, WhisperError> {
-        let ctx = WhisperContext::new_from_buffer(buffer)?;
+        let ctx = WhisperInnerContext::new_from_buffer(buffer)?;
         Ok(Self::wrap(ctx))
     }
 
