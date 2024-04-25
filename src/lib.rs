@@ -23,7 +23,7 @@ pub use standalone::*;
 use std::sync::Once;
 pub use utilities::*;
 use whisper_ctx::WhisperInnerContext;
-pub use whisper_ctx_wrapper::WhisperContextWrapper;
+pub use whisper_ctx_wrapper::WhisperContext;
 pub use whisper_ctx::WhisperContextParameters;
 pub use whisper_grammar::{WhisperGrammarElement, WhisperGrammarElementType};
 pub use whisper_params::{FullParams, SamplingStrategy};

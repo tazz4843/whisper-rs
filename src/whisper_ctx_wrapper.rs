@@ -3,11 +3,11 @@ use std::sync::Arc;
 
 use crate::{WhisperInnerContext, WhisperContextParameters, WhisperError, WhisperState, WhisperToken};
 
-pub struct WhisperContextWrapper {
+pub struct WhisperContext {
     ctx: Arc<WhisperInnerContext>,
 }
 
-impl WhisperContextWrapper {
+impl WhisperContext {
     fn wrap(ctx: WhisperInnerContext) -> Self {
         Self {
             ctx: Arc::new(ctx),
