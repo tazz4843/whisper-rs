@@ -114,7 +114,6 @@ impl WhisperInnerContext {
         }
     }
 
-
     /// Convert the provided text into tokens.
     ///
     /// # Arguments

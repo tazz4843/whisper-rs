@@ -1,7 +1,9 @@
 use std::ffi::{c_int, CStr};
 use std::sync::Arc;
 
-use crate::{WhisperInnerContext, WhisperContextParameters, WhisperError, WhisperState, WhisperToken};
+use crate::{
+    WhisperContextParameters, WhisperError, WhisperInnerContext, WhisperState, WhisperToken,
+};
 
 pub struct WhisperContext {
     ctx: Arc<WhisperInnerContext>,
@@ -9,9 +11,7 @@ pub struct WhisperContext {
 
 impl WhisperContext {
     fn wrap(ctx: WhisperInnerContext) -> Self {
-        Self {
-            ctx: Arc::new(ctx),
-        }
+        Self { ctx: Arc::new(ctx) }
     }
 
     /// Create a new WhisperContext from a file, with parameters.
@@ -82,7 +82,6 @@ impl WhisperContext {
         let ctx = WhisperInnerContext::new_from_buffer(buffer)?;
         Ok(Self::wrap(ctx))
     }
-
 
     /// Convert the provided text into tokens.
     ///
@@ -452,7 +451,6 @@ impl WhisperContext {
     pub fn full_get_segment_speaker_turn_next(&self, i_segment: c_int) -> bool {
         self.ctx.full_get_segment_speaker_turn_next(i_segment)
     }
-
 
     // we don't implement `whisper_init()` here since i have zero clue what `whisper_model_loader` does
 

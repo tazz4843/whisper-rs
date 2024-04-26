@@ -1,7 +1,7 @@
 use std::ffi::{c_int, CStr};
 use std::sync::Arc;
 
-use crate::{FullParams, WhisperInnerContext, WhisperError, WhisperToken, WhisperTokenData};
+use crate::{FullParams, WhisperError, WhisperInnerContext, WhisperToken, WhisperTokenData};
 
 /// Rustified pointer to a Whisper state.
 #[derive(Debug)]
@@ -27,10 +27,7 @@ impl WhisperState {
         ctx: Arc<WhisperInnerContext>,
         ptr: *mut whisper_rs_sys::whisper_state,
     ) -> Self {
-        Self {
-            ctx,
-            ptr,
-        }
+        Self { ctx, ptr }
     }
 
     /// Convert raw PCM audio (floating point 32 bit) to log mel spectrogram.
@@ -495,7 +492,10 @@ impl WhisperState {
     ) -> Result<String, WhisperError> {
         let ret = unsafe {
             whisper_rs_sys::whisper_full_get_token_text_from_state(
-                self.ctx.ctx, self.ptr, segment, token,
+                self.ctx.ctx,
+                self.ptr,
+                segment,
+                token,
             )
         };
         if ret.is_null() {
@@ -527,7 +527,10 @@ impl WhisperState {
     ) -> Result<String, WhisperError> {
         let ret = unsafe {
             whisper_rs_sys::whisper_full_get_token_text_from_state(
-                self.ctx.ctx, self.ptr, segment, token,
+                self.ctx.ctx,
+                self.ptr,
+                segment,
+                token,
             )
         };
         if ret.is_null() {

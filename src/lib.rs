@@ -5,6 +5,7 @@ mod error;
 mod standalone;
 mod utilities;
 mod whisper_ctx;
+mod whisper_ctx_wrapper;
 mod whisper_grammar;
 mod whisper_params;
 mod whisper_state;
@@ -12,7 +13,6 @@ mod whisper_state;
 mod whisper_sys_log;
 #[cfg(feature = "whisper-cpp-tracing")]
 mod whisper_sys_tracing;
-mod whisper_ctx_wrapper;
 
 #[cfg(any(feature = "whisper-cpp-log", feature = "whisper-cpp-tracing"))]
 static LOG_TRAMPOLINE_INSTALL: Once = Once::new();
@@ -22,9 +22,9 @@ pub use standalone::*;
 #[cfg(any(feature = "whisper-cpp-log", feature = "whisper-cpp-tracing"))]
 use std::sync::Once;
 pub use utilities::*;
+pub use whisper_ctx::WhisperContextParameters;
 use whisper_ctx::WhisperInnerContext;
 pub use whisper_ctx_wrapper::WhisperContext;
-pub use whisper_ctx::WhisperContextParameters;
 pub use whisper_grammar::{WhisperGrammarElement, WhisperGrammarElementType};
 pub use whisper_params::{FullParams, SamplingStrategy};
 #[cfg(feature = "raw-api")]
