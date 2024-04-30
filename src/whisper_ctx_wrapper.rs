@@ -51,22 +51,6 @@ impl WhisperContext {
         Ok(Self::wrap(ctx))
     }
 
-    /// Create a new WhisperContext from a file.
-    ///
-    /// # Arguments
-    /// * path: The path to the model file.
-    ///
-    /// # Returns
-    /// Ok(Self) on success, Err(WhisperError) on failure.
-    ///
-    /// # C++ equivalent
-    /// `struct whisper_context * whisper_init_from_file_no_state(const char * path_model)`
-    #[deprecated = "Use `new_with_params` instead"]
-    pub fn new(path: &str) -> Result<Self, WhisperError> {
-        let ctx = WhisperInnerContext::new(path)?;
-        Ok(Self::wrap(ctx))
-    }
-
     /// Create a new WhisperContext from a buffer.
     ///
     /// # Arguments

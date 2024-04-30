@@ -1,5 +1,4 @@
 use crate::error::WhisperError;
-use crate::whisper_state::WhisperState;
 use crate::WhisperToken;
 use std::ffi::{c_int, CStr, CString};
 
@@ -64,27 +63,6 @@ impl WhisperInnerContext {
                 parameters.to_c_struct(),
             )
         };
-        if ctx.is_null() {
-            Err(WhisperError::InitError)
-        } else {
-            Ok(Self { ctx })
-        }
-    }
-
-    /// Create a new WhisperContext from a file.
-    ///
-    /// # Arguments
-    /// * path: The path to the model file.
-    ///
-    /// # Returns
-    /// Ok(Self) on success, Err(WhisperError) on failure.
-    ///
-    /// # C++ equivalent
-    /// `struct whisper_context * whisper_init_from_file_no_state(const char * path_model)`
-    #[deprecated = "Use `new_with_params` instead"]
-    pub fn new(path: &str) -> Result<Self, WhisperError> {
-        let path_cstr = CString::new(path)?;
-        let ctx = unsafe { whisper_rs_sys::whisper_init_from_file_no_state(path_cstr.as_ptr()) };
         if ctx.is_null() {
             Err(WhisperError::InitError)
         } else {
