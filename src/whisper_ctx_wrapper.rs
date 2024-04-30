@@ -51,7 +51,6 @@ impl WhisperContext {
         Ok(Self::wrap(ctx))
     }
 
-
     /// Convert the provided text into tokens.
     ///
     /// # Arguments
