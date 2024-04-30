@@ -70,27 +70,6 @@ impl WhisperInnerContext {
         }
     }
 
-    /// Create a new WhisperContext from a buffer.
-    ///
-    /// # Arguments
-    /// * buffer: The buffer containing the model.
-    ///
-    /// # Returns
-    /// Ok(Self) on success, Err(WhisperError) on failure.
-    ///
-    /// # C++ equivalent
-    /// `struct whisper_context * whisper_init_from_buffer_no_state(void * buffer, size_t buffer_size)`
-    #[deprecated = "Use `new_from_buffer_with_params` instead"]
-    pub fn new_from_buffer(buffer: &[u8]) -> Result<Self, WhisperError> {
-        let ctx = unsafe {
-            whisper_rs_sys::whisper_init_from_buffer_no_state(buffer.as_ptr() as _, buffer.len())
-        };
-        if ctx.is_null() {
-            Err(WhisperError::InitError)
-        } else {
-            Ok(Self { ctx })
-        }
-    }
 
     /// Convert the provided text into tokens.
     ///
