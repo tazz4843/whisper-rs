@@ -510,7 +510,7 @@ impl WhisperInnerContext {
     ///
     /// # C++ equivalent
     /// `bool whisper_full_get_segment_speaker_turn_next(struct whisper_context * ctx, int i_segment)`
-    pub fn full_get_segment_speaker_turn_next(&self, i_segment: c_int) -> bool {
+    pub fn full_get_segment_speaker_turn_next(&mut self, i_segment: c_int) -> bool {
         unsafe { whisper_rs_sys::whisper_full_get_segment_speaker_turn_next(self.ctx, i_segment) }
     }
 }

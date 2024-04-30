@@ -42,7 +42,7 @@ impl WhisperState {
     ///
     /// # C++ equivalent
     /// `int whisper_pcm_to_mel(struct whisper_context * ctx, const float * samples, int n_samples, int n_threads)`
-    pub fn pcm_to_mel(&self, pcm: &[f32], threads: usize) -> Result<(), WhisperError> {
+    pub fn pcm_to_mel(&mut self, pcm: &[f32], threads: usize) -> Result<(), WhisperError> {
         if threads < 1 {
             return Err(WhisperError::InvalidThreadCount);
         }
@@ -78,7 +78,7 @@ impl WhisperState {
     /// # C++ equivalent
     /// `int whisper_pcm_to_mel(struct whisper_context * ctx, const float * samples, int n_samples, int n_threads)`
     pub fn pcm_to_mel_phase_vocoder(
-        &self,
+        &mut self,
         pcm: &[f32],
         threads: usize,
     ) -> Result<(), WhisperError> {
@@ -119,7 +119,7 @@ impl WhisperState {
     ///
     /// # C++ equivalent
     /// `int whisper_set_mel(struct whisper_context * ctx, const float * data, int n_len, int n_mel)`
-    pub fn set_mel(&self, data: &[f32]) -> Result<(), WhisperError> {
+    pub fn set_mel(&mut self, data: &[f32]) -> Result<(), WhisperError> {
         let hop_size = 160;
         let n_len = (data.len() / hop_size) * 2;
         let ret = unsafe {
@@ -152,7 +152,7 @@ impl WhisperState {
     ///
     /// # C++ equivalent
     /// `int whisper_encode(struct whisper_context * ctx, int offset, int n_threads)`
-    pub fn encode(&self, offset: usize, threads: usize) -> Result<(), WhisperError> {
+    pub fn encode(&mut self, offset: usize, threads: usize) -> Result<(), WhisperError> {
         if threads < 1 {
             return Err(WhisperError::InvalidThreadCount);
         }
@@ -189,7 +189,7 @@ impl WhisperState {
     /// # C++ equivalent
     /// `int whisper_decode(struct whisper_context * ctx, const whisper_token * tokens, int n_tokens, int n_past, int n_threads)`
     pub fn decode(
-        &self,
+        &mut self,
         tokens: &[WhisperToken],
         n_past: usize,
         threads: usize,
@@ -324,7 +324,7 @@ impl WhisperState {
     ///
     /// # C++ equivalent
     /// `int whisper_full(struct whisper_context * ctx, struct whisper_full_params params, const float * samples, int n_samples)`
-    pub fn full(&self, params: FullParams, data: &[f32]) -> Result<c_int, WhisperError> {
+    pub fn full(&mut self, params: FullParams, data: &[f32]) -> Result<c_int, WhisperError> {
         if data.is_empty() {
             // can randomly trigger segmentation faults if we don't check this
             return Err(WhisperError::NoSamples);
@@ -613,7 +613,7 @@ impl WhisperState {
     ///
     /// # C++ equivalent
     /// `bool whisper_full_get_segment_speaker_turn_next_from_state(struct whisper_state * state, int i_segment)`
-    pub fn full_get_segment_speaker_turn_next(&self, i_segment: c_int) -> bool {
+    pub fn full_get_segment_speaker_turn_next(&mut self, i_segment: c_int) -> bool {
         unsafe {
             whisper_rs_sys::whisper_full_get_segment_speaker_turn_next_from_state(
                 self.ptr, i_segment,
