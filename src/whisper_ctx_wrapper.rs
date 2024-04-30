@@ -438,20 +438,6 @@ impl WhisperContext {
         self.ctx.token_transcribe()
     }
 
-    /// Get whether the next segment is predicted as a speaker turn
-    ///
-    /// # Arguments
-    /// * i_segment: Segment index.
-    ///
-    /// # Returns
-    /// bool
-    ///
-    /// # C++ equivalent
-    /// `bool whisper_full_get_segment_speaker_turn_next(struct whisper_context * ctx, int i_segment)`
-    pub fn full_get_segment_speaker_turn_next(&mut self, i_segment: c_int) -> bool {
-        self.ctx.full_get_segment_speaker_turn_next(i_segment)
-    }
-
     // we don't implement `whisper_init()` here since i have zero clue what `whisper_model_loader` does
 
     /// Create a new state object, ready for use.
