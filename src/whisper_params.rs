@@ -615,7 +615,6 @@ impl<'a, 'b> FullParams<'a, 'b> {
                 ptrs.push(rule.as_ptr());
             }
 
-            
             // turn into ptr and len
             let grammar_ptr = ptrs.as_ptr() as *mut _;
             let grammar_len = ptrs.len();
