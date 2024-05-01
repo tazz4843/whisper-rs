@@ -25,7 +25,8 @@ pub struct FullParams<'a, 'b> {
     pub(crate) fp: whisper_rs_sys::whisper_full_params,
     phantom_lang: PhantomData<&'a str>,
     phantom_tokens: PhantomData<&'b [c_int]>,
-    grammar: Option<Vec<whisper_rs_sys::whisper_grammar_element>>,
+    grammar: Option<Vec<Box<[whisper_rs_sys::whisper_grammar_element]>>>,
+    grammar_ptrs: Option<Vec<*const whisper_rs_sys::whisper_grammar_element>>,
     progess_callback_safe: Option<Box<dyn FnMut(i32)>>,
     abort_callback_safe: Option<Box<dyn FnMut() -> bool>>,
 }
@@ -62,6 +63,7 @@ impl<'a, 'b> FullParams<'a, 'b> {
             phantom_lang: PhantomData,
             phantom_tokens: PhantomData,
             grammar: None,
+            grammar_ptrs: None,
             progess_callback_safe: None,
             abort_callback_safe: None,
         }
@@ -597,21 +599,36 @@ impl<'a, 'b> FullParams<'a, 'b> {
     /// Enable an array of grammar elements to be passed to the whisper model.
     ///
     /// Defaults to an empty vector.
-    pub fn set_grammar(&mut self, grammar: Option<&[WhisperGrammarElement]>) {
+    pub fn set_grammar(&mut self, grammar: Option<Vec<Vec<WhisperGrammarElement>>>) {
         if let Some(grammar) = grammar {
-            // convert to c types
-            let inner = grammar.iter().map(|e| e.to_c_type()).collect::<Vec<_>>();
+            let mut inner = Vec::new();
+            for rule in grammar.iter() {
+                let mut inner_rule = Vec::new();
+                for element in rule.iter() {
+                    inner_rule.push(element.to_c_type());
+                }
+                let boxed = inner_rule.into_boxed_slice();
+                inner.push(boxed);
+            }
+            let mut ptrs = Vec::new();
+            for rule in inner.iter() {
+                ptrs.push(rule.as_ptr());
+            }
+
+            
             // turn into ptr and len
-            let grammar_ptr = inner.as_ptr() as *mut _;
-            let grammar_len = inner.len();
+            let grammar_ptr = ptrs.as_ptr() as *mut _;
+            let grammar_len = ptrs.len();
 
             self.grammar = Some(inner);
+            self.grammar_ptrs = Some(ptrs);
 
             // set the grammar
             self.fp.grammar_rules = grammar_ptr;
             self.fp.n_grammar_rules = grammar_len;
         } else {
             self.grammar = None;
+            self.grammar_ptrs = None;
             self.fp.grammar_rules = std::ptr::null_mut();
             self.fp.n_grammar_rules = 0;
             self.fp.i_start_rule = 0;
@@ -623,6 +640,7 @@ impl<'a, 'b> FullParams<'a, 'b> {
     /// Defaults to 0.
     pub fn set_start_rule(&mut self, start_rule: usize) {
         if self.grammar.is_some() {
+            assert!(start_rule < self.fp.n_grammar_rules as usize);
             self.fp.i_start_rule = start_rule;
         }
     }
