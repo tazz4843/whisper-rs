@@ -594,18 +594,26 @@ impl<'a, 'b> FullParams<'a, 'b> {
     }
 
     /// Set the grammar block to be passed to the whisper model. This is a boxed slice of u64s, with
-    /// the first element being the number of grammar rules, followed by the pointers to the grammar rules,
-    /// and finally the grammar rules themselves.
+    /// the first element being the number of grammar rules, followed by a table of contents containing 
+    /// the starting index of each rule relative to the start of the block. The table of contents
+    /// will be rewritten to contain pointers to the grammar rules.
     ///
     /// # Safety
-    /// This method validates that the grammar rule pointers are within the bounds of the grammar block.
-    /// The caller must ensure that the grammar block is valid and that the grammar rules are valid. Invalid
-    /// grammar rules can cause undefined behavior.
+    /// The caller must ensure that the grammar block is valid and that the grammar rules are valid.
+    /// Invalid grammar rules can cause undefined behavior.
     ///
     pub fn set_grammar_block(&mut self, grammar_block: Option<Box<[u64]>>) {
-        if let Some(grammar_block) = grammar_block {
+        if let Some(mut grammar_block) = grammar_block {
             // The first element is the number of grammar rules
             let n_grammar_rules = grammar_block[0] as usize;
+
+            // rewrite the grammar rules to be pointers to the grammar elements
+            for i in 0..n_grammar_rules {
+                let rule_index = grammar_block[i + 1] as usize;
+                let rule_ptr = &grammar_block[rule_index] as *const u64;
+                grammar_block[i + 1] = rule_ptr as u64;
+            }
+
             // The second element is the start of the grammar rules array
             let grammar_rules = &grammar_block[1] as *const u64
                 as *mut *const whisper_rs_sys::whisper_grammar_element;
