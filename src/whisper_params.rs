@@ -594,7 +594,7 @@ impl<'a, 'b> FullParams<'a, 'b> {
     }
 
     /// Set the grammar block to be passed to the whisper model. This is a boxed slice of u64s, with
-    /// the first element being the number of grammar rules, followed by a table of contents containing 
+    /// the first element being the number of grammar rules, followed by a table of contents containing
     /// the starting index of each rule relative to the start of the block. The table of contents
     /// will be rewritten to contain pointers to the grammar rules.
     ///
