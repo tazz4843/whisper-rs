@@ -593,7 +593,7 @@ impl<'a, 'b> FullParams<'a, 'b> {
         self.fp.abort_callback_user_data = user_data;
     }
 
-    /// Set the grammar block to be passed to the whisper model. This is a boxed slice of u64s, with
+    /// Set the grammar block to be passed to the whisper model. This is a slice of u64s, with
     /// the first element being the number of grammar rules, followed by a table of contents containing
     /// the starting index of each rule relative to the start of the block. The table of contents
     /// will be rewritten to contain pointers to the grammar rules.
@@ -602,8 +602,10 @@ impl<'a, 'b> FullParams<'a, 'b> {
     /// The caller must ensure that the grammar block is valid and that the grammar rules are valid.
     /// Invalid grammar rules can cause undefined behavior.
     ///
-    pub fn set_grammar_block(&mut self, grammar_block: Option<Box<[u64]>>) {
-        if let Some(mut grammar_block) = grammar_block {
+    pub fn set_grammar_block(&mut self, grammar_block: Option<&[u64]>) {
+        if let Some(grammar_block) = grammar_block {
+            let mut grammar_block = grammar_block.to_vec().into_boxed_slice();
+
             // The first element is the number of grammar rules
             let n_grammar_rules = grammar_block[0] as usize;
 
