@@ -1,4 +1,3 @@
-use crate::whisper_grammar::WhisperGrammarElement;
 use std::ffi::{c_char, c_float, c_int, CString};
 use std::marker::PhantomData;
 use whisper_rs_sys::whisper_token;
@@ -25,8 +24,7 @@ pub struct FullParams<'a, 'b> {
     pub(crate) fp: whisper_rs_sys::whisper_full_params,
     phantom_lang: PhantomData<&'a str>,
     phantom_tokens: PhantomData<&'b [c_int]>,
-    grammar: Option<Vec<Box<[whisper_rs_sys::whisper_grammar_element]>>>,
-    grammar_ptrs: Option<Vec<*const whisper_rs_sys::whisper_grammar_element>>,
+    grammar_block: Option<Box<[u64]>>,
     progess_callback_safe: Option<Box<dyn FnMut(i32)>>,
     abort_callback_safe: Option<Box<dyn FnMut() -> bool>>,
 }
@@ -62,8 +60,7 @@ impl<'a, 'b> FullParams<'a, 'b> {
             fp,
             phantom_lang: PhantomData,
             phantom_tokens: PhantomData,
-            grammar: None,
-            grammar_ptrs: None,
+            grammar_block: None,
             progess_callback_safe: None,
             abort_callback_safe: None,
         }
@@ -596,41 +593,47 @@ impl<'a, 'b> FullParams<'a, 'b> {
         self.fp.abort_callback_user_data = user_data;
     }
 
-    /// Enable an array of grammar elements to be passed to the whisper model.
+    /// Set the grammar block to be passed to the whisper model. This is a boxed slice of u64s, with
+    /// the first element being the number of grammar rules, followed by the pointers to the grammar rules,
+    /// and finally the grammar rules themselves.
     ///
-    /// Defaults to an empty vector.
-    pub fn set_grammar(&mut self, grammar: Option<Vec<Vec<WhisperGrammarElement>>>) {
-        if let Some(grammar) = grammar {
-            let mut inner = Vec::new();
-            for rule in grammar.iter() {
-                let mut inner_rule = Vec::new();
-                for element in rule.iter() {
-                    inner_rule.push(element.to_c_type());
-                }
-                let boxed = inner_rule.into_boxed_slice();
-                inner.push(boxed);
+    /// # Safety
+    /// This method validates that the grammar rule pointers are within the bounds of the grammar block.
+    /// The caller must ensure that the grammar block is valid and that the grammar rules are valid. Invalid
+    /// grammar rules can cause undefined behavior.
+    ///
+    pub fn set_grammar_block(&mut self, grammar_block: Option<Box<[u64]>>) {
+        if let Some(grammar_block) = grammar_block {
+            // The first element is the number of grammar rules
+            let n_grammar_rules = grammar_block[0] as usize;
+            // The second element is the start of the grammar rules array
+            let grammar_rules = &grammar_block[1] as *const u64
+                as *mut *const whisper_rs_sys::whisper_grammar_element;
+
+            // Validate that the grammar rule pointers are within the bounds of the grammar block
+            let block_ptr = grammar_block.as_ptr();
+            let rules_start = block_ptr.wrapping_add(1 + n_grammar_rules);
+            let rules_end = block_ptr.wrapping_add(grammar_block.len());
+
+            for i in 0..n_grammar_rules {
+                let rule_ptr = grammar_block[i + 1] as *const u64;
+                assert!(
+                    rule_ptr >= rules_start && rule_ptr < rules_end,
+                    "Grammar rule pointer out of bounds"
+                );
             }
-            let mut ptrs = Vec::new();
-            for rule in inner.iter() {
-                ptrs.push(rule.as_ptr());
-            }
 
-            // turn into ptr and len
-            let grammar_ptr = ptrs.as_ptr() as *mut _;
-            let grammar_len = ptrs.len();
+            // TODO: Validate that all rules references are valid and that each rule starts and ends with the correct elements
 
-            self.grammar = Some(inner);
-            self.grammar_ptrs = Some(ptrs);
-
-            // set the grammar
-            self.fp.grammar_rules = grammar_ptr;
-            self.fp.n_grammar_rules = grammar_len;
+            self.fp.grammar_rules = grammar_rules;
+            self.fp.n_grammar_rules = n_grammar_rules;
+            self.fp.i_start_rule = 0;
+            self.grammar_block = Some(grammar_block);
         } else {
-            self.grammar = None;
-            self.grammar_ptrs = None;
             self.fp.grammar_rules = std::ptr::null_mut();
             self.fp.n_grammar_rules = 0;
             self.fp.i_start_rule = 0;
+            self.grammar_block = None;
         }
     }
 
@@ -638,7 +641,7 @@ impl<'a, 'b> FullParams<'a, 'b> {
     ///
     /// Defaults to 0.
     pub fn set_start_rule(&mut self, start_rule: usize) {
-        if self.grammar.is_some() {
+        if self.grammar_block.is_some() {
             assert!(start_rule < self.fp.n_grammar_rules as usize);
             self.fp.i_start_rule = start_rule;
         }
