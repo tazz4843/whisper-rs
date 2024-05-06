@@ -77,8 +77,13 @@ fn main() {
             .expect("Failed to copy bindings.rs");
     } else {
         let bindings = bindgen::Builder::default()
-            .header("wrapper.h")
-            .clang_arg("-I./whisper.cpp")
+            .header("wrapper.h");
+
+        
+        #[cfg(feature = "metal")]
+        let bindings = bindings.header("whisper.cpp/ggml-metal.h");
+
+        let bindings = bindings.clang_arg("-I./whisper.cpp")
             .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
             .generate();
 
@@ -160,6 +165,20 @@ fn main() {
 
     // for whatever reason this file is generated during build and triggers cargo complaining
     _ = std::fs::remove_file("bindings/javascript/package.json");
+
+    if cfg!(feature = "metal") {
+        // copy metal shader to the root of the crate
+        let _ = std::fs::copy(
+            out.join("whisper.cpp").join("ggml-metal.metal"),
+            out.parent()
+                .unwrap()
+                .parent()
+                .unwrap()
+                .parent()
+                .unwrap()
+                .join("ggml-metal.metal"),
+        );
+    }
 }
 
 // From https://github.com/alexcrichton/cc-rs/blob/fba7feded71ee4f63cfe885673ead6d7b4f2f454/src/lib.rs#L2462
