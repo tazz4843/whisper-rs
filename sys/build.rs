@@ -139,6 +139,7 @@ fn main() {
 
     if cfg!(feature = "metal") {
         config.define("WHISPER_METAL", "ON");
+        config.define("WHISPER_METAL_NDEBUG", "ON");
     } else {
         // Metal is enabled by default, so we need to explicitly disable it
         config.define("WHISPER_METAL", "OFF");
