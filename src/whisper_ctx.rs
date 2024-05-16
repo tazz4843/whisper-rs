@@ -476,22 +476,22 @@ pub struct WhisperContextParameters {
     /// (in that case, GPU is always enabled).
     pub use_gpu: bool,
     /// Enable flash attention, default false
-    pub flash_attn : bool,
+    pub flash_attn: bool,
     /// GPU device id, default 0
     pub gpu_device: c_int,
     /// [EXPERIMENTAL] Enable Token-level timestamps with DTW, default 0
     pub dtw_token_timestamps: bool,
     /// Preset id for DTW, default whisper_alignment_heads_preset_WHISPER_AHEADS_NONE
-    pub dtw_aheads_preset : whisper_rs_sys::whisper_alignment_heads_preset,
+    pub dtw_aheads_preset: whisper_rs_sys::whisper_alignment_heads_preset,
     /// Number of top text layers used from model. Only with whisper_alignment_heads_preset_WHISPER_AHEADS_N_TOP_MOST preset.
-    pub dtw_n_top : c_int,
+    pub dtw_n_top: c_int,
     /// Custom aheads, only with whisper_alignment_heads_preset_WHISPER_AHEADS_CUSTOM preset
     /// See details https://github.com/ggerganov/whisper.cpp/pull/1485#discussion_r1519681143
     pub dtw_aheads: whisper_rs_sys::whisper_aheads,
     /// Memory size for DTW
     ///
     /// **Warning**: Might be removed in next version of whisper.cpp
-    pub dtw_mem_size : usize
+    pub dtw_mem_size: usize,
 }
 
 #[allow(clippy::derivable_impls)] // this impl cannot be derived
@@ -499,13 +499,16 @@ impl Default for WhisperContextParameters {
     fn default() -> Self {
         Self {
             use_gpu: cfg!(feature = "_gpu"),
-            flash_attn : false,
+            flash_attn: false,
             gpu_device: 0,
             dtw_token_timestamps: false,
-            dtw_aheads_preset : whisper_rs_sys::whisper_alignment_heads_preset_WHISPER_AHEADS_NONE,
+            dtw_aheads_preset: whisper_rs_sys::whisper_alignment_heads_preset_WHISPER_AHEADS_NONE,
             dtw_n_top: -1,
-            dtw_aheads :  whisper_rs_sys::whisper_aheads { n_heads: 0, heads: std::ptr::null() },
-            dtw_mem_size : 1024 * 1024 * 128
+            dtw_aheads: whisper_rs_sys::whisper_aheads {
+                n_heads: 0,
+                heads: std::ptr::null(),
+            },
+            dtw_mem_size: 1024 * 1024 * 128,
         }
     }
 }
@@ -529,7 +532,10 @@ impl WhisperContextParameters {
         self.dtw_token_timestamps = dtw_token_timestamps;
         self
     }
-    pub fn dtw_aheads_preset(&mut self, dtw_aheads_preset: whisper_rs_sys::whisper_alignment_heads_preset) -> &mut Self {
+    pub fn dtw_aheads_preset(
+        &mut self,
+        dtw_aheads_preset: whisper_rs_sys::whisper_alignment_heads_preset,
+    ) -> &mut Self {
         self.dtw_aheads_preset = dtw_aheads_preset;
         self
     }
