@@ -76,14 +76,13 @@ fn main() {
         let _: u64 = std::fs::copy("src/bindings.rs", out.join("bindings.rs"))
             .expect("Failed to copy bindings.rs");
     } else {
-        let bindings = bindgen::Builder::default()
-            .header("wrapper.h");
+        let bindings = bindgen::Builder::default().header("wrapper.h");
 
-        
         #[cfg(feature = "metal")]
         let bindings = bindings.header("whisper.cpp/ggml-metal.h");
 
-        let bindings = bindings.clang_arg("-I./whisper.cpp")
+        let bindings = bindings
+            .clang_arg("-I./whisper.cpp")
             .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
             .generate();
 
