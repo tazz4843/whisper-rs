@@ -27,7 +27,7 @@ impl WhisperContext {
     /// `struct whisper_context * whisper_init_from_file_with_params_no_state(const char * path_model, struct whisper_context_params params);`
     pub fn new_with_params(
         path: &str,
-        parameters: WhisperContextParameters,
+        parameters: &mut WhisperContextParameters,
     ) -> Result<Self, WhisperError> {
         let ctx = WhisperInnerContext::new_with_params(path, parameters)?;
         Ok(Self::wrap(ctx))
