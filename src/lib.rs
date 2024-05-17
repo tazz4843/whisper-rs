@@ -22,6 +22,9 @@ pub use standalone::*;
 #[cfg(any(feature = "whisper-cpp-log", feature = "whisper-cpp-tracing"))]
 use std::sync::Once;
 pub use utilities::*;
+pub use whisper_ctx::DtwMode;
+pub use whisper_ctx::DtwModelPreset;
+pub use whisper_ctx::DtwParameters;
 pub use whisper_ctx::WhisperContextParameters;
 use whisper_ctx::WhisperInnerContext;
 pub use whisper_ctx_wrapper::WhisperContext;
@@ -34,8 +37,6 @@ pub use whisper_state::WhisperState;
 pub use whisper_sys_log::install_whisper_log_trampoline;
 #[cfg(feature = "whisper-cpp-tracing")]
 pub use whisper_sys_tracing::install_whisper_tracing_trampoline;
-pub use whisper_ctx::DtwParameters;
-pub use whisper_ctx::DtwPredefinedModels;
 
 pub type WhisperSysContext = whisper_rs_sys::whisper_context;
 pub type WhisperSysState = whisper_rs_sys::whisper_state;

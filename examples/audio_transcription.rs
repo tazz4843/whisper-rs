@@ -11,7 +11,7 @@ fn main() -> Result<(), &'static str> {
     // Load a context and model.
     let ctx = WhisperContext::new_with_params(
         "example/path/to/model/whisper.cpp/models/ggml-base.en.bin",
-        &mut WhisperContextParameters::default(),
+        WhisperContextParameters::default(),
     )
     .expect("failed to load model");
     // Create a state

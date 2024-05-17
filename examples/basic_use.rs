@@ -7,7 +7,7 @@ use whisper_rs::{FullParams, SamplingStrategy, WhisperContext, WhisperContextPar
 // more dependencies than the base library.
 pub fn usage() -> Result<(), &'static str> {
     // load a context and model
-    let ctx = WhisperContext::new_with_params("path/to/model", &mut WhisperContextParameters::default())
+    let ctx = WhisperContext::new_with_params("path/to/model", WhisperContextParameters::default())
         .expect("failed to load model");
     // make a state
     let mut state = ctx.create_state().expect("failed to create state");
