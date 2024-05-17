@@ -29,7 +29,7 @@ fn main() -> Result<(), &'static str> {
         (5, 4),
         (5, 6),
     ]
-    .map(|(n_text_layer, n_head)| whisper_rs_sys::whisper_ahead {
+    .map(|(n_text_layer, n_head)| whisper_rs::DtwAhead {
         n_text_layer,
         n_head,
     });

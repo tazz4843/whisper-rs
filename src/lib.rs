@@ -49,3 +49,4 @@ pub type WhisperProgressCallback = whisper_rs_sys::whisper_progress_callback;
 pub type WhisperLogitsFilterCallback = whisper_rs_sys::whisper_logits_filter_callback;
 pub type WhisperAbortCallback = whisper_rs_sys::ggml_abort_callback;
 pub type WhisperLogCallback = whisper_rs_sys::ggml_log_callback;
+pub type DtwAhead = whisper_rs_sys::whisper_ahead;
