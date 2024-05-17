@@ -9,9 +9,37 @@ use whisper_rs::{FullParams, SamplingStrategy, WhisperContext, WhisperContextPar
 /// Loads a context and model, processes an audio file, and prints the resulting transcript to stdout.
 fn main() -> Result<(), &'static str> {
     // Load a context and model.
+    let mut context_param = WhisperContextParameters::default();
+
+    // Enable DTW token level timestamp for known model by using model preset
+    context_param.dtw_parameters.mode = whisper_rs::DtwMode::ModelPreset {
+        model_preset: whisper_rs::DtwModelPreset::BaseEn,
+    };
+
+    // Enable DTW token level timestamp for unknown model by providing custom aheads
+    // see details https://github.com/ggerganov/whisper.cpp/pull/1485#discussion_r1519681143
+    // values corresponds to ggml-base.en.bin, result will be the same as with DtwModelPreset::BaseEn
+    let custom_aheads = [
+        (3, 1),
+        (4, 2),
+        (4, 3),
+        (4, 7),
+        (5, 1),
+        (5, 2),
+        (5, 4),
+        (5, 6),
+    ]
+    .map(|(n_text_layer, n_head)| whisper_rs_sys::whisper_ahead {
+        n_text_layer,
+        n_head,
+    });
+    context_param.dtw_parameters.mode = whisper_rs::DtwMode::Custom {
+        aheads: &custom_aheads,
+    };
+
     let ctx = WhisperContext::new_with_params(
         "example/path/to/model/whisper.cpp/models/ggml-base.en.bin",
-        WhisperContextParameters::default(),
+        context_param,
     )
     .expect("failed to load model");
     // Create a state
@@ -33,6 +61,8 @@ fn main() -> Result<(), &'static str> {
     params.set_print_progress(false);
     params.set_print_realtime(false);
     params.set_print_timestamps(false);
+    // Enable token level timestamps
+    params.set_token_timestamps(true);
 
     // Open the audio file.
     let reader = hound::WavReader::open("audio.wav").expect("failed to open file");
@@ -87,8 +117,24 @@ fn main() -> Result<(), &'static str> {
             .full_get_segment_t1(i)
             .expect("failed to get end timestamp");
 
+        let first_token_dtw_ts = if let Ok(token_count) = state.full_n_tokens(i) {
+            if token_count > 0 {
+                if let Ok(token_data) = state.full_get_token_data(i, 0) {
+                    token_data.t_dtw
+                } else {
+                    -1i64
+                }
+            } else {
+                -1i64
+            }
+        } else {
+            -1i64
+        };
         // Print the segment to stdout.
-        println!("[{} - {}]: {}", start_timestamp, end_timestamp, segment);
+        println!(
+            "[{} - {} ({})]: {}",
+            start_timestamp, end_timestamp, first_token_dtw_ts, segment
+        );
 
         // Format the segment information as a string.
         let line = format!("[{} - {}]: {}\n", start_timestamp, end_timestamp, segment);

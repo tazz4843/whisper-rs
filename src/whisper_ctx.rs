@@ -469,7 +469,7 @@ impl Drop for WhisperInnerContext {
 unsafe impl Send for WhisperInnerContext {}
 unsafe impl Sync for WhisperInnerContext {}
 
-pub struct WhisperContextParameters {
+pub struct WhisperContextParameters<'a> {
     /// Use GPU if available.
     ///
     /// **Warning**: Does not have an effect if OpenCL is selected as GPU backend
@@ -482,11 +482,11 @@ pub struct WhisperContextParameters {
     /// GPU device id, default 0
     pub gpu_device: c_int,
     /// DTW token level timestamp parameters
-    pub dtw_parameters: DtwParameters,
+    pub dtw_parameters: DtwParameters<'a>,
 }
 
 #[allow(clippy::derivable_impls)] // this impl cannot be derived
-impl Default for WhisperContextParameters {
+impl<'a> Default for WhisperContextParameters<'a> {
     fn default() -> Self {
         Self {
             use_gpu: cfg!(feature = "_gpu"),
@@ -496,7 +496,7 @@ impl Default for WhisperContextParameters {
         }
     }
 }
-impl WhisperContextParameters {
+impl<'a> WhisperContextParameters<'a> {
     pub fn new() -> Self {
         Self::default()
     }
@@ -512,7 +512,7 @@ impl WhisperContextParameters {
         self.gpu_device = gpu_device;
         self
     }
-    pub fn dtw_parameters(&mut self, dtw_parameters: DtwParameters) -> &mut Self {
+    pub fn dtw_parameters(&mut self, dtw_parameters: DtwParameters<'a>) -> &mut Self {
         self.dtw_parameters = dtw_parameters;
         self
     }
@@ -606,12 +606,12 @@ impl WhisperContextParameters {
 
 /// [EXPERIMENTAL] Enable Token-level timestamps with DTW, default Disabled
 #[derive(Debug, Clone)]
-pub struct DtwParameters {
-    pub mode: DtwMode,
+pub struct DtwParameters<'a> {
+    pub mode: DtwMode<'a>,
     pub dtw_mem_size: usize,
 }
 
-impl Default for DtwParameters {
+impl Default for DtwParameters<'_> {
     fn default() -> Self {
         Self {
             mode: DtwMode::None,
@@ -621,7 +621,7 @@ impl Default for DtwParameters {
 }
 
 #[derive(Debug, Clone)]
-pub enum DtwMode {
+pub enum DtwMode<'a> {
     /// DTW token level timestamps disabled
     None,
     /// Use N Top Most layers from loaded model
@@ -633,7 +633,7 @@ pub enum DtwMode {
     /// 0 < n_text_layer < model n_text_layer, 0 < n_head < model n_text_head for each element
     /// See details https://github.com/ggerganov/whisper.cpp/pull/1485#discussion_r1519681143
     Custom {
-        aheads: &'static [whisper_rs_sys::whisper_ahead],
+        aheads: &'a [whisper_rs_sys::whisper_ahead],
     },
     /// Use predefined preset for standard models
     ModelPreset { model_preset: DtwModelPreset },
