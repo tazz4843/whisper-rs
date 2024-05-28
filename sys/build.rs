@@ -147,6 +147,13 @@ fn main() {
         config.define("CMAKE_BUILD_TYPE", "RelWithDebInfo");
     }
 
+    // Allow passing any WHISPER cmake flag
+    for (key, value) in env::vars() {
+        if key.starts_with("WHISPER_") && key != "WHISPER_DONT_GENERATE_BINDINGS" {
+            config.define(&key, &value);
+        }
+    }
+
     let destination = config.build();
 
     if target.contains("window") && !target.contains("gnu") {
