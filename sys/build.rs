@@ -123,7 +123,7 @@ fn main() {
     }
 
     if cfg!(feature = "cuda") {
-        config.define("WHISPER_CUBLAS", "ON");
+        config.define("WHISPER_CUDA", "ON");
     }
 
     if cfg!(feature = "openblas") {
