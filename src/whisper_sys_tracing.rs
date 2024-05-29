@@ -40,7 +40,7 @@ pub fn install_whisper_tracing_trampoline() {
         whisper_rs_sys::whisper_log_set(Some(whisper_cpp_tracing_trampoline), std::ptr::null_mut());
         #[cfg(feature = "metal")]
         {
-            whisper_rs_sys::ggml_metal_log_set_callback(
+            whisper_rs_sys::ggml_backend_metal_log_set_callback(
                 Some(whisper_cpp_tracing_trampoline),
                 std::ptr::null_mut(),
             );

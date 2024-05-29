@@ -141,6 +141,7 @@ fn main() {
     if cfg!(feature = "metal") {
         config.define("WHISPER_METAL", "ON");
         config.define("WHISPER_METAL_NDEBUG", "ON");
+        config.define("WHISPER_METAL_EMBED_LIBRARY", "ON");
     } else {
         // Metal is enabled by default, so we need to explicitly disable it
         config.define("WHISPER_METAL", "OFF");
@@ -174,20 +175,6 @@ fn main() {
 
     // for whatever reason this file is generated during build and triggers cargo complaining
     _ = std::fs::remove_file("bindings/javascript/package.json");
-
-    if cfg!(feature = "metal") {
-        // copy metal shader to the root of the crate
-        let _ = std::fs::copy(
-            out.join("whisper.cpp").join("ggml-metal.metal"),
-            out.parent()
-                .unwrap()
-                .parent()
-                .unwrap()
-                .parent()
-                .unwrap()
-                .join("ggml-metal.metal"),
-        );
-    }
 }
 
 // From https://github.com/alexcrichton/cc-rs/blob/fba7feded71ee4f63cfe885673ead6d7b4f2f454/src/lib.rs#L2462
