@@ -127,7 +127,7 @@ fn main() {
     }
 
     if cfg!(feature = "cuda") {
-        config.define("WHISPER_CUBLAS", "ON");
+        config.define("WHISPER_CUDA", "ON");
     }
 
     if cfg!(feature = "openblas") {
@@ -150,6 +150,13 @@ fn main() {
         // debug builds are too slow to even remotely be usable,
         // so we build with optimizations even in debug mode
         config.define("CMAKE_BUILD_TYPE", "RelWithDebInfo");
+    }
+
+    // Allow passing any WHISPER cmake flag
+    for (key, value) in env::vars() {
+        if key.starts_with("WHISPER_") && key != "WHISPER_DONT_GENERATE_BINDINGS" {
+            config.define(&key, &value);
+        }
     }
 
     let destination = config.build();

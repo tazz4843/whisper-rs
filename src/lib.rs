@@ -22,6 +22,9 @@ pub use standalone::*;
 #[cfg(any(feature = "whisper-cpp-log", feature = "whisper-cpp-tracing"))]
 use std::sync::Once;
 pub use utilities::*;
+pub use whisper_ctx::DtwMode;
+pub use whisper_ctx::DtwModelPreset;
+pub use whisper_ctx::DtwParameters;
 pub use whisper_ctx::WhisperContextParameters;
 use whisper_ctx::WhisperInnerContext;
 pub use whisper_ctx_wrapper::WhisperContext;
@@ -44,5 +47,6 @@ pub type WhisperNewSegmentCallback = whisper_rs_sys::whisper_new_segment_callbac
 pub type WhisperStartEncoderCallback = whisper_rs_sys::whisper_encoder_begin_callback;
 pub type WhisperProgressCallback = whisper_rs_sys::whisper_progress_callback;
 pub type WhisperLogitsFilterCallback = whisper_rs_sys::whisper_logits_filter_callback;
-pub type WhisperAbortCallback = whisper_rs_sys::whisper_abort_callback;
+pub type WhisperAbortCallback = whisper_rs_sys::ggml_abort_callback;
 pub type WhisperLogCallback = whisper_rs_sys::ggml_log_callback;
+pub type DtwAhead = whisper_rs_sys::whisper_ahead;
