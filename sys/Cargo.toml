@@ -43,6 +43,7 @@ include = [
 [features]
 coreml = []
 cuda = []
+hipblas = []
 opencl = []
 openblas = []
 metal = []
