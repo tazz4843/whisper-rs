@@ -63,7 +63,7 @@ fn main() {
         println!("cargo:rustc-link-lib=hipblas");
         println!("cargo:rustc-link-lib=rocblas");
         println!("cargo:rustc-link-lib=amdhip64");
-        
+
         cfg_if::cfg_if! {
             if #[cfg(target_os = "windows")] {
                 panic!("Due to a problem with the last revision of the ROCm 5.7 library, it is not possible to compile the library for the windows environment.\nSee https://github.com/ggerganov/whisper.cpp/issues/2202 for more details.")
@@ -80,7 +80,7 @@ fn main() {
             }
         }
     }
-    
+
     println!("cargo:rerun-if-changed=wrapper.h");
 
     let out = PathBuf::from(env::var("OUT_DIR").unwrap());
