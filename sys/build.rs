@@ -66,7 +66,7 @@ fn main() {
         
         cfg_if::cfg_if! {
             if #[cfg(target_os = "windows")] {
-                panic!("Not supported yet!!!")
+                panic!("Due to a problem with the last revision of the ROCm 5.7 library, it is not possible to compile the library for the windows environment.\nSee https://github.com/ggerganov/whisper.cpp/issues/2202 for more details.")
             } else {
                 println!("cargo:rerun-if-env-changed=HIP_PATH");
 
