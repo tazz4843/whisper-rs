@@ -71,6 +71,7 @@ All disabled by default unless otherwise specified.
   **NOTE**: enabling this no longer guarantees semver compliance,
   as whisper-rs-sys may be upgraded to a breaking version in a patch release of whisper-rs.
 * `cuda`: enable CUDA support. Implicitly enables hidden GPU flag at runtime.
+* `hipblas`: enable ROCm/hipBLAS support. Only available on linux. Implicitly enables hidden GPU flag at runtime.
 * `opencl`: enable OpenCL support. Upstream whisper.cpp does not treat OpenCL as a GPU, so it is always enabled at
   runtime.
 * `openblas`: enable OpenBLAS support.

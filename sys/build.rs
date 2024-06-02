@@ -58,6 +58,29 @@ fn main() {
             }
         }
     }
+    #[cfg(feature = "hipblas")]
+    {
+        println!("cargo:rustc-link-lib=hipblas");
+        println!("cargo:rustc-link-lib=rocblas");
+        println!("cargo:rustc-link-lib=amdhip64");
+
+        cfg_if::cfg_if! {
+            if #[cfg(target_os = "windows")] {
+                panic!("Due to a problem with the last revision of the ROCm 5.7 library, it is not possible to compile the library for the windows environment.\nSee https://github.com/ggerganov/whisper.cpp/issues/2202 for more details.")
+            } else {
+                println!("cargo:rerun-if-env-changed=HIP_PATH");
+
+                let hip_path = match env::var("HIP_PATH") {
+                    Ok(path) =>PathBuf::from(path),
+                    Err(_) => PathBuf::from("/opt/rocm"),
+                };
+                let hip_lib_path = hip_path.join("lib");
+
+                println!("cargo:rustc-link-search={}",hip_lib_path.display());
+            }
+        }
+    }
+
     println!("cargo:rerun-if-changed=wrapper.h");
 
     let out = PathBuf::from(env::var("OUT_DIR").unwrap());
@@ -124,6 +147,16 @@ fn main() {
 
     if cfg!(feature = "cuda") {
         config.define("WHISPER_CUDA", "ON");
+    }
+
+    if cfg!(feature = "hipblas") {
+        config.define("WHISPER_HIPBLAS", "ON");
+        config.define("CMAKE_C_COMPILER", "hipcc");
+        config.define("CMAKE_CXX_COMPILER", "hipcc");
+        println!("cargo:rerun-if-env-changed=AMDGPU_TARGETS");
+        if let Ok(gpu_targets) = env::var("AMDGPU_TARGETS") {
+            config.define("AMDGPU_TARGETS", gpu_targets);
+        }
     }
 
     if cfg!(feature = "openblas") {
