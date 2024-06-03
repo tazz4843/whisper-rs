@@ -101,8 +101,12 @@ fn main() {
         let _: u64 = std::fs::copy("src/bindings.rs", out.join("bindings.rs"))
             .expect("Failed to copy bindings.rs");
     } else {
-        let bindings = bindgen::Builder::default()
-            .header("wrapper.h")
+        let bindings = bindgen::Builder::default().header("wrapper.h");
+
+        #[cfg(feature = "metal")]
+        let bindings = bindings.header("whisper.cpp/ggml-metal.h");
+
+        let bindings = bindings
             .clang_arg("-I./whisper.cpp")
             .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
             .generate();
@@ -169,6 +173,8 @@ fn main() {
 
     if cfg!(feature = "metal") {
         config.define("WHISPER_METAL", "ON");
+        config.define("WHISPER_METAL_NDEBUG", "ON");
+        config.define("WHISPER_METAL_EMBED_LIBRARY", "ON");
     } else {
         // Metal is enabled by default, so we need to explicitly disable it
         config.define("WHISPER_METAL", "OFF");

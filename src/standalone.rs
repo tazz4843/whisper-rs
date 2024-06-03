@@ -81,7 +81,13 @@ pub unsafe fn set_log_callback(
     log_callback: crate::WhisperLogCallback,
     user_data: *mut std::ffi::c_void,
 ) {
-    unsafe { whisper_rs_sys::whisper_log_set(log_callback, user_data) }
+    unsafe {
+        whisper_rs_sys::whisper_log_set(log_callback, user_data);
+        #[cfg(feature = "metal")]
+        {
+            whisper_rs_sys::ggml_backend_metal_log_set_callback(log_callback, user_data);
+        }
+    }
 }
 
 /// Print system information.
