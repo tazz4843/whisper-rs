@@ -186,9 +186,11 @@ fn main() {
         config.define("CMAKE_BUILD_TYPE", "RelWithDebInfo");
     }
 
-    // Allow passing any WHISPER cmake flag
+    // Allow passing any WHISPER or CMAKE compile flags
     for (key, value) in env::vars() {
-        if key.starts_with("WHISPER_") && key != "WHISPER_DONT_GENERATE_BINDINGS" {
+        let is_whisper_flag = key.starts_with("WHISPER_") && key != "WHISPER_DONT_GENERATE_BINDINGS";
+        let is_cmake_flag = key.starts_with("CMAKE_");
+        if  is_whisper_flag || is_cmake_flag {
             config.define(&key, &value);
         }
     }
