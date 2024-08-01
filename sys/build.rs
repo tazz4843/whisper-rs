@@ -32,7 +32,7 @@ fn main() {
     println!("cargo:rustc-link-lib=static=whisper.coreml");
     #[cfg(feature = "opencl")]
     {
-        if let Ok(clblast_dir) = env::var("CLBLast_DIR") {
+        if let Ok(clblast_dir) = env::var("CLBlast_DIR") {
             println!("cargo::rustc-link-search={}", PathBuf::from(clblast_dir).join("..\\..").display());
         }
         if let Ok(opencl_dir) = env::var("OPENCL_DIR") {
