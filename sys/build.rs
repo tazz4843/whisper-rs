@@ -35,7 +35,7 @@ fn main() {
         if let Ok(clblast_dir) = env::var("CLBlast_DIR") {
             println!(
                 "cargo::rustc-link-search={}",
-                PathBuf::from(clblast_dir).join("..\\..").display()
+                PathBuf::from(clblast_dir).join("../..").display()
             );
         }
         if let Ok(opencl_dir) = env::var("OPENCL_DIR") {
