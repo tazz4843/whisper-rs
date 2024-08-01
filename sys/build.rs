@@ -37,7 +37,17 @@ fn main() {
     }
     #[cfg(feature = "openblas")]
     {
-        println!("cargo:rustc-link-lib=openblas");
+        if let Ok(openblas_path) = env::var("OPENBLAS_PATH") {
+            println!(
+                "cargo::rustc-link-search={}",
+                PathBuf::from(openblas_path).join("lib").display()
+            );
+        }
+        if cfg!(windows) {
+            println!("cargo:rustc-link-lib=libopenblas");
+        } else {
+            println!("cargo:rustc-link-lib=openblas");
+        }
     }
     #[cfg(feature = "cuda")]
     {
