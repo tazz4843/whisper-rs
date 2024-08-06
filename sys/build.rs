@@ -154,11 +154,11 @@ fn main() {
     }
 
     if cfg!(feature = "cuda") {
-        config.define("WHISPER_CUDA", "ON");
+        config.define("GGML_CUDA", "ON");
     }
 
     if cfg!(feature = "hipblas") {
-        config.define("WHISPER_HIPBLAS", "ON");
+        config.define("GGML_HIPBLAS", "ON");
         config.define("CMAKE_C_COMPILER", "hipcc");
         config.define("CMAKE_CXX_COMPILER", "hipcc");
         println!("cargo:rerun-if-env-changed=AMDGPU_TARGETS");
@@ -172,7 +172,7 @@ fn main() {
     }
 
     if cfg!(feature = "opencl") {
-        config.define("WHISPER_CLBLAST", "ON");
+        config.define("GGML_USE_CLBLAST", "ON");
     }
 
     if cfg!(feature = "vulkan") {
@@ -180,12 +180,12 @@ fn main() {
     }
 
     if cfg!(feature = "metal") {
-        config.define("WHISPER_METAL", "ON");
-        config.define("WHISPER_METAL_NDEBUG", "ON");
-        config.define("WHISPER_METAL_EMBED_LIBRARY", "ON");
+        config.define("GGML_METAL", "ON");
+        config.define("GGML_METAL_NDEBUG", "ON");
+        config.define("GGML_METAL_EMBED_LIBRARY", "ON");
     } else {
         // Metal is enabled by default, so we need to explicitly disable it
-        config.define("WHISPER_METAL", "OFF");
+        config.define("GGML_METAL", "OFF");
     }
 
     if cfg!(debug_assertions) || cfg!(feature = "force-debug") {
