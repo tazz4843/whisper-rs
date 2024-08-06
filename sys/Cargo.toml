@@ -47,6 +47,7 @@ hipblas = []
 opencl = []
 openblas = []
 metal = []
+vulkan = []
 force-debug = []
 
 [build-dependencies]

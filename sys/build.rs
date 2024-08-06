@@ -80,6 +80,10 @@ fn main() {
             }
         }
     }
+    #[cfg(feature = "vulkan")]
+    {
+        println!("cargo:rustc-link-lib=vulkan");
+    }
 
     println!("cargo:rerun-if-changed=wrapper.h");
 
@@ -169,6 +173,10 @@ fn main() {
 
     if cfg!(feature = "opencl") {
         config.define("WHISPER_CLBLAST", "ON");
+    }
+
+    if cfg!(feature = "vulkan") {
+        config.define("GGML_VULKAN", "ON");
     }
 
     if cfg!(feature = "metal") {
