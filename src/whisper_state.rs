@@ -64,45 +64,6 @@ impl WhisperState {
         }
     }
 
-    /// Convert raw PCM audio (floating point 32 bit) to log mel spectrogram.
-    /// Applies a Phase Vocoder to speed up the audio x2.
-    /// The resulting spectrogram is stored in the context transparently.
-    ///
-    /// # Arguments
-    /// * pcm: The raw PCM audio.
-    /// * threads: How many threads to use. Defaults to 1. Must be at least 1, returns an error otherwise.
-    ///
-    /// # Returns
-    /// Ok(()) on success, Err(WhisperError) on failure.
-    ///
-    /// # C++ equivalent
-    /// `int whisper_pcm_to_mel(struct whisper_context * ctx, const float * samples, int n_samples, int n_threads)`
-    pub fn pcm_to_mel_phase_vocoder(
-        &mut self,
-        pcm: &[f32],
-        threads: usize,
-    ) -> Result<(), WhisperError> {
-        if threads < 1 {
-            return Err(WhisperError::InvalidThreadCount);
-        }
-        let ret = unsafe {
-            whisper_rs_sys::whisper_pcm_to_mel_phase_vocoder_with_state(
-                self.ctx.ctx,
-                self.ptr,
-                pcm.as_ptr(),
-                pcm.len() as c_int,
-                threads as c_int,
-            )
-        };
-        if ret == -1 {
-            Err(WhisperError::UnableToCalculateSpectrogram)
-        } else if ret == 0 {
-            Ok(())
-        } else {
-            Err(WhisperError::GenericError(ret))
-        }
-    }
-
     /// This can be used to set a custom log mel spectrogram inside the provided whisper state.
     /// Use this instead of whisper_pcm_to_mel() if you want to provide your own log mel spectrogram.
     ///

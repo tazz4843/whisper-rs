@@ -5143,9 +5143,6 @@ extern "C" {
     pub fn ggml_cpu_has_cuda() -> ::std::os::raw::c_int;
 }
 extern "C" {
-    pub fn ggml_cpu_has_clblast() -> ::std::os::raw::c_int;
-}
-extern "C" {
     pub fn ggml_cpu_has_vulkan() -> ::std::os::raw::c_int;
 }
 extern "C" {
@@ -5890,23 +5887,6 @@ extern "C" {
 }
 extern "C" {
     pub fn whisper_pcm_to_mel_with_state(
-        ctx: *mut whisper_context,
-        state: *mut whisper_state,
-        samples: *const f32,
-        n_samples: ::std::os::raw::c_int,
-        n_threads: ::std::os::raw::c_int,
-    ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-    pub fn whisper_pcm_to_mel_phase_vocoder(
-        ctx: *mut whisper_context,
-        samples: *const f32,
-        n_samples: ::std::os::raw::c_int,
-        n_threads: ::std::os::raw::c_int,
-    ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-    pub fn whisper_pcm_to_mel_phase_vocoder_with_state(
         ctx: *mut whisper_context,
         state: *mut whisper_state,
         samples: *const f32,
