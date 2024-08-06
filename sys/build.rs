@@ -71,7 +71,7 @@ fn main() {
                 println!("cargo:rerun-if-env-changed=HIP_PATH");
 
                 let hip_path = match env::var("HIP_PATH") {
-                    Ok(path) =>PathBuf::from(path),
+                    Ok(path) => PathBuf::from(path),
                     Err(_) => PathBuf::from("/opt/rocm"),
                 };
                 let hip_lib_path = hip_path.join("lib");
@@ -82,7 +82,22 @@ fn main() {
     }
     #[cfg(feature = "vulkan")]
     {
-        println!("cargo:rustc-link-lib=vulkan");
+        cfg_if::cfg_if! {
+            if #[cfg(target_os = "windows")] {
+                println!("cargo:rerun-if-env-changed=VULKAN_SDK");
+                println!("cargo:rustc-link-lib=vulkan-1");
+
+                let vulkan_path = match env::var("VULKAN_SDK") {
+                    Ok(path) => PathBuf::from(path),
+                    Err(_) => panic!("Please install Vulkan SDK and ensure that VULKAN_SDK env variable is set"),
+                };
+                let vulkan_lib_path = vulkan_path.join("Lib");
+                println!("cargo:rustc-link-search={}",vulkan_lib_path.display());
+
+            } else {
+                println!("cargo:rustc-link-lib=vulkan");
+            }
+        }
     }
 
     println!("cargo:rerun-if-changed=wrapper.h");
@@ -210,16 +225,30 @@ fn main() {
     if target.contains("window") && !target.contains("gnu") {
         println!(
             "cargo:rustc-link-search={}",
-            out.join("build").join("Release").display()
+            out.join("build").join("src").join("Release").display()
+        );
+        println!(
+            "cargo:rustc-link-search={}",
+            out.join("build")
+                .join("ggml")
+                .join("src")
+                .join("Release")
+                .display()
         );
     } else {
-        println!("cargo:rustc-link-search={}", out.join("build/src").display());
-        println!("cargo:rustc-link-search={}", out.join("build/ggml/src").display());
+        println!(
+            "cargo:rustc-link-search={}",
+            out.join("build/src").display()
+        );
+        println!(
+            "cargo:rustc-link-search={}",
+            out.join("build/ggml/src").display()
+        );
+        println!("cargo:rustc-link-lib=dylib=gomp");
     }
     println!("cargo:rustc-link-search=native={}", destination.display());
     println!("cargo:rustc-link-lib=static=whisper");
     println!("cargo:rustc-link-lib=static=ggml");
-    println!("cargo:rustc-link-lib=dylib=gomp");
 
     // for whatever reason this file is generated during build and triggers cargo complaining
     _ = std::fs::remove_file("bindings/javascript/package.json");
