@@ -110,7 +110,6 @@ pub struct SystemInfo {
     pub fma: bool,
     pub f16c: bool,
     pub blas: bool,
-    pub clblast: bool,
     pub cuda: bool,
 }
 
@@ -123,7 +122,6 @@ impl Default for SystemInfo {
                 fma: whisper_rs_sys::ggml_cpu_has_fma() != 0,
                 f16c: whisper_rs_sys::ggml_cpu_has_f16c() != 0,
                 blas: whisper_rs_sys::ggml_cpu_has_blas() != 0,
-                clblast: whisper_rs_sys::ggml_cpu_has_clblast() != 0,
                 cuda: whisper_rs_sys::ggml_cpu_has_cuda() != 0,
             }
         }

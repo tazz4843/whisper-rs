@@ -30,11 +30,6 @@ fn main() {
 
     #[cfg(feature = "coreml")]
     println!("cargo:rustc-link-lib=static=whisper.coreml");
-    #[cfg(feature = "opencl")]
-    {
-        println!("cargo:rustc-link-lib=clblast");
-        println!("cargo:rustc-link-lib=OpenCL");
-    }
     #[cfg(feature = "openblas")]
     {
         println!("cargo:rustc-link-lib=openblas");
@@ -81,6 +76,13 @@ fn main() {
         }
     }
 
+    #[cfg(feature = "openmp")]
+    {
+        if target.contains("gnu") {
+            println!("cargo:rustc-link-lib=gomp");
+        }
+    }
+
     println!("cargo:rerun-if-changed=wrapper.h");
 
     let out = PathBuf::from(env::var("OUT_DIR").unwrap());
@@ -104,10 +106,11 @@ fn main() {
         let bindings = bindgen::Builder::default().header("wrapper.h");
 
         #[cfg(feature = "metal")]
-        let bindings = bindings.header("whisper.cpp/ggml-metal.h");
+        let bindings = bindings.header("whisper.cpp/ggml/include/ggml-metal.h");
 
         let bindings = bindings
-            .clang_arg("-I./whisper.cpp")
+            .clang_arg("-I./whisper.cpp/include")
+            .clang_arg("-I./whisper.cpp/ggml/include")
             .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
             .generate();
 
@@ -150,11 +153,11 @@ fn main() {
     }
 
     if cfg!(feature = "cuda") {
-        config.define("WHISPER_CUDA", "ON");
+        config.define("GGML_CUDA", "ON");
     }
 
     if cfg!(feature = "hipblas") {
-        config.define("WHISPER_HIPBLAS", "ON");
+        config.define("GGML_HIPBLAS", "ON");
         config.define("CMAKE_C_COMPILER", "hipcc");
         config.define("CMAKE_CXX_COMPILER", "hipcc");
         println!("cargo:rerun-if-env-changed=AMDGPU_TARGETS");
@@ -164,20 +167,16 @@ fn main() {
     }
 
     if cfg!(feature = "openblas") {
-        config.define("WHISPER_OPENBLAS", "ON");
-    }
-
-    if cfg!(feature = "opencl") {
-        config.define("WHISPER_CLBLAST", "ON");
+        config.define("GGML_BLAS", "ON");
     }
 
     if cfg!(feature = "metal") {
-        config.define("WHISPER_METAL", "ON");
-        config.define("WHISPER_METAL_NDEBUG", "ON");
-        config.define("WHISPER_METAL_EMBED_LIBRARY", "ON");
+        config.define("GGML_METAL", "ON");
+        config.define("GGML_METAL_NDEBUG", "ON");
+        config.define("GGML_METAL_EMBED_LIBRARY", "ON");
     } else {
         // Metal is enabled by default, so we need to explicitly disable it
-        config.define("WHISPER_METAL", "OFF");
+        config.define("GGML_METAL", "OFF");
     }
 
     if cfg!(debug_assertions) || cfg!(feature = "force-debug") {
@@ -197,18 +196,17 @@ fn main() {
         }
     }
 
+    if cfg!(not(feature = "openmp")) {
+        config.define("GGML_OPENMP", "OFF");
+    }
+
     let destination = config.build();
 
-    if target.contains("window") && !target.contains("gnu") {
-        println!(
-            "cargo:rustc-link-search={}",
-            out.join("build").join("Release").display()
-        );
-    } else {
-        println!("cargo:rustc-link-search={}", out.join("build").display());
-    }
+    add_link_search_path(&out.join("lib")).unwrap();
+
     println!("cargo:rustc-link-search=native={}", destination.display());
     println!("cargo:rustc-link-lib=static=whisper");
+    println!("cargo:rustc-link-lib=static=ggml");
 
     // for whatever reason this file is generated during build and triggers cargo complaining
     _ = std::fs::remove_file("bindings/javascript/package.json");
@@ -225,4 +223,14 @@ fn get_cpp_link_stdlib(target: &str) -> Option<&'static str> {
     } else {
         Some("stdc++")
     }
+}
+
+fn add_link_search_path(dir: &std::path::Path) -> std::io::Result<()> {
+    if dir.is_dir() {
+        println!("cargo:rustc-link-search={}", dir.display());
+        for entry in std::fs::read_dir(dir)? {
+            add_link_search_path(&entry?.path())?;
+        }
+    }
+    Ok(())
 }
