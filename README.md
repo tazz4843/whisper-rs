@@ -74,6 +74,7 @@ All disabled by default unless otherwise specified.
 * `hipblas`: enable ROCm/hipBLAS support. Only available on linux. Implicitly enables hidden GPU flag at runtime.
 * `openblas`: enable OpenBLAS support.
 * `metal`: enable Metal support. Implicitly enables hidden GPU flag at runtime.
+* `vulkan`: enable Vulkan support. Implicitly enables hidden GPU flag at runtime.
 * `whisper-cpp-log`: allows hooking into whisper.cpp's log output and sending it to the `log` backend. Requires calling
 * `whisper-cpp-tracing`: allows hooking into whisper.cpp's log output and sending it to the `tracing` backend.
 

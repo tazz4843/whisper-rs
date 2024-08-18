@@ -45,6 +45,7 @@ cuda = []
 hipblas = []
 openblas = []
 metal = []
+vulkan = []
 force-debug = []
 openmp = []
 
