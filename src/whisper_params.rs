@@ -232,7 +232,6 @@ impl<'a, 'b> FullParams<'a, 'b> {
     /// # EXPERIMENTAL
     ///
     /// Overwrite the audio context size. 0 = default.
-    /// As with [set_speed_up](FullParams::set_speed_up), this can significantly reduce the accuracy of the transcription.
     ///
     /// Defaults to 0.
     pub fn set_audio_ctx(&mut self, audio_ctx: c_int) {
