@@ -464,6 +464,38 @@ impl WhisperState {
         Ok(unsafe { whisper_rs_sys::whisper_full_n_tokens_from_state(self.ptr, segment) })
     }
 
+    /// Get the token bytes of the specified token in the specified segment.
+    ///
+    /// # Arguments
+    /// * segment: Segment index.
+    /// * token: Token index.
+    ///
+    /// # Returns
+    /// Ok(String) on success, Err(WhisperError) on failure.
+    ///
+    /// # C++ equivalent
+    /// `const char * whisper_full_get_token_text(struct whisper_context * ctx, int i_segment, int i_token)`
+    pub fn full_get_token_bytes(
+        &self,
+        segment: c_int,
+        token: c_int,
+    ) -> Result<Vec<u8>, WhisperError> {
+        let ret = unsafe {
+            whisper_rs_sys::whisper_full_get_token_text_from_state(
+                self.ctx.ctx,
+                self.ptr,
+                segment,
+                token,
+            )
+        };
+        if ret.is_null() {
+            return Err(WhisperError::NullPointer);
+        }
+        let c_str = unsafe { CStr::from_ptr(ret) };
+
+        Ok(c_str.to_bytes().to_vec())
+    }
+
     /// Get the token text of the specified token in the specified segment.
     ///
     /// # Arguments
