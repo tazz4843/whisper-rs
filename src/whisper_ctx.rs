@@ -471,9 +471,6 @@ unsafe impl Sync for WhisperInnerContext {}
 
 pub struct WhisperContextParameters<'a> {
     /// Use GPU if available.
-    ///
-    /// **Warning**: Does not have an effect if OpenCL is selected as GPU backend
-    /// (in that case, GPU is always enabled).
     pub use_gpu: bool,
     /// Enable flash attention, default false
     ///

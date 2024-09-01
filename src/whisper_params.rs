@@ -224,16 +224,6 @@ impl<'a, 'b> FullParams<'a, 'b> {
 
     /// # EXPERIMENTAL
     ///
-    /// Speed up audio ~2x by using phase vocoder.
-    /// Note that this can significantly reduce the accuracy of the transcription.
-    ///
-    /// Defaults to false.
-    pub fn set_speed_up(&mut self, speed_up: bool) {
-        self.fp.speed_up = speed_up;
-    }
-
-    /// # EXPERIMENTAL
-    ///
     /// Enables debug mode, such as dumping the log mel spectrogram.
     ///
     /// Defaults to false.
@@ -244,7 +234,6 @@ impl<'a, 'b> FullParams<'a, 'b> {
     /// # EXPERIMENTAL
     ///
     /// Overwrite the audio context size. 0 = default.
-    /// As with [set_speed_up](FullParams::set_speed_up), this can significantly reduce the accuracy of the transcription.
     ///
     /// Defaults to 0.
     pub fn set_audio_ctx(&mut self, audio_ctx: c_int) {
