@@ -4,6 +4,8 @@ extern crate bindgen;
 
 use cmake::Config;
 use std::env;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
 use std::path::PathBuf;
 
 fn main() {
@@ -218,6 +220,13 @@ fn main() {
     println!("cargo:rustc-link-lib=static=whisper");
     println!("cargo:rustc-link-lib=static=ggml");
 
+    println!(
+        "cargo:WHISPER_CPP_VERSION={}",
+        get_whisper_cpp_version(&whisper_root)
+            .expect("Failed to read whisper.cpp CMake config")
+            .expect("Could not find whisper.cpp version declaration"),
+    );
+
     // for whatever reason this file is generated during build and triggers cargo complaining
     _ = std::fs::remove_file("bindings/javascript/package.json");
 }
@@ -243,4 +252,19 @@ fn add_link_search_path(dir: &std::path::Path) -> std::io::Result<()> {
         }
     }
     Ok(())
+}
+
+fn get_whisper_cpp_version(whisper_root: &std::path::Path) -> std::io::Result<Option<String>> {
+    let cmake_lists = BufReader::new(File::open(whisper_root.join("CMakeLists.txt"))?);
+
+    for line in cmake_lists.lines() {
+        let line = line?;
+
+        if let Some(suffix) = line.strip_prefix(r#"project("whisper.cpp" VERSION "#) {
+            let whisper_cpp_version = suffix.trim_end_matches(')');
+            return Ok(Some(whisper_cpp_version.into()));
+        }
+    }
+
+    Ok(None)
 }
