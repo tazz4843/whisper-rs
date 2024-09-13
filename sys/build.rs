@@ -178,6 +178,24 @@ fn main() {
         }
     }
 
+    if cfg!(feature = "vulkan") {
+        config.define("GGML_VULKAN", "ON");
+        if cfg!(windows) {
+            println!("cargo:rerun-if-env-changed=VULKAN_SDK");
+            println!("cargo:rustc-link-lib=vulkan-1");
+            let vulkan_path = match env::var("VULKAN_SDK") {
+                Ok(path) => PathBuf::from(path),
+                Err(_) => panic!(
+                    "Please install Vulkan SDK and ensure that VULKAN_SDK env variable is set"
+                ),
+            };
+            let vulkan_lib_path = vulkan_path.join("Lib");
+            println!("cargo:rustc-link-search={}", vulkan_lib_path.display());
+        } else {
+            println!("cargo:rustc-link-lib=vulkan");
+        }
+    }
+
     if cfg!(feature = "openblas") {
         config.define("GGML_BLAS", "ON");
     }
