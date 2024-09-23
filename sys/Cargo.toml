@@ -1,6 +1,6 @@
 [package]
 name = "whisper-rs-sys"
-version = "0.10.1"
+version = "0.11.0"
 edition = "2021"
 description = "Rust bindings for whisper.cpp (FFI bindings)"
 license = "Unlicense"
@@ -10,29 +10,28 @@ links = "whisper"
 include = [
     "whisper.cpp/bindings/javascript/package-tmpl.json",
     "whisper.cpp/bindings/CMakeLists.txt",
-    "whisper.cpp/cmake",
-    "whisper.cpp/coreml",
     "whisper.cpp/CMakeLists.txt",
-    "whisper.cpp/ggml.c",
-    "whisper.cpp/ggml.h",
-    "whisper.cpp/ggml-alloc.c",
-    "whisper.cpp/ggml-alloc.h",
-    "whisper.cpp/ggml-backend.c",
-    "whisper.cpp/ggml-backend.h",
-    "whisper.cpp/ggml-backend-impl.h",
-    "whisper.cpp/ggml-cuda.cu",
-    "whisper.cpp/ggml-cuda.h",
-    "whisper.cpp/ggml-impl.h",
-    "whisper.cpp/ggml-metal.h",
-    "whisper.cpp/ggml-metal.m",
-    "whisper.cpp/ggml-metal.metal",
-    "whisper.cpp/ggml-opencl.cpp",
-    "whisper.cpp/ggml-opencl.h",
-    "whisper.cpp/ggml-quants.h",
-    "whisper.cpp/ggml-quants.c",
+    "whisper.cpp/cmake",
+    "whisper.cpp/src/coreml",
+    "whisper.cpp/src/CMakeLists.txt",
+    "whisper.cpp/src/whisper.cpp",
+    "whisper.cpp/include/whisper.h",
+    "whisper.cpp/ggml/src/ggml.c",
+    "whisper.cpp/ggml/src/ggml-alloc.c",
+    "whisper.cpp/ggml/src/ggml-backend.c",
+    "whisper.cpp/ggml/src/ggml-cuda.cu",
+    "whisper.cpp/ggml/src/ggml-impl.h",
+    "whisper.cpp/ggml/src/ggml-metal.m",
+    "whisper.cpp/ggml/src/ggml-metal.metal",
+    "whisper.cpp/ggml/src/ggml-quants.h",
+    "whisper.cpp/ggml/src/ggml-quants.c",
+    "whisper.cpp/ggml/include/ggml.h",
+    "whisper.cpp/ggml/include/ggml-alloc.h",
+    "whisper.cpp/ggml/include/ggml-backend.h",
+    "whisper.cpp/ggml/include/ggml-backend-impl.h",
+    "whisper.cpp/ggml/include/ggml-cuda.h",
+    "whisper.cpp/ggml/include/ggml-metal.h",
     "whisper.cpp/LICENSE",
-    "whisper.cpp/whisper.cpp",
-    "whisper.cpp/whisper.h",
     "src/*.rs",
     "build.rs",
     "wrapper.h",
@@ -44,10 +43,11 @@ include = [
 coreml = []
 cuda = []
 hipblas = []
-opencl = []
 openblas = []
 metal = []
+vulkan = []
 force-debug = []
+openmp = []
 
 [build-dependencies]
 cmake = "0.1"

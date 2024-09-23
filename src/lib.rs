@@ -50,3 +50,6 @@ pub type WhisperLogitsFilterCallback = whisper_rs_sys::whisper_logits_filter_cal
 pub type WhisperAbortCallback = whisper_rs_sys::ggml_abort_callback;
 pub type WhisperLogCallback = whisper_rs_sys::ggml_log_callback;
 pub type DtwAhead = whisper_rs_sys::whisper_ahead;
+
+/// The version of whisper.cpp that whisper-rs was linked with.
+pub static WHISPER_CPP_VERSION: &str = env!("WHISPER_CPP_VERSION");

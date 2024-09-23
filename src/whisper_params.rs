@@ -1,6 +1,7 @@
 use crate::whisper_grammar::WhisperGrammarElement;
 use std::ffi::{c_char, c_float, c_int, CString};
 use std::marker::PhantomData;
+use std::sync::Arc;
 use whisper_rs_sys::whisper_token;
 
 #[derive(Debug, Clone)]
@@ -31,14 +32,15 @@ pub struct SegmentCallbackData {
 
 type SegmentCallbackFn = Box<dyn FnMut(SegmentCallbackData)>;
 
+#[derive(Clone)]
 pub struct FullParams<'a, 'b> {
     pub(crate) fp: whisper_rs_sys::whisper_full_params,
     phantom_lang: PhantomData<&'a str>,
     phantom_tokens: PhantomData<&'b [c_int]>,
     grammar: Option<Vec<whisper_rs_sys::whisper_grammar_element>>,
-    progess_callback_safe: Option<Box<dyn FnMut(i32)>>,
-    abort_callback_safe: Option<Box<dyn FnMut() -> bool>>,
-    segment_calllback_safe: Option<SegmentCallbackFn>,
+    progess_callback_safe: Option<Arc<Box<dyn FnMut(i32)>>>,
+    abort_callback_safe: Option<Arc<Box<dyn FnMut() -> bool>>>,
+    segment_calllback_safe: Option<Arc<SegmentCallbackFn>>,
 }
 
 impl<'a, 'b> FullParams<'a, 'b> {
@@ -222,16 +224,6 @@ impl<'a, 'b> FullParams<'a, 'b> {
 
     /// # EXPERIMENTAL
     ///
-    /// Speed up audio ~2x by using phase vocoder.
-    /// Note that this can significantly reduce the accuracy of the transcription.
-    ///
-    /// Defaults to false.
-    pub fn set_speed_up(&mut self, speed_up: bool) {
-        self.fp.speed_up = speed_up;
-    }
-
-    /// # EXPERIMENTAL
-    ///
     /// Enables debug mode, such as dumping the log mel spectrogram.
     ///
     /// Defaults to false.
@@ -242,7 +234,6 @@ impl<'a, 'b> FullParams<'a, 'b> {
     /// # EXPERIMENTAL
     ///
     /// Overwrite the audio context size. 0 = default.
-    /// As with [set_speed_up](FullParams::set_speed_up), this can significantly reduce the accuracy of the transcription.
     ///
     /// Defaults to 0.
     pub fn set_audio_ctx(&mut self, audio_ctx: c_int) {
@@ -588,7 +579,7 @@ impl<'a, 'b> FullParams<'a, 'b> {
                 self.fp.progress_callback = Some(trampoline::<F>);
                 self.fp.progress_callback_user_data = &mut closure as *mut F as *mut c_void;
                 // store the closure internally to make sure that the pointer above remains valid
-                self.progess_callback_safe = Some(Box::new(closure));
+                self.progess_callback_safe = Some(Arc::new(Box::new(closure)));
             }
             None => {
                 self.fp.progress_callback = None;
