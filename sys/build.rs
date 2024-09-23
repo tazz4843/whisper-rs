@@ -213,7 +213,7 @@ fn main() {
         // debug builds are too slow to even remotely be usable,
         // so we build with optimizations even in debug mode
         config.define("CMAKE_BUILD_TYPE", "RelWithDebInfo");
-        config.cxxflag("-DWHISPER_DEBUG");
+        // config.cxxflag("-DWHISPER_DEBUG");
     }
 
     // Allow passing any WHISPER or CMAKE compile flags
@@ -232,6 +232,7 @@ fn main() {
 
     let destination = config.build();
 
+    add_link_search_path(&out.join("lib64")).unwrap();
     add_link_search_path(&out.join("lib")).unwrap();
 
     println!("cargo:rustc-link-search=native={}", destination.display());
