@@ -29,6 +29,7 @@ pub const __USE_ATFILE: u32 = 1;
 pub const __USE_FORTIFY_LEVEL: u32 = 0;
 pub const __GLIBC_USE_DEPRECATED_GETS: u32 = 0;
 pub const __GLIBC_USE_DEPRECATED_SCANF: u32 = 0;
+pub const __GLIBC_USE_C2X_STRTOL: u32 = 0;
 pub const _STDC_PREDEF_H: u32 = 1;
 pub const __STDC_IEC_559__: u32 = 1;
 pub const __STDC_IEC_60559_BFP__: u32 = 201404;
@@ -37,7 +38,7 @@ pub const __STDC_IEC_60559_COMPLEX__: u32 = 201404;
 pub const __STDC_ISO_10646__: u32 = 201706;
 pub const __GNU_LIBRARY__: u32 = 6;
 pub const __GLIBC__: u32 = 2;
-pub const __GLIBC_MINOR__: u32 = 35;
+pub const __GLIBC_MINOR__: u32 = 39;
 pub const _SYS_CDEFS_H: u32 = 1;
 pub const __glibc_c99_flexarr_available: u32 = 1;
 pub const __LDOUBLE_REDIRECTS_TO_FLOAT128_ABI: u32 = 0;
@@ -61,6 +62,7 @@ pub const _BITS_TIME64_H: u32 = 1;
 pub const _BITS_WCHAR_H: u32 = 1;
 pub const _BITS_STDINT_INTN_H: u32 = 1;
 pub const _BITS_STDINT_UINTN_H: u32 = 1;
+pub const _BITS_STDINT_LEAST_H: u32 = 1;
 pub const INT8_MIN: i32 = -128;
 pub const INT16_MIN: i32 = -32768;
 pub const INT32_MIN: i32 = -2147483648;
@@ -108,6 +110,7 @@ pub const __struct_FILE_defined: u32 = 1;
 pub const _IO_EOF_SEEN: u32 = 16;
 pub const _IO_ERR_SEEN: u32 = 32;
 pub const _IO_USER_LOCK: u32 = 32768;
+pub const __cookie_io_functions_t_defined: u32 = 1;
 pub const _IOFBF: u32 = 0;
 pub const _IOLBF: u32 = 1;
 pub const _IONBF: u32 = 2;
@@ -117,9 +120,9 @@ pub const SEEK_SET: u32 = 0;
 pub const SEEK_CUR: u32 = 1;
 pub const SEEK_END: u32 = 2;
 pub const P_tmpdir: &[u8; 5] = b"/tmp\0";
-pub const _BITS_STDIO_LIM_H: u32 = 1;
 pub const L_tmpnam: u32 = 20;
 pub const TMP_MAX: u32 = 238328;
+pub const _BITS_STDIO_LIM_H: u32 = 1;
 pub const FILENAME_MAX: u32 = 4096;
 pub const L_ctermid: u32 = 9;
 pub const FOPEN_MAX: u32 = 16;
@@ -140,20 +143,22 @@ pub const __HAVE_DISTINCT_FLOAT64X: u32 = 0;
 pub const __HAVE_DISTINCT_FLOAT128X: u32 = 0;
 pub const __HAVE_FLOATN_NOT_TYPEDEF: u32 = 0;
 pub const GGML_FILE_MAGIC: u32 = 1734831468;
-pub const GGML_FILE_VERSION: u32 = 1;
+pub const GGML_FILE_VERSION: u32 = 2;
 pub const GGML_QNT_VERSION: u32 = 2;
 pub const GGML_QNT_VERSION_FACTOR: u32 = 1000;
 pub const GGML_MAX_DIMS: u32 = 4;
 pub const GGML_MAX_PARAMS: u32 = 2048;
 pub const GGML_MAX_CONTEXTS: u32 = 64;
 pub const GGML_MAX_SRC: u32 = 10;
-pub const GGML_MAX_NAME: u32 = 64;
+pub const GGML_MAX_N_THREADS: u32 = 512;
 pub const GGML_MAX_OP_PARAMS: u32 = 64;
+pub const GGML_MAX_NAME: u32 = 64;
 pub const GGML_DEFAULT_N_THREADS: u32 = 4;
 pub const GGML_DEFAULT_GRAPH_SIZE: u32 = 2048;
 pub const GGML_MEM_ALIGN: u32 = 16;
 pub const GGML_EXIT_SUCCESS: u32 = 0;
 pub const GGML_EXIT_ABORTED: u32 = 1;
+pub const GGML_ROPE_TYPE_NEOX: u32 = 2;
 pub const GGUF_MAGIC: &[u8; 5] = b"GGUF\0";
 pub const GGUF_VERSION: u32 = 3;
 pub const GGUF_DEFAULT_ALIGNMENT: u32 = 32;
@@ -161,10 +166,8 @@ pub const GGML_KQ_MASK_PAD: u32 = 32;
 pub const GGML_N_TASKS_MAX: i32 = -1;
 pub const WHISPER_SAMPLE_RATE: u32 = 16000;
 pub const WHISPER_N_FFT: u32 = 400;
-pub const WHISPER_N_FFT_HALF: u32 = 201;
 pub const WHISPER_HOP_LENGTH: u32 = 160;
 pub const WHISPER_CHUNK_SIZE: u32 = 30;
-pub const WHISPER_N_SAMPLES: u32 = 480000;
 pub type wchar_t = ::std::os::raw::c_int;
 #[repr(C)]
 #[repr(align(16))]
@@ -843,6 +846,95 @@ fn bindgen_test_layout__IO_FILE() {
         )
     );
 }
+pub type cookie_read_function_t = ::std::option::Option<
+    unsafe extern "C" fn(
+        __cookie: *mut ::std::os::raw::c_void,
+        __buf: *mut ::std::os::raw::c_char,
+        __nbytes: usize,
+    ) -> __ssize_t,
+>;
+pub type cookie_write_function_t = ::std::option::Option<
+    unsafe extern "C" fn(
+        __cookie: *mut ::std::os::raw::c_void,
+        __buf: *const ::std::os::raw::c_char,
+        __nbytes: usize,
+    ) -> __ssize_t,
+>;
+pub type cookie_seek_function_t = ::std::option::Option<
+    unsafe extern "C" fn(
+        __cookie: *mut ::std::os::raw::c_void,
+        __pos: *mut __off64_t,
+        __w: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int,
+>;
+pub type cookie_close_function_t = ::std::option::Option<
+    unsafe extern "C" fn(__cookie: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int,
+>;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _IO_cookie_io_functions_t {
+    pub read: cookie_read_function_t,
+    pub write: cookie_write_function_t,
+    pub seek: cookie_seek_function_t,
+    pub close: cookie_close_function_t,
+}
+#[test]
+fn bindgen_test_layout__IO_cookie_io_functions_t() {
+    const UNINIT: ::std::mem::MaybeUninit<_IO_cookie_io_functions_t> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<_IO_cookie_io_functions_t>(),
+        32usize,
+        concat!("Size of: ", stringify!(_IO_cookie_io_functions_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<_IO_cookie_io_functions_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(_IO_cookie_io_functions_t))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).read) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_IO_cookie_io_functions_t),
+            "::",
+            stringify!(read)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).write) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_IO_cookie_io_functions_t),
+            "::",
+            stringify!(write)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).seek) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_IO_cookie_io_functions_t),
+            "::",
+            stringify!(seek)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).close) as usize - ptr as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_IO_cookie_io_functions_t),
+            "::",
+            stringify!(close)
+        )
+    );
+}
+pub type cookie_io_functions_t = _IO_cookie_io_functions_t;
 pub type va_list = __gnuc_va_list;
 pub type off_t = __off_t;
 pub type fpos_t = __fpos_t;
@@ -912,6 +1004,13 @@ extern "C" {
 extern "C" {
     pub fn fdopen(__fd: ::std::os::raw::c_int, __modes: *const ::std::os::raw::c_char)
         -> *mut FILE;
+}
+extern "C" {
+    pub fn fopencookie(
+        __magic_cookie: *mut ::std::os::raw::c_void,
+        __modes: *const ::std::os::raw::c_char,
+        __io_funcs: cookie_io_functions_t,
+    ) -> *mut FILE;
 }
 extern "C" {
     pub fn fmemopen(
@@ -994,6 +1093,27 @@ extern "C" {
         __maxlen: ::std::os::raw::c_ulong,
         __format: *const ::std::os::raw::c_char,
         __arg: *mut __va_list_tag,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn vasprintf(
+        __ptr: *mut *mut ::std::os::raw::c_char,
+        __f: *const ::std::os::raw::c_char,
+        __arg: *mut __va_list_tag,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn __asprintf(
+        __ptr: *mut *mut ::std::os::raw::c_char,
+        __fmt: *const ::std::os::raw::c_char,
+        ...
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn asprintf(
+        __ptr: *mut *mut ::std::os::raw::c_char,
+        __fmt: *const ::std::os::raw::c_char,
+        ...
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
@@ -1367,7 +1487,17 @@ extern "C" {
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
+pub struct ggml_object {
+    _unused: [u8; 0],
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
 pub struct ggml_context {
+    _unused: [u8; 0],
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct ggml_cgraph {
     _unused: [u8; 0],
 }
 pub const ggml_type_GGML_TYPE_F32: ggml_type = 0;
@@ -1402,7 +1532,9 @@ pub const ggml_type_GGML_TYPE_BF16: ggml_type = 30;
 pub const ggml_type_GGML_TYPE_Q4_0_4_4: ggml_type = 31;
 pub const ggml_type_GGML_TYPE_Q4_0_4_8: ggml_type = 32;
 pub const ggml_type_GGML_TYPE_Q4_0_8_8: ggml_type = 33;
-pub const ggml_type_GGML_TYPE_COUNT: ggml_type = 34;
+pub const ggml_type_GGML_TYPE_TQ1_0: ggml_type = 34;
+pub const ggml_type_GGML_TYPE_TQ2_0: ggml_type = 35;
+pub const ggml_type_GGML_TYPE_COUNT: ggml_type = 36;
 pub type ggml_type = ::std::os::raw::c_uint;
 pub const ggml_prec_GGML_PREC_DEFAULT: ggml_prec = 0;
 pub const ggml_prec_GGML_PREC_F32: ggml_prec = 1;
@@ -1450,70 +1582,77 @@ pub const ggml_op_GGML_OP_DIV: ggml_op = 7;
 pub const ggml_op_GGML_OP_SQR: ggml_op = 8;
 pub const ggml_op_GGML_OP_SQRT: ggml_op = 9;
 pub const ggml_op_GGML_OP_LOG: ggml_op = 10;
-pub const ggml_op_GGML_OP_SUM: ggml_op = 11;
-pub const ggml_op_GGML_OP_SUM_ROWS: ggml_op = 12;
-pub const ggml_op_GGML_OP_MEAN: ggml_op = 13;
-pub const ggml_op_GGML_OP_ARGMAX: ggml_op = 14;
-pub const ggml_op_GGML_OP_REPEAT: ggml_op = 15;
-pub const ggml_op_GGML_OP_REPEAT_BACK: ggml_op = 16;
-pub const ggml_op_GGML_OP_CONCAT: ggml_op = 17;
-pub const ggml_op_GGML_OP_SILU_BACK: ggml_op = 18;
-pub const ggml_op_GGML_OP_NORM: ggml_op = 19;
-pub const ggml_op_GGML_OP_RMS_NORM: ggml_op = 20;
-pub const ggml_op_GGML_OP_RMS_NORM_BACK: ggml_op = 21;
-pub const ggml_op_GGML_OP_GROUP_NORM: ggml_op = 22;
-pub const ggml_op_GGML_OP_MUL_MAT: ggml_op = 23;
-pub const ggml_op_GGML_OP_MUL_MAT_ID: ggml_op = 24;
-pub const ggml_op_GGML_OP_OUT_PROD: ggml_op = 25;
-pub const ggml_op_GGML_OP_SCALE: ggml_op = 26;
-pub const ggml_op_GGML_OP_SET: ggml_op = 27;
-pub const ggml_op_GGML_OP_CPY: ggml_op = 28;
-pub const ggml_op_GGML_OP_CONT: ggml_op = 29;
-pub const ggml_op_GGML_OP_RESHAPE: ggml_op = 30;
-pub const ggml_op_GGML_OP_VIEW: ggml_op = 31;
-pub const ggml_op_GGML_OP_PERMUTE: ggml_op = 32;
-pub const ggml_op_GGML_OP_TRANSPOSE: ggml_op = 33;
-pub const ggml_op_GGML_OP_GET_ROWS: ggml_op = 34;
-pub const ggml_op_GGML_OP_GET_ROWS_BACK: ggml_op = 35;
-pub const ggml_op_GGML_OP_DIAG: ggml_op = 36;
-pub const ggml_op_GGML_OP_DIAG_MASK_INF: ggml_op = 37;
-pub const ggml_op_GGML_OP_DIAG_MASK_ZERO: ggml_op = 38;
-pub const ggml_op_GGML_OP_SOFT_MAX: ggml_op = 39;
-pub const ggml_op_GGML_OP_SOFT_MAX_BACK: ggml_op = 40;
-pub const ggml_op_GGML_OP_ROPE: ggml_op = 41;
-pub const ggml_op_GGML_OP_ROPE_BACK: ggml_op = 42;
-pub const ggml_op_GGML_OP_CLAMP: ggml_op = 43;
-pub const ggml_op_GGML_OP_CONV_TRANSPOSE_1D: ggml_op = 44;
-pub const ggml_op_GGML_OP_IM2COL: ggml_op = 45;
-pub const ggml_op_GGML_OP_CONV_TRANSPOSE_2D: ggml_op = 46;
-pub const ggml_op_GGML_OP_POOL_1D: ggml_op = 47;
-pub const ggml_op_GGML_OP_POOL_2D: ggml_op = 48;
-pub const ggml_op_GGML_OP_UPSCALE: ggml_op = 49;
-pub const ggml_op_GGML_OP_PAD: ggml_op = 50;
-pub const ggml_op_GGML_OP_ARANGE: ggml_op = 51;
-pub const ggml_op_GGML_OP_TIMESTEP_EMBEDDING: ggml_op = 52;
-pub const ggml_op_GGML_OP_ARGSORT: ggml_op = 53;
-pub const ggml_op_GGML_OP_LEAKY_RELU: ggml_op = 54;
-pub const ggml_op_GGML_OP_FLASH_ATTN_EXT: ggml_op = 55;
-pub const ggml_op_GGML_OP_FLASH_ATTN_BACK: ggml_op = 56;
-pub const ggml_op_GGML_OP_SSM_CONV: ggml_op = 57;
-pub const ggml_op_GGML_OP_SSM_SCAN: ggml_op = 58;
-pub const ggml_op_GGML_OP_WIN_PART: ggml_op = 59;
-pub const ggml_op_GGML_OP_WIN_UNPART: ggml_op = 60;
-pub const ggml_op_GGML_OP_GET_REL_POS: ggml_op = 61;
-pub const ggml_op_GGML_OP_ADD_REL_POS: ggml_op = 62;
-pub const ggml_op_GGML_OP_UNARY: ggml_op = 63;
-pub const ggml_op_GGML_OP_MAP_UNARY: ggml_op = 64;
-pub const ggml_op_GGML_OP_MAP_BINARY: ggml_op = 65;
-pub const ggml_op_GGML_OP_MAP_CUSTOM1_F32: ggml_op = 66;
-pub const ggml_op_GGML_OP_MAP_CUSTOM2_F32: ggml_op = 67;
-pub const ggml_op_GGML_OP_MAP_CUSTOM3_F32: ggml_op = 68;
-pub const ggml_op_GGML_OP_MAP_CUSTOM1: ggml_op = 69;
-pub const ggml_op_GGML_OP_MAP_CUSTOM2: ggml_op = 70;
-pub const ggml_op_GGML_OP_MAP_CUSTOM3: ggml_op = 71;
-pub const ggml_op_GGML_OP_CROSS_ENTROPY_LOSS: ggml_op = 72;
-pub const ggml_op_GGML_OP_CROSS_ENTROPY_LOSS_BACK: ggml_op = 73;
-pub const ggml_op_GGML_OP_COUNT: ggml_op = 74;
+pub const ggml_op_GGML_OP_SIN: ggml_op = 11;
+pub const ggml_op_GGML_OP_COS: ggml_op = 12;
+pub const ggml_op_GGML_OP_SUM: ggml_op = 13;
+pub const ggml_op_GGML_OP_SUM_ROWS: ggml_op = 14;
+pub const ggml_op_GGML_OP_MEAN: ggml_op = 15;
+pub const ggml_op_GGML_OP_ARGMAX: ggml_op = 16;
+pub const ggml_op_GGML_OP_COUNT_EQUAL: ggml_op = 17;
+pub const ggml_op_GGML_OP_REPEAT: ggml_op = 18;
+pub const ggml_op_GGML_OP_REPEAT_BACK: ggml_op = 19;
+pub const ggml_op_GGML_OP_CONCAT: ggml_op = 20;
+pub const ggml_op_GGML_OP_SILU_BACK: ggml_op = 21;
+pub const ggml_op_GGML_OP_NORM: ggml_op = 22;
+pub const ggml_op_GGML_OP_RMS_NORM: ggml_op = 23;
+pub const ggml_op_GGML_OP_RMS_NORM_BACK: ggml_op = 24;
+pub const ggml_op_GGML_OP_GROUP_NORM: ggml_op = 25;
+pub const ggml_op_GGML_OP_MUL_MAT: ggml_op = 26;
+pub const ggml_op_GGML_OP_MUL_MAT_ID: ggml_op = 27;
+pub const ggml_op_GGML_OP_OUT_PROD: ggml_op = 28;
+pub const ggml_op_GGML_OP_SCALE: ggml_op = 29;
+pub const ggml_op_GGML_OP_SET: ggml_op = 30;
+pub const ggml_op_GGML_OP_CPY: ggml_op = 31;
+pub const ggml_op_GGML_OP_CONT: ggml_op = 32;
+pub const ggml_op_GGML_OP_RESHAPE: ggml_op = 33;
+pub const ggml_op_GGML_OP_VIEW: ggml_op = 34;
+pub const ggml_op_GGML_OP_PERMUTE: ggml_op = 35;
+pub const ggml_op_GGML_OP_TRANSPOSE: ggml_op = 36;
+pub const ggml_op_GGML_OP_GET_ROWS: ggml_op = 37;
+pub const ggml_op_GGML_OP_GET_ROWS_BACK: ggml_op = 38;
+pub const ggml_op_GGML_OP_DIAG: ggml_op = 39;
+pub const ggml_op_GGML_OP_DIAG_MASK_INF: ggml_op = 40;
+pub const ggml_op_GGML_OP_DIAG_MASK_ZERO: ggml_op = 41;
+pub const ggml_op_GGML_OP_SOFT_MAX: ggml_op = 42;
+pub const ggml_op_GGML_OP_SOFT_MAX_BACK: ggml_op = 43;
+pub const ggml_op_GGML_OP_ROPE: ggml_op = 44;
+pub const ggml_op_GGML_OP_ROPE_BACK: ggml_op = 45;
+pub const ggml_op_GGML_OP_CLAMP: ggml_op = 46;
+pub const ggml_op_GGML_OP_CONV_TRANSPOSE_1D: ggml_op = 47;
+pub const ggml_op_GGML_OP_IM2COL: ggml_op = 48;
+pub const ggml_op_GGML_OP_IM2COL_BACK: ggml_op = 49;
+pub const ggml_op_GGML_OP_CONV_TRANSPOSE_2D: ggml_op = 50;
+pub const ggml_op_GGML_OP_POOL_1D: ggml_op = 51;
+pub const ggml_op_GGML_OP_POOL_2D: ggml_op = 52;
+pub const ggml_op_GGML_OP_POOL_2D_BACK: ggml_op = 53;
+pub const ggml_op_GGML_OP_UPSCALE: ggml_op = 54;
+pub const ggml_op_GGML_OP_PAD: ggml_op = 55;
+pub const ggml_op_GGML_OP_ARANGE: ggml_op = 56;
+pub const ggml_op_GGML_OP_TIMESTEP_EMBEDDING: ggml_op = 57;
+pub const ggml_op_GGML_OP_ARGSORT: ggml_op = 58;
+pub const ggml_op_GGML_OP_LEAKY_RELU: ggml_op = 59;
+pub const ggml_op_GGML_OP_FLASH_ATTN_EXT: ggml_op = 60;
+pub const ggml_op_GGML_OP_FLASH_ATTN_BACK: ggml_op = 61;
+pub const ggml_op_GGML_OP_SSM_CONV: ggml_op = 62;
+pub const ggml_op_GGML_OP_SSM_SCAN: ggml_op = 63;
+pub const ggml_op_GGML_OP_WIN_PART: ggml_op = 64;
+pub const ggml_op_GGML_OP_WIN_UNPART: ggml_op = 65;
+pub const ggml_op_GGML_OP_GET_REL_POS: ggml_op = 66;
+pub const ggml_op_GGML_OP_ADD_REL_POS: ggml_op = 67;
+pub const ggml_op_GGML_OP_RWKV_WKV: ggml_op = 68;
+pub const ggml_op_GGML_OP_UNARY: ggml_op = 69;
+pub const ggml_op_GGML_OP_MAP_UNARY: ggml_op = 70;
+pub const ggml_op_GGML_OP_MAP_BINARY: ggml_op = 71;
+pub const ggml_op_GGML_OP_MAP_CUSTOM1_F32: ggml_op = 72;
+pub const ggml_op_GGML_OP_MAP_CUSTOM2_F32: ggml_op = 73;
+pub const ggml_op_GGML_OP_MAP_CUSTOM3_F32: ggml_op = 74;
+pub const ggml_op_GGML_OP_MAP_CUSTOM1: ggml_op = 75;
+pub const ggml_op_GGML_OP_MAP_CUSTOM2: ggml_op = 76;
+pub const ggml_op_GGML_OP_MAP_CUSTOM3: ggml_op = 77;
+pub const ggml_op_GGML_OP_CROSS_ENTROPY_LOSS: ggml_op = 78;
+pub const ggml_op_GGML_OP_CROSS_ENTROPY_LOSS_BACK: ggml_op = 79;
+pub const ggml_op_GGML_OP_OPT_STEP_ADAMW: ggml_op = 80;
+pub const ggml_op_GGML_OP_COUNT: ggml_op = 81;
 pub type ggml_op = ::std::os::raw::c_uint;
 pub const ggml_unary_op_GGML_UNARY_OP_ABS: ggml_unary_op = 0;
 pub const ggml_unary_op_GGML_UNARY_OP_SGN: ggml_unary_op = 1;
@@ -1528,96 +1667,25 @@ pub const ggml_unary_op_GGML_UNARY_OP_GELU_QUICK: ggml_unary_op = 9;
 pub const ggml_unary_op_GGML_UNARY_OP_SILU: ggml_unary_op = 10;
 pub const ggml_unary_op_GGML_UNARY_OP_HARDSWISH: ggml_unary_op = 11;
 pub const ggml_unary_op_GGML_UNARY_OP_HARDSIGMOID: ggml_unary_op = 12;
-pub const ggml_unary_op_GGML_UNARY_OP_COUNT: ggml_unary_op = 13;
+pub const ggml_unary_op_GGML_UNARY_OP_EXP: ggml_unary_op = 13;
+pub const ggml_unary_op_GGML_UNARY_OP_COUNT: ggml_unary_op = 14;
 pub type ggml_unary_op = ::std::os::raw::c_uint;
 pub const ggml_object_type_GGML_OBJECT_TYPE_TENSOR: ggml_object_type = 0;
 pub const ggml_object_type_GGML_OBJECT_TYPE_GRAPH: ggml_object_type = 1;
 pub const ggml_object_type_GGML_OBJECT_TYPE_WORK_BUFFER: ggml_object_type = 2;
 pub type ggml_object_type = ::std::os::raw::c_uint;
-pub const ggml_log_level_GGML_LOG_LEVEL_ERROR: ggml_log_level = 2;
-pub const ggml_log_level_GGML_LOG_LEVEL_WARN: ggml_log_level = 3;
-pub const ggml_log_level_GGML_LOG_LEVEL_INFO: ggml_log_level = 4;
-pub const ggml_log_level_GGML_LOG_LEVEL_DEBUG: ggml_log_level = 5;
+pub const ggml_log_level_GGML_LOG_LEVEL_NONE: ggml_log_level = 0;
+pub const ggml_log_level_GGML_LOG_LEVEL_INFO: ggml_log_level = 1;
+pub const ggml_log_level_GGML_LOG_LEVEL_WARN: ggml_log_level = 2;
+pub const ggml_log_level_GGML_LOG_LEVEL_ERROR: ggml_log_level = 3;
+pub const ggml_log_level_GGML_LOG_LEVEL_DEBUG: ggml_log_level = 4;
+pub const ggml_log_level_GGML_LOG_LEVEL_CONT: ggml_log_level = 5;
 pub type ggml_log_level = ::std::os::raw::c_uint;
 pub const ggml_tensor_flag_GGML_TENSOR_FLAG_INPUT: ggml_tensor_flag = 1;
 pub const ggml_tensor_flag_GGML_TENSOR_FLAG_OUTPUT: ggml_tensor_flag = 2;
 pub const ggml_tensor_flag_GGML_TENSOR_FLAG_PARAM: ggml_tensor_flag = 4;
+pub const ggml_tensor_flag_GGML_TENSOR_FLAG_LOSS: ggml_tensor_flag = 8;
 pub type ggml_tensor_flag = ::std::os::raw::c_uint;
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct ggml_object {
-    pub offs: usize,
-    pub size: usize,
-    pub next: *mut ggml_object,
-    pub type_: ggml_object_type,
-    pub padding: [::std::os::raw::c_char; 4usize],
-}
-#[test]
-fn bindgen_test_layout_ggml_object() {
-    const UNINIT: ::std::mem::MaybeUninit<ggml_object> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<ggml_object>(),
-        32usize,
-        concat!("Size of: ", stringify!(ggml_object))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<ggml_object>(),
-        8usize,
-        concat!("Alignment of ", stringify!(ggml_object))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).offs) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ggml_object),
-            "::",
-            stringify!(offs)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).size) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ggml_object),
-            "::",
-            stringify!(size)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).next) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ggml_object),
-            "::",
-            stringify!(next)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).type_) as usize - ptr as usize },
-        24usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ggml_object),
-            "::",
-            stringify!(type_)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).padding) as usize - ptr as usize },
-        28usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ggml_object),
-            "::",
-            stringify!(padding)
-        )
-    );
-}
-pub const GGML_OBJECT_SIZE: usize = 32;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct ggml_tensor {
@@ -1805,12 +1873,110 @@ fn bindgen_test_layout_ggml_tensor() {
 pub const GGML_TENSOR_SIZE: usize = 336;
 pub type ggml_abort_callback =
     ::std::option::Option<unsafe extern "C" fn(data: *mut ::std::os::raw::c_void) -> bool>;
+pub const ggml_sched_priority_GGML_SCHED_PRIO_NORMAL: ggml_sched_priority = 0;
+pub const ggml_sched_priority_GGML_SCHED_PRIO_MEDIUM: ggml_sched_priority = 1;
+pub const ggml_sched_priority_GGML_SCHED_PRIO_HIGH: ggml_sched_priority = 2;
+pub const ggml_sched_priority_GGML_SCHED_PRIO_REALTIME: ggml_sched_priority = 3;
+pub type ggml_sched_priority = ::std::os::raw::c_uint;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct ggml_threadpool_params {
+    pub cpumask: [bool; 512usize],
+    pub n_threads: ::std::os::raw::c_int,
+    pub prio: ggml_sched_priority,
+    pub poll: u32,
+    pub strict_cpu: bool,
+    pub paused: bool,
+}
+#[test]
+fn bindgen_test_layout_ggml_threadpool_params() {
+    const UNINIT: ::std::mem::MaybeUninit<ggml_threadpool_params> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<ggml_threadpool_params>(),
+        528usize,
+        concat!("Size of: ", stringify!(ggml_threadpool_params))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<ggml_threadpool_params>(),
+        4usize,
+        concat!("Alignment of ", stringify!(ggml_threadpool_params))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).cpumask) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ggml_threadpool_params),
+            "::",
+            stringify!(cpumask)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).n_threads) as usize - ptr as usize },
+        512usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ggml_threadpool_params),
+            "::",
+            stringify!(n_threads)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).prio) as usize - ptr as usize },
+        516usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ggml_threadpool_params),
+            "::",
+            stringify!(prio)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).poll) as usize - ptr as usize },
+        520usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ggml_threadpool_params),
+            "::",
+            stringify!(poll)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).strict_cpu) as usize - ptr as usize },
+        524usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ggml_threadpool_params),
+            "::",
+            stringify!(strict_cpu)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).paused) as usize - ptr as usize },
+        525usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ggml_threadpool_params),
+            "::",
+            stringify!(paused)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct ggml_threadpool {
+    _unused: [u8; 0],
+}
+pub type ggml_threadpool_t = *mut ggml_threadpool;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct ggml_cplan {
     pub work_size: usize,
     pub work_data: *mut u8,
     pub n_threads: ::std::os::raw::c_int,
+    pub threadpool: *mut ggml_threadpool,
     pub abort_callback: ggml_abort_callback,
     pub abort_callback_data: *mut ::std::os::raw::c_void,
 }
@@ -1820,7 +1986,7 @@ fn bindgen_test_layout_ggml_cplan() {
     let ptr = UNINIT.as_ptr();
     assert_eq!(
         ::std::mem::size_of::<ggml_cplan>(),
-        40usize,
+        48usize,
         concat!("Size of: ", stringify!(ggml_cplan))
     );
     assert_eq!(
@@ -1859,8 +2025,18 @@ fn bindgen_test_layout_ggml_cplan() {
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).abort_callback) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).threadpool) as usize - ptr as usize },
         24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ggml_cplan),
+            "::",
+            stringify!(threadpool)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).abort_callback) as usize - ptr as usize },
+        32usize,
         concat!(
             "Offset of field: ",
             stringify!(ggml_cplan),
@@ -1870,176 +2046,12 @@ fn bindgen_test_layout_ggml_cplan() {
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).abort_callback_data) as usize - ptr as usize },
-        32usize,
+        40usize,
         concat!(
             "Offset of field: ",
             stringify!(ggml_cplan),
             "::",
             stringify!(abort_callback_data)
-        )
-    );
-}
-pub const ggml_cgraph_eval_order_GGML_CGRAPH_EVAL_ORDER_LEFT_TO_RIGHT: ggml_cgraph_eval_order = 0;
-pub const ggml_cgraph_eval_order_GGML_CGRAPH_EVAL_ORDER_RIGHT_TO_LEFT: ggml_cgraph_eval_order = 1;
-pub const ggml_cgraph_eval_order_GGML_CGRAPH_EVAL_ORDER_COUNT: ggml_cgraph_eval_order = 2;
-pub type ggml_cgraph_eval_order = ::std::os::raw::c_uint;
-pub type ggml_bitset_t = u32;
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct ggml_hash_set {
-    pub size: usize,
-    pub used: *mut ggml_bitset_t,
-    pub keys: *mut *mut ggml_tensor,
-}
-#[test]
-fn bindgen_test_layout_ggml_hash_set() {
-    const UNINIT: ::std::mem::MaybeUninit<ggml_hash_set> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<ggml_hash_set>(),
-        24usize,
-        concat!("Size of: ", stringify!(ggml_hash_set))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<ggml_hash_set>(),
-        8usize,
-        concat!("Alignment of ", stringify!(ggml_hash_set))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).size) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ggml_hash_set),
-            "::",
-            stringify!(size)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).used) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ggml_hash_set),
-            "::",
-            stringify!(used)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).keys) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ggml_hash_set),
-            "::",
-            stringify!(keys)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct ggml_cgraph {
-    pub size: ::std::os::raw::c_int,
-    pub n_nodes: ::std::os::raw::c_int,
-    pub n_leafs: ::std::os::raw::c_int,
-    pub nodes: *mut *mut ggml_tensor,
-    pub grads: *mut *mut ggml_tensor,
-    pub leafs: *mut *mut ggml_tensor,
-    pub visited_hash_set: ggml_hash_set,
-    pub order: ggml_cgraph_eval_order,
-}
-#[test]
-fn bindgen_test_layout_ggml_cgraph() {
-    const UNINIT: ::std::mem::MaybeUninit<ggml_cgraph> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<ggml_cgraph>(),
-        72usize,
-        concat!("Size of: ", stringify!(ggml_cgraph))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<ggml_cgraph>(),
-        8usize,
-        concat!("Alignment of ", stringify!(ggml_cgraph))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).size) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ggml_cgraph),
-            "::",
-            stringify!(size)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).n_nodes) as usize - ptr as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ggml_cgraph),
-            "::",
-            stringify!(n_nodes)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).n_leafs) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ggml_cgraph),
-            "::",
-            stringify!(n_leafs)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).nodes) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ggml_cgraph),
-            "::",
-            stringify!(nodes)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).grads) as usize - ptr as usize },
-        24usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ggml_cgraph),
-            "::",
-            stringify!(grads)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).leafs) as usize - ptr as usize },
-        32usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ggml_cgraph),
-            "::",
-            stringify!(leafs)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).visited_hash_set) as usize - ptr as usize },
-        40usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ggml_cgraph),
-            "::",
-            stringify!(visited_hash_set)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).order) as usize - ptr as usize },
-        64usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ggml_cgraph),
-            "::",
-            stringify!(order)
         )
     );
 }
@@ -2610,6 +2622,18 @@ extern "C" {
     pub fn ggml_log_inplace(ctx: *mut ggml_context, a: *mut ggml_tensor) -> *mut ggml_tensor;
 }
 extern "C" {
+    pub fn ggml_sin(ctx: *mut ggml_context, a: *mut ggml_tensor) -> *mut ggml_tensor;
+}
+extern "C" {
+    pub fn ggml_sin_inplace(ctx: *mut ggml_context, a: *mut ggml_tensor) -> *mut ggml_tensor;
+}
+extern "C" {
+    pub fn ggml_cos(ctx: *mut ggml_context, a: *mut ggml_tensor) -> *mut ggml_tensor;
+}
+extern "C" {
+    pub fn ggml_cos_inplace(ctx: *mut ggml_context, a: *mut ggml_tensor) -> *mut ggml_tensor;
+}
+extern "C" {
     pub fn ggml_sum(ctx: *mut ggml_context, a: *mut ggml_tensor) -> *mut ggml_tensor;
 }
 extern "C" {
@@ -2620,6 +2644,13 @@ extern "C" {
 }
 extern "C" {
     pub fn ggml_argmax(ctx: *mut ggml_context, a: *mut ggml_tensor) -> *mut ggml_tensor;
+}
+extern "C" {
+    pub fn ggml_count_equal(
+        ctx: *mut ggml_context,
+        a: *mut ggml_tensor,
+        b: *mut ggml_tensor,
+    ) -> *mut ggml_tensor;
 }
 extern "C" {
     pub fn ggml_repeat(
@@ -2730,6 +2761,12 @@ extern "C" {
 }
 extern "C" {
     pub fn ggml_hardsigmoid(ctx: *mut ggml_context, a: *mut ggml_tensor) -> *mut ggml_tensor;
+}
+extern "C" {
+    pub fn ggml_exp(ctx: *mut ggml_context, a: *mut ggml_tensor) -> *mut ggml_tensor;
+}
+extern "C" {
+    pub fn ggml_exp_inplace(ctx: *mut ggml_context, a: *mut ggml_tensor) -> *mut ggml_tensor;
 }
 extern "C" {
     pub fn ggml_norm(ctx: *mut ggml_context, a: *mut ggml_tensor, eps: f32) -> *mut ggml_tensor;
@@ -3222,6 +3259,21 @@ extern "C" {
     ) -> *mut ggml_tensor;
 }
 extern "C" {
+    pub fn ggml_im2col_back(
+        ctx: *mut ggml_context,
+        a: *mut ggml_tensor,
+        b: *mut ggml_tensor,
+        ne: *mut i64,
+        s0: ::std::os::raw::c_int,
+        s1: ::std::os::raw::c_int,
+        p0: ::std::os::raw::c_int,
+        p1: ::std::os::raw::c_int,
+        d0: ::std::os::raw::c_int,
+        d1: ::std::os::raw::c_int,
+        is_2D: bool,
+    ) -> *mut ggml_tensor;
+}
+extern "C" {
     pub fn ggml_conv_depthwise_2d(
         ctx: *mut ggml_context,
         a: *mut ggml_tensor,
@@ -3326,6 +3378,20 @@ extern "C" {
     ) -> *mut ggml_tensor;
 }
 extern "C" {
+    pub fn ggml_pool_2d_back(
+        ctx: *mut ggml_context,
+        a: *mut ggml_tensor,
+        af: *mut ggml_tensor,
+        op: ggml_op_pool,
+        k0: ::std::os::raw::c_int,
+        k1: ::std::os::raw::c_int,
+        s0: ::std::os::raw::c_int,
+        s1: ::std::os::raw::c_int,
+        p0: f32,
+        p1: f32,
+    ) -> *mut ggml_tensor;
+}
+extern "C" {
     pub fn ggml_upscale(
         ctx: *mut ggml_context,
         a: *mut ggml_tensor,
@@ -3394,6 +3460,7 @@ extern "C" {
         mask: *mut ggml_tensor,
         scale: f32,
         max_bias: f32,
+        logit_softcap: f32,
     ) -> *mut ggml_tensor;
 }
 extern "C" {
@@ -3412,10 +3479,8 @@ extern "C" {
 extern "C" {
     pub fn ggml_ssm_conv(
         ctx: *mut ggml_context,
-        s: *mut ggml_tensor,
-        x: *mut ggml_tensor,
+        sx: *mut ggml_tensor,
         c: *mut ggml_tensor,
-        sq: *mut ggml_tensor,
     ) -> *mut ggml_tensor;
 }
 extern "C" {
@@ -3427,7 +3492,6 @@ extern "C" {
         A: *mut ggml_tensor,
         B: *mut ggml_tensor,
         C: *mut ggml_tensor,
-        sq: *mut ggml_tensor,
     ) -> *mut ggml_tensor;
 }
 extern "C" {
@@ -3482,6 +3546,17 @@ extern "C" {
         a: *mut ggml_tensor,
         pw: *mut ggml_tensor,
         ph: *mut ggml_tensor,
+    ) -> *mut ggml_tensor;
+}
+extern "C" {
+    pub fn ggml_rwkv_wkv(
+        ctx: *mut ggml_context,
+        k: *mut ggml_tensor,
+        v: *mut ggml_tensor,
+        r: *mut ggml_tensor,
+        tf: *mut ggml_tensor,
+        td: *mut ggml_tensor,
+        state: *mut ggml_tensor,
     ) -> *mut ggml_tensor;
 }
 pub type ggml_unary_op_f32_t = ::std::option::Option<
@@ -3696,7 +3771,22 @@ extern "C" {
     ) -> *mut ggml_tensor;
 }
 extern "C" {
+    pub fn ggml_opt_step_adamw(
+        ctx: *mut ggml_context,
+        a: *mut ggml_tensor,
+        grad: *mut ggml_tensor,
+        alpha: f32,
+        beta1: f32,
+        beta2: f32,
+        eps: f32,
+        wd: f32,
+    ) -> *mut ggml_tensor;
+}
+extern "C" {
     pub fn ggml_set_param(ctx: *mut ggml_context, tensor: *mut ggml_tensor);
+}
+extern "C" {
+    pub fn ggml_set_loss(tensor: *mut ggml_tensor);
 }
 extern "C" {
     pub fn ggml_build_forward_expand(cgraph: *mut ggml_cgraph, tensor: *mut ggml_tensor);
@@ -3706,7 +3796,19 @@ extern "C" {
         ctx: *mut ggml_context,
         gf: *mut ggml_cgraph,
         gb: *mut ggml_cgraph,
-        keep: bool,
+        accumulate: bool,
+    );
+}
+extern "C" {
+    pub fn ggml_build_opt_adamw(
+        ctx: *mut ggml_context,
+        gf: *mut ggml_cgraph,
+        gb: *mut ggml_cgraph,
+        alpha: f32,
+        beta1: f32,
+        beta2: f32,
+        eps: f32,
+        wd: f32,
     );
 }
 extern "C" {
@@ -3723,13 +3825,6 @@ extern "C" {
     pub fn ggml_graph_dup(ctx: *mut ggml_context, cgraph: *mut ggml_cgraph) -> *mut ggml_cgraph;
 }
 extern "C" {
-    pub fn ggml_graph_view(
-        cgraph: *mut ggml_cgraph,
-        i0: ::std::os::raw::c_int,
-        i1: ::std::os::raw::c_int,
-    ) -> ggml_cgraph;
-}
-extern "C" {
     pub fn ggml_graph_cpy(src: *mut ggml_cgraph, dst: *mut ggml_cgraph);
 }
 extern "C" {
@@ -3739,15 +3834,64 @@ extern "C" {
     pub fn ggml_graph_clear(cgraph: *mut ggml_cgraph);
 }
 extern "C" {
+    pub fn ggml_graph_size(cgraph: *mut ggml_cgraph) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn ggml_graph_node(cgraph: *mut ggml_cgraph, i: ::std::os::raw::c_int) -> *mut ggml_tensor;
+}
+extern "C" {
+    pub fn ggml_graph_nodes(cgraph: *mut ggml_cgraph) -> *mut *mut ggml_tensor;
+}
+extern "C" {
+    pub fn ggml_graph_n_nodes(cgraph: *mut ggml_cgraph) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn ggml_graph_add_node(cgraph: *mut ggml_cgraph, tensor: *mut ggml_tensor);
+}
+extern "C" {
     pub fn ggml_graph_overhead() -> usize;
 }
 extern "C" {
     pub fn ggml_graph_overhead_custom(size: usize, grads: bool) -> usize;
 }
 extern "C" {
+    pub fn ggml_threadpool_params_default(
+        n_threads: ::std::os::raw::c_int,
+    ) -> ggml_threadpool_params;
+}
+extern "C" {
+    pub fn ggml_threadpool_params_init(
+        p: *mut ggml_threadpool_params,
+        n_threads: ::std::os::raw::c_int,
+    );
+}
+extern "C" {
+    pub fn ggml_threadpool_params_match(
+        p0: *const ggml_threadpool_params,
+        p1: *const ggml_threadpool_params,
+    ) -> bool;
+}
+extern "C" {
+    pub fn ggml_threadpool_new(params: *mut ggml_threadpool_params) -> *mut ggml_threadpool;
+}
+extern "C" {
+    pub fn ggml_threadpool_free(threadpool: *mut ggml_threadpool);
+}
+extern "C" {
+    pub fn ggml_threadpool_get_n_threads(threadpool: *mut ggml_threadpool)
+        -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn ggml_threadpool_pause(threadpool: *mut ggml_threadpool);
+}
+extern "C" {
+    pub fn ggml_threadpool_resume(threadpool: *mut ggml_threadpool);
+}
+extern "C" {
     pub fn ggml_graph_plan(
         cgraph: *const ggml_cgraph,
         n_threads: ::std::os::raw::c_int,
+        threadpool: *mut ggml_threadpool,
     ) -> ggml_cplan;
 }
 extern "C" {
@@ -3831,6 +3975,9 @@ pub type ggml_log_callback = ::std::option::Option<
         user_data: *mut ::std::os::raw::c_void,
     ),
 >;
+extern "C" {
+    pub fn ggml_log_set(log_callback: ggml_log_callback, user_data: *mut ::std::os::raw::c_void);
+}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct ggml_opt_params {
@@ -5059,6 +5206,9 @@ extern "C" {
     pub fn ggml_cpu_has_ssse3() -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn ggml_cpu_has_riscv_v() -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn ggml_cpu_has_sycl() -> ::std::os::raw::c_int;
 }
 extern "C" {
@@ -5075,6 +5225,9 @@ extern "C" {
 }
 extern "C" {
     pub fn ggml_cpu_has_llamafile() -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn ggml_cpu_get_sve_cnt() -> ::std::os::raw::c_int;
 }
 pub type ggml_to_float_t = ::std::option::Option<
     unsafe extern "C" fn(x: *const ::std::os::raw::c_void, y: *mut f32, k: i64),
