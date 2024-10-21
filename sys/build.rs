@@ -32,6 +32,7 @@ fn main() {
 
     #[cfg(feature = "coreml")]
     println!("cargo:rustc-link-lib=static=whisper.coreml");
+
     #[cfg(feature = "openblas")]
     {
         if let Ok(openblas_path) = env::var("OPENBLAS_PATH") {
@@ -244,6 +245,7 @@ fn main() {
     let destination = config.build();
 
     add_link_search_path(&out.join("lib")).unwrap();
+    add_link_search_path(&out.join("build/src")).unwrap();
 
     println!("cargo:rustc-link-search=native={}", destination.display());
     println!("cargo:rustc-link-lib=static=whisper");
