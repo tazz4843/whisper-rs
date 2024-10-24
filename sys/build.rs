@@ -93,6 +93,9 @@ fn main() {
     {
         if target.contains("gnu") {
             println!("cargo:rustc-link-lib=gomp");
+        } else if target.contains("apple") {
+            println!("cargo:rustc-link-lib=omp");
+            println!("cargo:rustc-link-search=/opt/homebrew/opt/libomp/lib");
         }
     }
 
@@ -244,8 +247,7 @@ fn main() {
 
     let destination = config.build();
 
-    add_link_search_path(&out.join("lib")).unwrap();
-    add_link_search_path(&out.join("build/src")).unwrap();
+    add_link_search_path(&out.join("build")).unwrap();
 
     println!("cargo:rustc-link-search=native={}", destination.display());
     println!("cargo:rustc-link-lib=static=whisper");

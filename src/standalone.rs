@@ -83,10 +83,6 @@ pub unsafe fn set_log_callback(
 ) {
     unsafe {
         whisper_rs_sys::whisper_log_set(log_callback, user_data);
-        #[cfg(feature = "metal")]
-        {
-            whisper_rs_sys::ggml_backend_metal_log_set_callback(log_callback, user_data);
-        }
     }
 }
 

@@ -38,12 +38,5 @@ unsafe extern "C" fn whisper_cpp_log_trampoline(
 pub fn install_whisper_log_trampoline() {
     crate::LOG_TRAMPOLINE_INSTALL.call_once(|| unsafe {
         whisper_rs_sys::whisper_log_set(Some(whisper_cpp_log_trampoline), std::ptr::null_mut());
-        #[cfg(feature = "metal")]
-        {
-            whisper_rs_sys::ggml_backend_metal_log_set_callback(
-                Some(whisper_cpp_log_trampoline),
-                std::ptr::null_mut(),
-            );
-        }
     });
 }
