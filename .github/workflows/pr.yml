@@ -72,9 +72,5 @@ jobs:
         with:
           toolchain: ${{ matrix.rust-version }}
 
-      - name: Install OpenMP
-        run: brew install libomp
-        if: contains(matrix.os, 'macos')
-
       - name: Check build
         run: cargo build -F whisper-cpp-log,whisper-cpp-tracing --verbose --examples
