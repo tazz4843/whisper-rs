@@ -144,6 +144,7 @@ fn main() {
         let bindings = bindings.header("whisper.cpp/ggml/include/ggml-metal.h");
 
         let bindings = bindings
+            .clang_arg("-I./whisper.cpp/")
             .clang_arg("-I./whisper.cpp/include")
             .clang_arg("-I./whisper.cpp/ggml/include")
             .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
