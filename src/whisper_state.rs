@@ -1,19 +1,20 @@
-use crate::{FullParams, WhisperContext, WhisperError, WhisperToken, WhisperTokenData};
 use std::ffi::{c_int, CStr};
-use std::marker::PhantomData;
+use std::sync::Arc;
+
+use crate::{FullParams, WhisperError, WhisperInnerContext, WhisperToken, WhisperTokenData};
 
 /// Rustified pointer to a Whisper state.
 #[derive(Debug)]
-pub struct WhisperState<'a> {
-    ctx: *mut whisper_rs_sys::whisper_context,
+pub struct WhisperState {
+    ctx: Arc<WhisperInnerContext>,
     ptr: *mut whisper_rs_sys::whisper_state,
-    _phantom: PhantomData<&'a WhisperContext>,
 }
 
-unsafe impl<'a> Send for WhisperState<'a> {}
-unsafe impl<'a> Sync for WhisperState<'a> {}
+unsafe impl Send for WhisperState {}
 
-impl<'a> Drop for WhisperState<'a> {
+unsafe impl Sync for WhisperState {}
+
+impl Drop for WhisperState {
     fn drop(&mut self) {
         unsafe {
             whisper_rs_sys::whisper_free_state(self.ptr);
@@ -21,16 +22,12 @@ impl<'a> Drop for WhisperState<'a> {
     }
 }
 
-impl<'a> WhisperState<'a> {
+impl WhisperState {
     pub(crate) fn new(
-        ctx: *mut whisper_rs_sys::whisper_context,
+        ctx: Arc<WhisperInnerContext>,
         ptr: *mut whisper_rs_sys::whisper_state,
     ) -> Self {
-        Self {
-            ctx,
-            ptr,
-            _phantom: PhantomData,
-        }
+        Self { ctx, ptr }
     }
 
     /// Convert raw PCM audio (floating point 32 bit) to log mel spectrogram.
@@ -51,46 +48,7 @@ impl<'a> WhisperState<'a> {
         }
         let ret = unsafe {
             whisper_rs_sys::whisper_pcm_to_mel_with_state(
-                self.ctx,
-                self.ptr,
-                pcm.as_ptr(),
-                pcm.len() as c_int,
-                threads as c_int,
-            )
-        };
-        if ret == -1 {
-            Err(WhisperError::UnableToCalculateSpectrogram)
-        } else if ret == 0 {
-            Ok(())
-        } else {
-            Err(WhisperError::GenericError(ret))
-        }
-    }
-
-    /// Convert raw PCM audio (floating point 32 bit) to log mel spectrogram.
-    /// Applies a Phase Vocoder to speed up the audio x2.
-    /// The resulting spectrogram is stored in the context transparently.
-    ///
-    /// # Arguments
-    /// * pcm: The raw PCM audio.
-    /// * threads: How many threads to use. Defaults to 1. Must be at least 1, returns an error otherwise.
-    ///
-    /// # Returns
-    /// Ok(()) on success, Err(WhisperError) on failure.
-    ///
-    /// # C++ equivalent
-    /// `int whisper_pcm_to_mel(struct whisper_context * ctx, const float * samples, int n_samples, int n_threads)`
-    pub fn pcm_to_mel_phase_vocoder(
-        &mut self,
-        pcm: &[f32],
-        threads: usize,
-    ) -> Result<(), WhisperError> {
-        if threads < 1 {
-            return Err(WhisperError::InvalidThreadCount);
-        }
-        let ret = unsafe {
-            whisper_rs_sys::whisper_pcm_to_mel_phase_vocoder_with_state(
-                self.ctx,
+                self.ctx.ctx,
                 self.ptr,
                 pcm.as_ptr(),
                 pcm.len() as c_int,
@@ -112,7 +70,7 @@ impl<'a> WhisperState<'a> {
     /// # Note
     /// This is a low-level function.
     /// If you're a typical user, you probably don't want to use this function.
-    /// See instead [WhisperContext::pcm_to_mel].
+    /// See instead [WhisperState::pcm_to_mel].
     ///
     /// # Arguments
     /// * data: The log mel spectrogram.
@@ -127,7 +85,7 @@ impl<'a> WhisperState<'a> {
         let n_len = (data.len() / hop_size) * 2;
         let ret = unsafe {
             whisper_rs_sys::whisper_set_mel_with_state(
-                self.ctx,
+                self.ctx.ctx,
                 self.ptr,
                 data.as_ptr(),
                 n_len as c_int,
@@ -144,7 +102,7 @@ impl<'a> WhisperState<'a> {
     }
 
     /// Run the Whisper encoder on the log mel spectrogram stored inside the provided whisper state.
-    /// Make sure to call [WhisperContext::pcm_to_mel] or [WhisperContext::set_mel] first.
+    /// Make sure to call [WhisperState::pcm_to_mel] or [WhisperState::set_mel] first.
     ///
     /// # Arguments
     /// * offset: Can be used to specify the offset of the first frame in the spectrogram. Usually 0.
@@ -161,7 +119,7 @@ impl<'a> WhisperState<'a> {
         }
         let ret = unsafe {
             whisper_rs_sys::whisper_encode_with_state(
-                self.ctx,
+                self.ctx.ctx,
                 self.ptr,
                 offset as c_int,
                 threads as c_int,
@@ -177,7 +135,7 @@ impl<'a> WhisperState<'a> {
     }
 
     /// Run the Whisper decoder to obtain the logits and probabilities for the next token.
-    /// Make sure to call [WhisperContext::encode] first.
+    /// Make sure to call [WhisperState::encode] first.
     /// tokens + n_tokens is the provided context for the decoder.
     ///
     /// # Arguments
@@ -202,7 +160,7 @@ impl<'a> WhisperState<'a> {
         }
         let ret = unsafe {
             whisper_rs_sys::whisper_decode_with_state(
-                self.ctx,
+                self.ctx.ctx,
                 self.ptr,
                 tokens.as_ptr(),
                 tokens.len() as c_int,
@@ -228,11 +186,16 @@ impl<'a> WhisperState<'a> {
     /// * n_threads: How many threads to use. Defaults to 1. Must be at least 1, returns an error otherwise.
     ///
     /// # Returns
-    /// Ok(Vec<f32>) on success, Err(WhisperError) on failure.
+    /// `Ok((i32, Vec<f32>))` on success where the i32 is detected language id and Vec<f32>
+    /// is array with the probabilities of all languages, `Err(WhisperError)` on failure.
     ///
     /// # C++ equivalent
     /// `int whisper_lang_auto_detect(struct whisper_context * ctx, int offset_ms, int n_threads, float * lang_probs)`
-    pub fn lang_detect(&self, offset_ms: usize, threads: usize) -> Result<Vec<f32>, WhisperError> {
+    pub fn lang_detect(
+        &self,
+        offset_ms: usize,
+        threads: usize,
+    ) -> Result<(i32, Vec<f32>), WhisperError> {
         if threads < 1 {
             return Err(WhisperError::InvalidThreadCount);
         }
@@ -240,37 +203,22 @@ impl<'a> WhisperState<'a> {
         let mut lang_probs: Vec<f32> = vec![0.0; crate::standalone::get_lang_max_id() as usize + 1];
         let ret = unsafe {
             whisper_rs_sys::whisper_lang_auto_detect_with_state(
-                self.ctx,
+                self.ctx.ctx,
                 self.ptr,
                 offset_ms as c_int,
                 threads as c_int,
                 lang_probs.as_mut_ptr(),
             )
         };
-        if ret == -1 {
-            Err(WhisperError::UnableToCalculateEvaluation)
+        if ret < 0 {
+            Err(WhisperError::GenericError(ret))
         } else {
-            assert_eq!(
-                ret as usize,
-                lang_probs.len(),
-                "lang_probs length mismatch: this is a bug in whisper.cpp"
-            );
-            // if we're still running, double check that the length is correct, otherwise print to stderr
-            // and abort, as this will cause Undefined Behavior
-            // might get here due to the unwind being caught by a user-installed panic handler
-            if lang_probs.len() != ret as usize {
-                eprintln!(
-                    "lang_probs length mismatch: this is a bug in whisper.cpp, \
-                aborting to avoid Undefined Behavior"
-                );
-                std::process::abort();
-            }
-            Ok(lang_probs)
+            Ok((ret as i32, lang_probs))
         }
     }
 
     // logit functions
-    /// Gets logits obtained from the last call to [WhisperContext::decode].
+    /// Gets logits obtained from the last call to [WhisperState::decode].
     /// As of whisper.cpp 1.4.1, only a single row of logits is available, corresponding to the last token in the input.
     ///
     /// # Returns
@@ -309,7 +257,7 @@ impl<'a> WhisperState<'a> {
     /// `int whisper_n_vocab        (struct whisper_context * ctx)`
     #[inline]
     pub fn n_vocab(&self) -> c_int {
-        unsafe { whisper_rs_sys::whisper_n_vocab(self.ctx) }
+        unsafe { whisper_rs_sys::whisper_n_vocab(self.ctx.ctx) }
     }
 
     /// Run the entire model: PCM -> log mel spectrogram -> encoder -> decoder -> text
@@ -319,7 +267,8 @@ impl<'a> WhisperState<'a> {
     ///
     /// # Arguments
     /// * params: [crate::FullParams] struct.
-    /// * pcm: PCM audio data.
+    /// * pcm: raw PCM audio data, 32 bit floating point at a sample rate of 16 kHz, 1 channel.
+    ///   See utilities in the root of this crate for functions to convert audio to this format.
     ///
     /// # Returns
     /// Ok(c_int) on success, Err(WhisperError) on failure.
@@ -327,9 +276,14 @@ impl<'a> WhisperState<'a> {
     /// # C++ equivalent
     /// `int whisper_full(struct whisper_context * ctx, struct whisper_full_params params, const float * samples, int n_samples)`
     pub fn full(&mut self, params: FullParams, data: &[f32]) -> Result<c_int, WhisperError> {
+        if data.is_empty() {
+            // can randomly trigger segmentation faults if we don't check this
+            return Err(WhisperError::NoSamples);
+        }
+
         let ret = unsafe {
             whisper_rs_sys::whisper_full_with_state(
-                self.ctx,
+                self.ctx.ctx,
                 self.ptr,
                 params.fp,
                 data.as_ptr(),
@@ -413,13 +367,36 @@ impl<'a> WhisperState<'a> {
         Ok(r_str.to_string())
     }
 
+    /// Get the text of the specified segment.
+    /// This function differs from [WhisperState::full_get_segment_text]
+    /// in that it ignores invalid UTF-8 in whisper strings,
+    /// instead opting to replace it with the replacement character.
+    ///
+    /// # Arguments
+    /// * segment: Segment index.
+    ///
+    /// # Returns
+    /// Ok(String) on success, Err(WhisperError) on failure.
+    ///
+    /// # C++ equivalent
+    /// `const char * whisper_full_get_segment_text(struct whisper_context * ctx, int i_segment)`
+    pub fn full_get_segment_text_lossy(&self, segment: c_int) -> Result<String, WhisperError> {
+        let ret =
+            unsafe { whisper_rs_sys::whisper_full_get_segment_text_from_state(self.ptr, segment) };
+        if ret.is_null() {
+            return Err(WhisperError::NullPointer);
+        }
+        let c_str = unsafe { CStr::from_ptr(ret) };
+        Ok(c_str.to_string_lossy().to_string())
+    }
+
     /// Get the bytes of the specified segment.
     ///
     /// # Arguments
     /// * segment: Segment index.
     ///
     /// # Returns
-    /// Ok(Vec<u8>) on success, Err(WhisperError) on failure.
+    /// `Ok(Vec<u8>)` on success, `Err(WhisperError)` on failure.
     ///
     /// # C++ equivalent
     /// `const char * whisper_full_get_segment_text(struct whisper_context * ctx, int i_segment)`
@@ -466,7 +443,10 @@ impl<'a> WhisperState<'a> {
     ) -> Result<String, WhisperError> {
         let ret = unsafe {
             whisper_rs_sys::whisper_full_get_token_text_from_state(
-                self.ctx, self.ptr, segment, token,
+                self.ctx.ctx,
+                self.ptr,
+                segment,
+                token,
             )
         };
         if ret.is_null() {
@@ -475,6 +455,40 @@ impl<'a> WhisperState<'a> {
         let c_str = unsafe { CStr::from_ptr(ret) };
         let r_str = c_str.to_str()?;
         Ok(r_str.to_string())
+    }
+
+    /// Get the token text of the specified token in the specified segment.
+    /// This function differs from [WhisperState::full_get_token_text]
+    /// in that it ignores invalid UTF-8 in whisper strings,
+    /// instead opting to replace it with the replacement character.
+    ///
+    /// # Arguments
+    /// * segment: Segment index.
+    /// * token: Token index.
+    ///
+    /// # Returns
+    /// Ok(String) on success, Err(WhisperError) on failure.
+    ///
+    /// # C++ equivalent
+    /// `const char * whisper_full_get_token_text(struct whisper_context * ctx, int i_segment, int i_token)`
+    pub fn full_get_token_text_lossy(
+        &self,
+        segment: c_int,
+        token: c_int,
+    ) -> Result<String, WhisperError> {
+        let ret = unsafe {
+            whisper_rs_sys::whisper_full_get_token_text_from_state(
+                self.ctx.ctx,
+                self.ptr,
+                segment,
+                token,
+            )
+        };
+        if ret.is_null() {
+            return Err(WhisperError::NullPointer);
+        }
+        let c_str = unsafe { CStr::from_ptr(ret) };
+        Ok(c_str.to_string_lossy().to_string())
     }
 
     /// Get the token ID of the specified token in the specified segment.
@@ -538,5 +552,23 @@ impl<'a> WhisperState<'a> {
                 whisper_rs_sys::whisper_full_get_token_p_from_state(self.ptr, segment, token)
             },
         )
+    }
+
+    /// Get whether the next segment is predicted as a speaker turn.
+    ///
+    /// # Arguments
+    /// * i_segment: Segment index.
+    ///
+    /// # Returns
+    /// bool
+    ///
+    /// # C++ equivalent
+    /// `bool whisper_full_get_segment_speaker_turn_next_from_state(struct whisper_state * state, int i_segment)`
+    pub fn full_get_segment_speaker_turn_next(&mut self, i_segment: c_int) -> bool {
+        unsafe {
+            whisper_rs_sys::whisper_full_get_segment_speaker_turn_next_from_state(
+                self.ptr, i_segment,
+            )
+        }
     }
 }

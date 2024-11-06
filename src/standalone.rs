@@ -1,6 +1,5 @@
 //! Standalone functions that have no associated type.
 
-use crate::WhisperToken;
 use std::ffi::{c_int, CStr, CString};
 
 /// Return the id of the specified language, returns -1 if not found
@@ -54,21 +53,37 @@ pub fn get_lang_str(id: i32) -> Option<&'static str> {
     }
 }
 
-// task tokens
-/// Get the ID of the translate task token.
+/// Get the full string of the specified language name (e.g. 2 -> "german").
+///
+/// # Returns
+/// The full string of the language, None if not found.
 ///
 /// # C++ equivalent
-/// `whisper_token whisper_token_translate ()`
-pub fn token_translate() -> WhisperToken {
-    unsafe { whisper_rs_sys::whisper_token_translate() }
+/// `const char * whisper_lang_str_full(int id)`
+pub fn get_lang_str_full(id: i32) -> Option<&'static str> {
+    let c_buf = unsafe { whisper_rs_sys::whisper_lang_str_full(id) };
+    if c_buf.is_null() {
+        None
+    } else {
+        let c_str = unsafe { CStr::from_ptr(c_buf) };
+        Some(c_str.to_str().unwrap())
+    }
 }
 
-/// Get the ID of the transcribe task token.
+/// Callback to control logging output: default behaviour is to print to stderr.
+///
+/// # Safety
+/// The callback must be safe to call from C (i.e. no panicking, no unwinding, etc).
 ///
 /// # C++ equivalent
-/// `whisper_token whisper_token_transcribe()`
-pub fn token_transcribe() -> WhisperToken {
-    unsafe { whisper_rs_sys::whisper_token_transcribe() }
+/// `void whisper_set_log_callback(whisper_log_callback callback);`
+pub unsafe fn set_log_callback(
+    log_callback: crate::WhisperLogCallback,
+    user_data: *mut std::ffi::c_void,
+) {
+    unsafe {
+        whisper_rs_sys::whisper_log_set(log_callback, user_data);
+    }
 }
 
 /// Print system information.
@@ -91,8 +106,7 @@ pub struct SystemInfo {
     pub fma: bool,
     pub f16c: bool,
     pub blas: bool,
-    pub clblast: bool,
-    pub cublas: bool,
+    pub cuda: bool,
 }
 
 impl Default for SystemInfo {
@@ -104,9 +118,19 @@ impl Default for SystemInfo {
                 fma: whisper_rs_sys::ggml_cpu_has_fma() != 0,
                 f16c: whisper_rs_sys::ggml_cpu_has_f16c() != 0,
                 blas: whisper_rs_sys::ggml_cpu_has_blas() != 0,
-                clblast: whisper_rs_sys::ggml_cpu_has_clblast() != 0,
-                cublas: whisper_rs_sys::ggml_cpu_has_cublas() != 0,
+                cuda: whisper_rs_sys::ggml_cpu_has_cuda() != 0,
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_openblas() {
+        let info = SystemInfo::default();
+        assert_eq!(info.blas, cfg!(feature = "openblas"));
     }
 }

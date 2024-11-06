@@ -1,7 +1,10 @@
 use std::ffi::{c_int, NulError};
 use std::str::Utf8Error;
 
-/// Whisper tends to output errors to stderr, so if an error occurs, check stderr.
+/// If you have not configured a logging trampoline with [crate::whisper_sys_log::install_whisper_log_trampoline] or
+/// [crate::whisper_sys_tracing::install_whisper_tracing_trampoline],
+/// then `whisper.cpp`'s errors will be output to stderr,
+/// so you can check there for more information upon receiving a `WhisperError`.
 #[derive(Debug, Copy, Clone)]
 pub enum WhisperError {
     /// Failed to create a new context.
@@ -39,6 +42,12 @@ pub enum WhisperError {
     InvalidText,
     /// Creating a state pointer failed. Check stderr for more information.
     FailedToCreateState,
+    /// No samples were provided.
+    NoSamples,
+    /// Input and output slices were not the same length.
+    InputOutputLengthMismatch { input_len: usize, output_len: usize },
+    /// Input slice was not an even number of samples.
+    HalfSampleMissing(usize),
 }
 
 impl From<Utf8Error> for WhisperError {
@@ -106,6 +115,25 @@ impl std::fmt::Display for WhisperError {
                 "Generic whisper error. Varies depending on the function. Error code: {}",
                 c_int
             ),
+            NoSamples => write!(f, "Input sample buffer was empty."),
+            InputOutputLengthMismatch {
+                output_len,
+                input_len,
+            } => {
+                write!(
+                    f,
+                    "Input and output slices were not the same length. Input: {}, Output: {}",
+                    input_len, output_len
+                )
+            }
+            HalfSampleMissing(size) => {
+                write!(
+                    f,
+                    "Input slice was not an even number of samples, got {}, expected {}",
+                    size,
+                    size + 1
+                )
+            }
         }
     }
 }

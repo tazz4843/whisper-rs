@@ -2,8 +2,10 @@
 
 extern crate bindgen;
 
-use cfg_if::cfg_if;
+use cmake::Config;
 use std::env;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
 use std::path::PathBuf;
 
 fn main() {
@@ -40,47 +42,112 @@ fn main() {
             println!("cargo:rustc-link-lib=framework=Foundation");
             println!("cargo:rustc-link-lib=framework=CoreML");
         }
+        #[cfg(feature = "metal")]
+        {
+            println!("cargo:rustc-link-lib=framework=Foundation");
+            println!("cargo:rustc-link-lib=framework=Metal");
+            println!("cargo:rustc-link-lib=framework=MetalKit");
+        }
     }
 
-    println!("cargo:rustc-link-search={}", env::var("OUT_DIR").unwrap());
-    println!("cargo:rustc-link-lib=static=whisper");
     #[cfg(feature = "coreml")]
     println!("cargo:rustc-link-lib=static=whisper.coreml");
-    #[cfg(feature = "opencl")]
+
+    #[cfg(feature = "openblas")]
     {
-        println!("cargo:rustc-link-lib=clblast");
-        println!("cargo:rustc-link-lib=OpenCL");
+        if let Ok(openblas_path) = env::var("OPENBLAS_PATH") {
+            println!(
+                "cargo::rustc-link-search={}",
+                PathBuf::from(openblas_path).join("lib").display()
+            );
+        }
+        if cfg!(windows) {
+            println!("cargo:rustc-link-lib=libopenblas");
+        } else {
+            println!("cargo:rustc-link-lib=openblas");
+        }
     }
     #[cfg(feature = "cuda")]
     {
         println!("cargo:rustc-link-lib=cublas");
         println!("cargo:rustc-link-lib=cudart");
         println!("cargo:rustc-link-lib=cublasLt");
-        cfg_if! {
+        println!("cargo:rustc-link-lib=cuda");
+        cfg_if::cfg_if! {
             if #[cfg(target_os = "windows")] {
                 let cuda_path = PathBuf::from(env::var("CUDA_PATH").unwrap()).join("lib/x64");
                 println!("cargo:rustc-link-search={}", cuda_path.display());
             } else {
                 println!("cargo:rustc-link-lib=culibos");
                 println!("cargo:rustc-link-search=/usr/local/cuda/lib64");
+                println!("cargo:rustc-link-search=/usr/local/cuda/lib64/stubs");
                 println!("cargo:rustc-link-search=/opt/cuda/lib64");
+                println!("cargo:rustc-link-search=/opt/cuda/lib64/stubs");
             }
         }
     }
+    #[cfg(feature = "hipblas")]
+    {
+        println!("cargo:rustc-link-lib=hipblas");
+        println!("cargo:rustc-link-lib=rocblas");
+        println!("cargo:rustc-link-lib=amdhip64");
+
+        cfg_if::cfg_if! {
+            if #[cfg(target_os = "windows")] {
+                panic!("Due to a problem with the last revision of the ROCm 5.7 library, it is not possible to compile the library for the windows environment.\nSee https://github.com/ggerganov/whisper.cpp/issues/2202 for more details.")
+            } else {
+                println!("cargo:rerun-if-env-changed=HIP_PATH");
+
+                let hip_path = match env::var("HIP_PATH") {
+                    Ok(path) =>PathBuf::from(path),
+                    Err(_) => PathBuf::from("/opt/rocm"),
+                };
+                let hip_lib_path = hip_path.join("lib");
+
+                println!("cargo:rustc-link-search={}",hip_lib_path.display());
+            }
+        }
+    }
+
+    #[cfg(feature = "openmp")]
+    {
+        if target.contains("gnu") {
+            println!("cargo:rustc-link-lib=gomp");
+        } else if target.contains("apple") {
+            println!("cargo:rustc-link-lib=omp");
+            println!("cargo:rustc-link-search=/opt/homebrew/opt/libomp/lib");
+        }
+    }
+
     println!("cargo:rerun-if-changed=wrapper.h");
 
+    let out = PathBuf::from(env::var("OUT_DIR").unwrap());
+    let whisper_root = out.join("whisper.cpp/");
+
+    if !whisper_root.exists() {
+        std::fs::create_dir_all(&whisper_root).unwrap();
+        fs_extra::dir::copy("./whisper.cpp", &out, &Default::default()).unwrap_or_else(|e| {
+            panic!(
+                "Failed to copy whisper sources into {}: {}",
+                whisper_root.display(),
+                e
+            )
+        });
+    }
+
     if env::var("WHISPER_DONT_GENERATE_BINDINGS").is_ok() {
-        let _: u64 = std::fs::copy(
-            "src/bindings.rs",
-            env::var("OUT_DIR").unwrap() + "/bindings.rs",
-        )
-        .expect("Failed to copy bindings.rs");
+        let _: u64 = std::fs::copy("src/bindings.rs", out.join("bindings.rs"))
+            .expect("Failed to copy bindings.rs");
     } else {
-        let bindings = bindgen::Builder::default()
-            .header("wrapper.h")
-            .clang_arg("-I./whisper.cpp")
-            .clang_arg("-I./ggml.c")
-            .parse_callbacks(Box::new(bindgen::CargoCallbacks))
+        let bindings = bindgen::Builder::default().header("wrapper.h");
+
+        #[cfg(feature = "metal")]
+        let bindings = bindings.header("whisper.cpp/ggml/include/ggml-metal.h");
+
+        let bindings = bindings
+            .clang_arg("-I./whisper.cpp/include")
+            .clang_arg("-I./whisper.cpp/ggml/include")
+            .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
             .generate();
 
         match bindings {
@@ -93,11 +160,8 @@ fn main() {
                 println!("cargo:warning=Unable to generate bindings: {}", e);
                 println!("cargo:warning=Using bundled bindings.rs, which may be out of date");
                 // copy src/bindings.rs to OUT_DIR
-                std::fs::copy(
-                    "src/bindings.rs",
-                    env::var("OUT_DIR").unwrap() + "/bindings.rs",
-                )
-                .expect("Unable to copy bindings.rs");
+                std::fs::copy("src/bindings.rs", out.join("bindings.rs"))
+                    .expect("Unable to copy bindings.rs");
             }
         }
     };
@@ -107,86 +171,117 @@ fn main() {
         return;
     }
 
-    // build libwhisper.a
-    env::set_current_dir("whisper.cpp").expect("Unable to change directory to whisper.cpp");
-    _ = std::fs::remove_dir_all("build");
-    _ = std::fs::create_dir("build");
-    env::set_current_dir("build").expect("Unable to change directory to whisper.cpp build");
+    let mut config = Config::new(&whisper_root);
 
-    let mut cmd = std::process::Command::new("cmake");
-    cmd.arg("..")
-        .arg("-DCMAKE_BUILD_TYPE=Release")
-        .arg("-DBUILD_SHARED_LIBS=OFF")
-        .arg("-DWHISPER_ALL_WARNINGS=OFF")
-        .arg("-DWHISPER_ALL_WARNINGS_3RD_PARTY=OFF")
-        .arg("-DWHISPER_BUILD_TESTS=OFF")
-        .arg("-DWHISPER_BUILD_EXAMPLES=OFF");
+    config
+        .profile("Release")
+        .define("BUILD_SHARED_LIBS", "OFF")
+        .define("WHISPER_ALL_WARNINGS", "OFF")
+        .define("WHISPER_ALL_WARNINGS_3RD_PARTY", "OFF")
+        .define("WHISPER_BUILD_TESTS", "OFF")
+        .define("WHISPER_BUILD_EXAMPLES", "OFF")
+        .very_verbose(true)
+        .pic(true);
 
-    #[cfg(feature = "coreml")]
-    cmd.arg("-DWHISPER_COREML=ON")
-        .arg("-DWHISPER_COREML_ALLOW_FALLBACK=1");
+    if cfg!(feature = "coreml") {
+        config.define("WHISPER_COREML", "ON");
+        config.define("WHISPER_COREML_ALLOW_FALLBACK", "1");
+    }
 
-    #[cfg(feature = "cuda")]
-    cmd.arg("-DWHISPER_CUBLAS=ON");
+    if cfg!(feature = "cuda") {
+        config.define("GGML_CUDA", "ON");
+    }
 
-    #[cfg(feature = "opencl")]
-    cmd.arg("-DWHISPER_CLBLAST=ON");
-
+    if cfg!(feature = "hipblas") {
+        config.define("GGML_HIPBLAS", "ON");
+        config.define("CMAKE_C_COMPILER", "hipcc");
+        config.define("CMAKE_CXX_COMPILER", "hipcc");
+        println!("cargo:rerun-if-env-changed=AMDGPU_TARGETS");
+        if let Ok(gpu_targets) = env::var("AMDGPU_TARGETS") {
+            config.define("AMDGPU_TARGETS", gpu_targets);
+        }
+    }
     #[cfg(feature = "openvino")]
     cmd.arg("-DWHISPER_OPENVINO=1");
-
-    cmd.arg("-DCMAKE_POSITION_INDEPENDENT_CODE=ON");
-
-    let code = cmd
-        .status()
-        .expect("Failed to run `cmake` (is CMake installed?)");
-    if code.code() != Some(0) {
-        panic!("Failed to run `cmake` (is CMake installed?)");
-    }
-
-    let code = std::process::Command::new("cmake")
-        .arg("--build")
-        .arg(".")
-        .arg("--config")
-        .arg("Release")
-        .status()
-        .expect("Failed to build libwhisper.a (is CMake installed?)");
-    if code.code() != Some(0) {
-        panic!("Failed to build libwhisper.a (is CMake installed?)");
-    }
-
-    // move libwhisper.a to where Cargo expects it (OUT_DIR)
-    cfg_if! {
-        if #[cfg(target_os = "windows")] {
-            std::fs::copy(
-                "Release/whisper.lib",
-                format!("{}/whisper.lib", env::var("OUT_DIR").unwrap()),
-            )
-            .expect("Failed to copy libwhisper.lib");
+	
+    if cfg!(feature = "vulkan") {
+        config.define("GGML_VULKAN", "ON");
+        if cfg!(windows) {
+            println!("cargo:rerun-if-env-changed=VULKAN_SDK");
+            println!("cargo:rustc-link-lib=vulkan-1");
+            let vulkan_path = match env::var("VULKAN_SDK") {
+                Ok(path) => PathBuf::from(path),
+                Err(_) => panic!(
+                    "Please install Vulkan SDK and ensure that VULKAN_SDK env variable is set"
+                ),
+            };
+            let vulkan_lib_path = vulkan_path.join("Lib");
+            println!("cargo:rustc-link-search={}", vulkan_lib_path.display());
+        } else if cfg!(target_os = "macos") {
+            println!("cargo:rerun-if-env-changed=VULKAN_SDK");
+            println!("cargo:rustc-link-lib=vulkan");
+            let vulkan_path = match env::var("VULKAN_SDK") {
+                Ok(path) => PathBuf::from(path),
+                Err(_) => panic!(
+                    "Please install Vulkan SDK and ensure that VULKAN_SDK env variable is set"
+                ),
+            };
+            let vulkan_lib_path = vulkan_path.join("lib");
+            println!("cargo:rustc-link-search={}", vulkan_lib_path.display());
         } else {
-            std::fs::copy(
-                "libwhisper.a",
-                format!("{}/libwhisper.a", env::var("OUT_DIR").unwrap()),
-            )
-            .expect("Failed to copy libwhisper.a");
+            println!("cargo:rustc-link-lib=vulkan");
         }
     }
 
-    // if on iOS or macOS, with coreml feature enabled, copy libwhisper.coreml.a as well
-    cfg_if! {
-        if #[cfg(all(feature = "coreml", any(target_os = "ios", target_os = "macos")))]
-        {
-            std::fs::copy(
-                "libwhisper.coreml.a",
-                format!("{}/libwhisper.coreml.a", env::var("OUT_DIR").unwrap()),
-            )
-            .expect("Failed to copy libwhisper.coreml.a");
+    if cfg!(feature = "openblas") {
+        config.define("GGML_BLAS", "ON");
+    }
+
+    if cfg!(feature = "metal") {
+        config.define("GGML_METAL", "ON");
+        config.define("GGML_METAL_NDEBUG", "ON");
+        config.define("GGML_METAL_EMBED_LIBRARY", "ON");
+    } else {
+        // Metal is enabled by default, so we need to explicitly disable it
+        config.define("GGML_METAL", "OFF");
+    }
+
+    if cfg!(debug_assertions) || cfg!(feature = "force-debug") {
+        // debug builds are too slow to even remotely be usable,
+        // so we build with optimizations even in debug mode
+        config.define("CMAKE_BUILD_TYPE", "RelWithDebInfo");
+        config.cxxflag("-DWHISPER_DEBUG");
+    }
+
+    // Allow passing any WHISPER or CMAKE compile flags
+    for (key, value) in env::vars() {
+        let is_whisper_flag =
+            key.starts_with("WHISPER_") && key != "WHISPER_DONT_GENERATE_BINDINGS";
+        let is_cmake_flag = key.starts_with("CMAKE_");
+        if is_whisper_flag || is_cmake_flag {
+            config.define(&key, &value);
         }
     }
 
-    // clean the whisper build directory to prevent Cargo from complaining during crate publish
-    env::set_current_dir("..").expect("Unable to change directory to whisper.cpp");
-    _ = std::fs::remove_dir_all("build");
+    if cfg!(not(feature = "openmp")) {
+        config.define("GGML_OPENMP", "OFF");
+    }
+
+    let destination = config.build();
+
+    add_link_search_path(&out.join("build")).unwrap();
+
+    println!("cargo:rustc-link-search=native={}", destination.display());
+    println!("cargo:rustc-link-lib=static=whisper");
+    println!("cargo:rustc-link-lib=static=ggml");
+
+    println!(
+        "cargo:WHISPER_CPP_VERSION={}",
+        get_whisper_cpp_version(&whisper_root)
+            .expect("Failed to read whisper.cpp CMake config")
+            .expect("Could not find whisper.cpp version declaration"),
+    );
+
     // for whatever reason this file is generated during build and triggers cargo complaining
     _ = std::fs::remove_file("bindings/javascript/package.json");
 }
@@ -202,4 +297,29 @@ fn get_cpp_link_stdlib(target: &str) -> Option<&'static str> {
     } else {
         Some("stdc++")
     }
+}
+
+fn add_link_search_path(dir: &std::path::Path) -> std::io::Result<()> {
+    if dir.is_dir() {
+        println!("cargo:rustc-link-search={}", dir.display());
+        for entry in std::fs::read_dir(dir)? {
+            add_link_search_path(&entry?.path())?;
+        }
+    }
+    Ok(())
+}
+
+fn get_whisper_cpp_version(whisper_root: &std::path::Path) -> std::io::Result<Option<String>> {
+    let cmake_lists = BufReader::new(File::open(whisper_root.join("CMakeLists.txt"))?);
+
+    for line in cmake_lists.lines() {
+        let line = line?;
+
+        if let Some(suffix) = line.strip_prefix(r#"project("whisper.cpp" VERSION "#) {
+            let whisper_cpp_version = suffix.trim_end_matches(')');
+            return Ok(Some(whisper_cpp_version.into()));
+        }
+    }
+
+    Ok(None)
 }

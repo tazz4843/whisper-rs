@@ -30,8 +30,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        rust-version: [stable, nightly]
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        rust-version: [ stable, nightly ]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code into the proper directory
@@ -55,8 +55,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        rust-version: [stable, nightly]
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        rust-version: [ stable, nightly ]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code into the proper directory
@@ -73,4 +73,4 @@ jobs:
           toolchain: ${{ matrix.rust-version }}
 
       - name: Check build
-        run: cargo build --verbose
+        run: cargo build -F whisper-cpp-log,whisper-cpp-tracing --verbose --examples

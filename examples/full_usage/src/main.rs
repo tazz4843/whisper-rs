@@ -2,7 +2,7 @@
 
 use hound::{SampleFormat, WavReader};
 use std::path::Path;
-use whisper_rs::{FullParams, SamplingStrategy, WhisperContext};
+use whisper_rs::{FullParams, SamplingStrategy, WhisperContext, WhisperContextParameters};
 
 fn parse_wav_file(path: &Path) -> Vec<i16> {
     let reader = WavReader::open(path).expect("failed to read file");
@@ -43,11 +43,18 @@ fn main() {
     }
 
     let original_samples = parse_wav_file(audio_path);
-    let samples = whisper_rs::convert_integer_to_float_audio(&original_samples);
+    let mut samples = vec![0.0f32; original_samples.len()];
+    whisper_rs::convert_integer_to_float_audio(&original_samples, &mut samples)
+        .expect("failed to convert samples");
 
-    let ctx = WhisperContext::new(&whisper_path.to_string_lossy()).expect("failed to open model");
+    let ctx = WhisperContext::new_with_params(
+        &whisper_path.to_string_lossy(),
+        WhisperContextParameters::default(),
+    )
+    .expect("failed to open model");
     let mut state = ctx.create_state().expect("failed to create key");
     let mut params = FullParams::new(SamplingStrategy::default());
+    params.set_initial_prompt("experience");
     params.set_progress_callback_safe(|progress| println!("Progress callback: {}%", progress));
 
     let st = std::time::Instant::now();

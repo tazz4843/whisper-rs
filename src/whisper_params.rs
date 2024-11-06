@@ -1,5 +1,7 @@
-use std::ffi::{c_float, c_int, CString};
+use crate::whisper_grammar::WhisperGrammarElement;
+use std::ffi::{c_char, c_float, c_int, CString};
 use std::marker::PhantomData;
+use std::sync::Arc;
 use whisper_rs_sys::whisper_token;
 
 #[derive(Debug, Clone)]
@@ -20,11 +22,25 @@ impl Default for SamplingStrategy {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct SegmentCallbackData {
+    pub segment: i32,
+    pub start_timestamp: i64,
+    pub end_timestamp: i64,
+    pub text: String,
+}
+
+type SegmentCallbackFn = Box<dyn FnMut(SegmentCallbackData)>;
+
+#[derive(Clone)]
 pub struct FullParams<'a, 'b> {
     pub(crate) fp: whisper_rs_sys::whisper_full_params,
     phantom_lang: PhantomData<&'a str>,
     phantom_tokens: PhantomData<&'b [c_int]>,
-    progess_callback_safe: Option<Box<dyn FnMut(i32)>>,
+    grammar: Option<Vec<whisper_rs_sys::whisper_grammar_element>>,
+    progess_callback_safe: Option<Arc<Box<dyn FnMut(i32)>>>,
+    abort_callback_safe: Option<Arc<Box<dyn FnMut() -> bool>>>,
+    segment_calllback_safe: Option<Arc<SegmentCallbackFn>>,
 }
 
 impl<'a, 'b> FullParams<'a, 'b> {
@@ -58,7 +74,10 @@ impl<'a, 'b> FullParams<'a, 'b> {
             fp,
             phantom_lang: PhantomData,
             phantom_tokens: PhantomData,
+            grammar: None,
             progess_callback_safe: None,
+            abort_callback_safe: None,
+            segment_calllback_safe: None,
         }
     }
 
@@ -104,6 +123,13 @@ impl<'a, 'b> FullParams<'a, 'b> {
         self.fp.no_context = no_context;
     }
 
+    /// Do not generate timestamps.
+    ///
+    /// Defaults to false.
+    pub fn set_no_timestamps(&mut self, no_timestamps: bool) {
+        self.fp.no_timestamps = no_timestamps;
+    }
+
     /// Force single segment output. This may be useful for streaming.
     ///
     /// Defaults to false.
@@ -111,7 +137,7 @@ impl<'a, 'b> FullParams<'a, 'b> {
         self.fp.single_segment = single_segment;
     }
 
-    /// Print special tokens (e.g. <SOT>, <EOT>, <BEG>, etc.)
+    /// Print special tokens (e.g. `<SOT>`, `<EOT>`, `<BEG>`, etc.)
     ///
     /// Defaults to false.
     pub fn set_print_special(&mut self, print_special: bool) {
@@ -198,22 +224,30 @@ impl<'a, 'b> FullParams<'a, 'b> {
 
     /// # EXPERIMENTAL
     ///
-    /// Speed up audio ~2x by using phase vocoder.
-    /// Note that this can significantly reduce the accuracy of the transcription.
+    /// Enables debug mode, such as dumping the log mel spectrogram.
     ///
     /// Defaults to false.
-    pub fn set_speed_up(&mut self, speed_up: bool) {
-        self.fp.speed_up = speed_up;
+    pub fn set_debug_mode(&mut self, debug: bool) {
+        self.fp.debug_mode = debug;
     }
 
     /// # EXPERIMENTAL
     ///
     /// Overwrite the audio context size. 0 = default.
-    /// As with [set_speed_up](FullParams::set_speed_up), this can significantly reduce the accuracy of the transcription.
     ///
     /// Defaults to 0.
     pub fn set_audio_ctx(&mut self, audio_ctx: c_int) {
         self.fp.audio_ctx = audio_ctx;
+    }
+
+    /// # EXPERIMENTAL
+    ///
+    /// Enable tinydiarize support.
+    /// Experimental speaker turn detection.
+    ///
+    /// Defaults to false.
+    pub fn set_tdrz_enable(&mut self, tdrz_enable: bool) {
+        self.fp.tdrz_enable = tdrz_enable;
     }
 
     /// Set tokens to provide the model as initial input.
@@ -256,7 +290,8 @@ impl<'a, 'b> FullParams<'a, 'b> {
         self.fp.detect_language = detect_language;
     }
 
-    /// Set suppress_blank. See https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/decoding.py#L89
+    /// Set suppress_blank.
+    /// See <https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/decoding.py#L89>
     /// for more information.
     ///
     /// Defaults to true.
@@ -264,7 +299,8 @@ impl<'a, 'b> FullParams<'a, 'b> {
         self.fp.suppress_blank = suppress_blank;
     }
 
-    /// Set suppress_non_speech_tokens. See https://github.com/openai/whisper/blob/7858aa9c08d98f75575035ecd6481f462d66ca27/whisper/tokenizer.py#L224-L253
+    /// Set suppress_non_speech_tokens.
+    /// See <https://github.com/openai/whisper/blob/7858aa9c08d98f75575035ecd6481f462d66ca27/whisper/tokenizer.py#L224-L253>
     /// for more information.
     ///
     /// Defaults to false.
@@ -272,14 +308,16 @@ impl<'a, 'b> FullParams<'a, 'b> {
         self.fp.suppress_non_speech_tokens = suppress_non_speech_tokens;
     }
 
-    /// Set initial decoding temperature. See https://ai.stackexchange.com/a/32478 for more information.
+    /// Set initial decoding temperature.
+    /// See <https://ai.stackexchange.com/a/32478> for more information.
     ///
     /// Defaults to 0.0.
     pub fn set_temperature(&mut self, temperature: f32) {
         self.fp.temperature = temperature;
     }
 
-    /// Set max_initial_ts. See https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/decoding.py#L97
+    /// Set max_initial_ts.
+    /// See <https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/decoding.py#L97>
     /// for more information.
     ///
     /// Defaults to 1.0.
@@ -287,7 +325,8 @@ impl<'a, 'b> FullParams<'a, 'b> {
         self.fp.max_initial_ts = max_initial_ts;
     }
 
-    /// Set length_penalty. See https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/transcribe.py#L267
+    /// Set length_penalty.
+    /// See <https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/transcribe.py#L267>
     /// for more information.
     ///
     /// Defaults to -1.0.
@@ -295,7 +334,8 @@ impl<'a, 'b> FullParams<'a, 'b> {
         self.fp.length_penalty = length_penalty;
     }
 
-    /// Set temperature_inc. See https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/transcribe.py#L274-L278
+    /// Set temperature_inc.
+    /// See <https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/transcribe.py#L274-L278>
     /// for more information.
     ///
     /// Defaults to 0.2.
@@ -304,14 +344,15 @@ impl<'a, 'b> FullParams<'a, 'b> {
     }
 
     /// Set entropy_thold. Similar to OpenAI's compression_ratio_threshold.
-    /// See https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/transcribe.py#L274-L278 for more information.
+    /// See <https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/transcribe.py#L274-L278> for more information.
     ///
     /// Defaults to 2.4.
     pub fn set_entropy_thold(&mut self, entropy_thold: f32) {
         self.fp.entropy_thold = entropy_thold;
     }
 
-    /// Set logprob_thold. See https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/transcribe.py#L274-L278
+    /// Set logprob_thold.
+    /// See <https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/transcribe.py#L274-L278>
     /// for more information.
     ///
     /// Defaults to -1.0.
@@ -352,6 +393,140 @@ impl<'a, 'b> FullParams<'a, 'b> {
     /// Defaults to None.
     pub unsafe fn set_new_segment_callback_user_data(&mut self, user_data: *mut std::ffi::c_void) {
         self.fp.new_segment_callback_user_data = user_data;
+    }
+
+    /// Set the callback for segment updates.
+    ///
+    /// Provides a limited segment_callback to ensure safety.
+    /// See `set_new_segment_callback` if you need to use `whisper_context` and `whisper_state`
+    ///
+    /// Defaults to None.
+    pub fn set_segment_callback_safe<O, F>(&mut self, closure: O)
+    where
+        F: FnMut(SegmentCallbackData) + 'static,
+        O: Into<Option<F>>,
+    {
+        use std::ffi::{c_void, CStr};
+        use whisper_rs_sys::{whisper_context, whisper_state};
+
+        extern "C" fn trampoline<F>(
+            _: *mut whisper_context,
+            state: *mut whisper_state,
+            n_new: i32,
+            user_data: *mut c_void,
+        ) where
+            F: FnMut(SegmentCallbackData) + 'static,
+        {
+            unsafe {
+                let user_data = &mut *(user_data as *mut SegmentCallbackFn);
+                let n_segments = whisper_rs_sys::whisper_full_n_segments_from_state(state);
+                let s0 = n_segments - n_new;
+                //let user_data = user_data as *mut Box<dyn FnMut(SegmentCallbackData)>;
+
+                for i in s0..n_segments {
+                    let text = whisper_rs_sys::whisper_full_get_segment_text_from_state(state, i);
+                    let text = CStr::from_ptr(text);
+
+                    let t0 = whisper_rs_sys::whisper_full_get_segment_t0_from_state(state, i);
+                    let t1 = whisper_rs_sys::whisper_full_get_segment_t1_from_state(state, i);
+
+                    match text.to_str() {
+                        Ok(n) => user_data(SegmentCallbackData {
+                            segment: i,
+                            start_timestamp: t0,
+                            end_timestamp: t1,
+                            text: n.to_string(),
+                        }),
+                        Err(_) => {}
+                    }
+                }
+            }
+        }
+
+        match closure.into() {
+            Some(closure) => {
+                // Stable address
+                let closure = Box::new(closure) as SegmentCallbackFn;
+                // Thin pointer
+                let closure = Box::new(closure);
+                // Raw pointer
+                let closure = Box::into_raw(closure);
+
+                self.fp.new_segment_callback_user_data = closure as *mut c_void;
+                self.fp.new_segment_callback = Some(trampoline::<SegmentCallbackFn>);
+                self.segment_calllback_safe = None;
+            }
+            None => {
+                self.segment_calllback_safe = None;
+                self.fp.new_segment_callback = None;
+                self.fp.new_segment_callback_user_data = std::ptr::null_mut::<c_void>();
+            }
+        }
+    }
+
+    /// Set the callback for segment updates.
+    ///
+    /// Provides a limited segment_callback to ensure safety with lossy handling of bad UTF-8 characters.
+    /// See `set_new_segment_callback` if you need to use `whisper_context` and `whisper_state`.
+    ///
+    /// Defaults to None.
+    pub fn set_segment_callback_safe_lossy<O, F>(&mut self, closure: O)
+    where
+        F: FnMut(SegmentCallbackData) + 'static,
+        O: Into<Option<F>>,
+    {
+        use std::ffi::{c_void, CStr};
+        use whisper_rs_sys::{whisper_context, whisper_state};
+
+        extern "C" fn trampoline<F>(
+            _: *mut whisper_context,
+            state: *mut whisper_state,
+            n_new: i32,
+            user_data: *mut c_void,
+        ) where
+            F: FnMut(SegmentCallbackData) + 'static,
+        {
+            unsafe {
+                let user_data = &mut *(user_data as *mut SegmentCallbackFn);
+                let n_segments = whisper_rs_sys::whisper_full_n_segments_from_state(state);
+                let s0 = n_segments - n_new;
+                //let user_data = user_data as *mut Box<dyn FnMut(SegmentCallbackData)>;
+
+                for i in s0..n_segments {
+                    let text = whisper_rs_sys::whisper_full_get_segment_text_from_state(state, i);
+                    let text = CStr::from_ptr(text);
+
+                    let t0 = whisper_rs_sys::whisper_full_get_segment_t0_from_state(state, i);
+                    let t1 = whisper_rs_sys::whisper_full_get_segment_t1_from_state(state, i);
+                    user_data(SegmentCallbackData {
+                        segment: i,
+                        start_timestamp: t0,
+                        end_timestamp: t1,
+                        text: text.to_string_lossy().to_string(),
+                    });
+                }
+            }
+        }
+
+        match closure.into() {
+            Some(closure) => {
+                // Stable address
+                let closure = Box::new(closure) as SegmentCallbackFn;
+                // Thin pointer
+                let closure = Box::new(closure);
+                // Raw pointer
+                let closure = Box::into_raw(closure);
+
+                self.fp.new_segment_callback_user_data = closure as *mut c_void;
+                self.fp.new_segment_callback = Some(trampoline::<SegmentCallbackFn>);
+                self.segment_calllback_safe = None;
+            }
+            None => {
+                self.segment_calllback_safe = None;
+                self.fp.new_segment_callback = None;
+                self.fp.new_segment_callback_user_data = std::ptr::null_mut::<c_void>();
+            }
+        }
     }
 
     /// Set the callback for progress updates.
@@ -404,12 +579,57 @@ impl<'a, 'b> FullParams<'a, 'b> {
                 self.fp.progress_callback = Some(trampoline::<F>);
                 self.fp.progress_callback_user_data = &mut closure as *mut F as *mut c_void;
                 // store the closure internally to make sure that the pointer above remains valid
-                self.progess_callback_safe = Some(Box::new(closure));
+                self.progess_callback_safe = Some(Arc::new(Box::new(closure)));
             }
             None => {
                 self.fp.progress_callback = None;
                 self.fp.progress_callback_user_data = std::ptr::null_mut::<c_void>();
                 self.progess_callback_safe = None;
+            }
+        }
+    }
+
+    /// Set the callback for abort conditions, potentially using a closure.
+    ///
+    /// Note that, for safety, the callback only accepts a function that returns a boolean
+    /// indicating whether to abort or not.
+    ///
+    /// See `set_progress_callback` if you need to use `whisper_context` and `whisper_state`,
+    /// or extend this one to support their use.
+    ///
+    /// Defaults to None.
+    pub fn set_abort_callback_safe<O, F>(&mut self, closure: O)
+    where
+        F: FnMut() -> bool + 'static,
+        O: Into<Option<F>>,
+    {
+        use std::ffi::c_void;
+
+        unsafe extern "C" fn trampoline<F>(user_data: *mut c_void) -> bool
+        where
+            F: FnMut() -> bool,
+        {
+            let user_data = &mut *(user_data as *mut F);
+            user_data()
+        }
+
+        match closure.into() {
+            Some(closure) => {
+                // Stable address
+                let closure = Box::new(closure) as Box<dyn FnMut() -> bool>;
+                // Thin pointer
+                let closure = Box::new(closure);
+                // Raw pointer
+                let closure = Box::into_raw(closure);
+
+                self.fp.abort_callback = Some(trampoline::<F>);
+                self.fp.abort_callback_user_data = closure as *mut c_void;
+                self.abort_callback_safe = None;
+            }
+            None => {
+                self.fp.abort_callback = None;
+                self.fp.abort_callback_user_data = std::ptr::null_mut::<c_void>();
+                self.abort_callback_safe = None;
             }
         }
     }
@@ -485,6 +705,95 @@ impl<'a, 'b> FullParams<'a, 'b> {
     ) {
         self.fp.logits_filter_callback_user_data = user_data;
     }
+
+    /// Set the callback that is called each time before ggml computation starts.
+    ///
+    /// Note that this callback has not been Rustified yet (and likely never will be, unless someone else feels the need to do so).
+    /// It is still a C callback.
+    ///
+    /// # Safety
+    /// Do not use this function unless you know what you are doing.
+    /// * Be careful not to mutate the state of the whisper_context pointer returned in the callback.
+    ///   This could cause undefined behavior, as this violates the thread-safety guarantees of the underlying C library.
+    ///
+    /// Defaults to None.
+    pub unsafe fn set_abort_callback(&mut self, abort_callback: crate::WhisperAbortCallback) {
+        self.fp.abort_callback = abort_callback;
+    }
+
+    /// Set the user data to be passed to the abort callback.
+    ///
+    /// # Safety
+    /// See the safety notes for `set_abort_callback`.
+    ///
+    /// Defaults to None.
+    pub unsafe fn set_abort_callback_user_data(&mut self, user_data: *mut std::ffi::c_void) {
+        self.fp.abort_callback_user_data = user_data;
+    }
+
+    /// Enable an array of grammar elements to be passed to the whisper model.
+    ///
+    /// Defaults to an empty vector.
+    pub fn set_grammar(&mut self, grammar: Option<&[WhisperGrammarElement]>) {
+        if let Some(grammar) = grammar {
+            // convert to c types
+            let inner = grammar.iter().map(|e| e.to_c_type()).collect::<Vec<_>>();
+            // turn into ptr and len
+            let grammar_ptr = inner.as_ptr() as *mut _;
+            let grammar_len = inner.len();
+
+            self.grammar = Some(inner);
+
+            // set the grammar
+            self.fp.grammar_rules = grammar_ptr;
+            self.fp.n_grammar_rules = grammar_len;
+        } else {
+            self.grammar = None;
+            self.fp.grammar_rules = std::ptr::null_mut();
+            self.fp.n_grammar_rules = 0;
+            self.fp.i_start_rule = 0;
+        }
+    }
+
+    /// Set the start grammar rule. Does nothing if no grammar is set.
+    ///
+    /// Defaults to 0.
+    pub fn set_start_rule(&mut self, start_rule: usize) {
+        if self.grammar.is_some() {
+            self.fp.i_start_rule = start_rule;
+        }
+    }
+
+    /// Set grammar penalty.
+    ///
+    /// Defaults to 100.0.
+    pub fn set_grammar_penalty(&mut self, grammar_penalty: f32) {
+        self.fp.grammar_penalty = grammar_penalty;
+    }
+
+    /// Set the initial prompt for the model.
+    ///
+    /// This is the text that will be used as the starting point for the model's decoding.
+    /// Calling this more than once will overwrite the previous initial prompt.
+    ///
+    /// # Arguments
+    /// * `initial_prompt` - A string slice representing the initial prompt text.
+    ///
+    /// # Panics
+    /// This method will panic if `initial_prompt` contains a null byte, as it cannot be converted into a `CString`.
+    ///
+    /// # Examples
+    /// ```
+    /// # use whisper_rs::{FullParams, SamplingStrategy};
+    /// let mut params = FullParams::new(SamplingStrategy::default());
+    /// params.set_initial_prompt("Hello, world!");
+    /// // ... further usage of params ...
+    /// ```
+    pub fn set_initial_prompt(&mut self, initial_prompt: &str) {
+        self.fp.initial_prompt = CString::new(initial_prompt)
+            .expect("Initial prompt contains null byte")
+            .into_raw() as *const c_char;
+    }
 }
 
 // following implementations are safe
@@ -492,3 +801,80 @@ impl<'a, 'b> FullParams<'a, 'b> {
 // concurrent usage is prevented by &mut self on methods that modify the struct
 unsafe impl<'a, 'b> Send for FullParams<'a, 'b> {}
 unsafe impl<'a, 'b> Sync for FullParams<'a, 'b> {}
+
+#[cfg(test)]
+mod test_whisper_params_initial_prompt {
+    use super::*;
+
+    impl<'a, 'b> FullParams<'a, 'b> {
+        pub fn get_initial_prompt(&self) -> &str {
+            // SAFETY: Ensure this is safe and respects the lifetime of the string in self.fp
+            unsafe {
+                std::ffi::CStr::from_ptr(self.fp.initial_prompt)
+                    .to_str()
+                    .unwrap()
+            }
+        }
+    }
+
+    #[test]
+    fn test_initial_prompt_normal_usage() {
+        let mut params = FullParams::new(SamplingStrategy::default());
+        let prompt = "Hello, world!";
+        params.set_initial_prompt(prompt);
+        assert_eq!(params.get_initial_prompt(), prompt);
+    }
+
+    #[test]
+    #[should_panic(expected = "Initial prompt contains null byte")]
+    fn test_initial_prompt_null_byte() {
+        let mut params = FullParams::new(SamplingStrategy::default());
+        let prompt = "Hello\0, world!";
+        params.set_initial_prompt(prompt);
+        // Should panic
+    }
+
+    #[test]
+    fn test_initial_prompt_empty_string() {
+        let mut params = FullParams::new(SamplingStrategy::default());
+        let prompt = "";
+        params.set_initial_prompt(prompt);
+
+        assert_eq!(
+            params.get_initial_prompt(),
+            prompt,
+            "The initial prompt should be an empty string."
+        );
+    }
+
+    #[test]
+    fn test_initial_prompt_repeated_calls() {
+        let mut params = FullParams::new(SamplingStrategy::default());
+        params.set_initial_prompt("First prompt");
+        assert_eq!(
+            params.get_initial_prompt(),
+            "First prompt",
+            "The initial prompt should be 'First prompt'."
+        );
+
+        params.set_initial_prompt("Second prompt");
+        assert_eq!(
+            params.get_initial_prompt(),
+            "Second prompt",
+            "The initial prompt should be 'Second prompt' after second set."
+        );
+    }
+
+    #[test]
+    fn test_initial_prompt_long_string() {
+        let mut params = FullParams::new(SamplingStrategy::default());
+        let long_prompt = "a".repeat(10000); // a long string of 10,000 'a' characters
+        params.set_initial_prompt(&long_prompt);
+
+        assert_eq!(
+            params.get_initial_prompt(),
+            long_prompt.as_str(),
+            "The initial prompt should match the long string provided."
+        );
+    }
+}

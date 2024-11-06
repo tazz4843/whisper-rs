@@ -1,2 +1,2 @@
-#include <whisper.h>
-#include <ggml.h>
+#include <include/whisper.h>
+#include <ggml/include/ggml.h>
