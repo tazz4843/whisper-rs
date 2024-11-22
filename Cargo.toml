@@ -37,6 +37,3 @@ test-with-tiny-model = []
 whisper-cpp-log = ["dep:log"]
 whisper-cpp-tracing = ["dep:tracing"]
 openmp = ["whisper-rs-sys/openmp"]
-
-[package.metadata.docs.rs]
-features = ["simd"]
