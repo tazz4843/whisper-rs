@@ -255,7 +255,13 @@ fn main() {
     println!("cargo:rustc-link-lib=static=ggml");
     println!("cargo:rustc-link-lib=static=ggml-base");
     println!("cargo:rustc-link-lib=static=ggml-cpu");
-    println!("cargo:rustc-link-lib=static=ggml-blas");
+    if cfg!(target_os = "macos") {
+        println!("cargo:rustc-link-lib=static=ggml-blas");
+    }
+    if cfg!(feature = "vulkan") {
+        println!("cargo:rustc-link-lib=static=ggml-vulkan");
+    }
+    
 
     if cfg!(feature = "metal") {
         println!("cargo:rustc-link-lib=static=ggml-metal");
