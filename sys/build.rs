@@ -246,6 +246,10 @@ fn main() {
         config.define("GGML_OPENMP", "OFF");
     }
 
+    if cfg!(windows) {
+        config.cxxflag("/utf-8");
+    }
+
     let destination = config.build();
 
     add_link_search_path(&out.join("build")).unwrap();
