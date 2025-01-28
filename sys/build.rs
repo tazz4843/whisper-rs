@@ -261,7 +261,6 @@ fn main() {
     if cfg!(feature = "vulkan") {
         println!("cargo:rustc-link-lib=static=ggml-vulkan");
     }
-    
 
     if cfg!(feature = "metal") {
         println!("cargo:rustc-link-lib=static=ggml-metal");
