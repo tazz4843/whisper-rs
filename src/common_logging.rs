@@ -48,7 +48,10 @@ pub(crate) use {generic_debug, generic_error, generic_info, generic_trace, gener
 
 // Unsigned integer type on most platforms is 32 bit, niche platforms that whisper.cpp
 // likely doesn't even support would use 16 bit and would still fit
-#[repr(u32)]
+#[cfg_attr(any(not(windows), target_env = "gnu"), repr(u32))]
+// Of course Windows thinks it's a special little shit and
+// picks a signed integer for an unsigned type
+#[cfg_attr(all(windows, not(target_env = "gnu")), repr(i32))]
 pub(crate) enum GGMLLogLevel {
     None = whisper_rs_sys::ggml_log_level_GGML_LOG_LEVEL_NONE,
     Info = whisper_rs_sys::ggml_log_level_GGML_LOG_LEVEL_INFO,
