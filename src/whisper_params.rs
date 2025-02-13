@@ -299,6 +299,15 @@ impl<'a, 'b> FullParams<'a, 'b> {
         self.fp.suppress_blank = suppress_blank;
     }
 
+    /// Set suppress_non_speech_tokens.
+    /// See <https://github.com/openai/whisper/blob/7858aa9c08d98f75575035ecd6481f462d66ca27/whisper/tokenizer.py#L224-L253>
+    /// for more information.
+    ///
+    /// Defaults to false.
+    pub fn set_suppress_nst(&mut self, suppress_nst: bool) {
+        self.fp.suppress_nst = suppress_nst;
+    }
+
     /// Set initial decoding temperature.
     /// See <https://ai.stackexchange.com/a/32478> for more information.
     ///
