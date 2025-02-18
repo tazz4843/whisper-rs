@@ -266,6 +266,10 @@ fn main() {
         println!("cargo:rustc-link-lib=static=ggml-metal");
     }
 
+    if cfg!(feature = "cuda") {
+        println!("cargo:rustc-link-lib=static=ggml-cuda");
+    }
+
     println!(
         "cargo:WHISPER_CPP_VERSION={}",
         get_whisper_cpp_version(&whisper_root)
