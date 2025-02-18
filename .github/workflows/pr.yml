@@ -73,4 +73,4 @@ jobs:
           toolchain: ${{ matrix.rust-version }}
 
       - name: Check build
-        run: cargo build -F whisper-cpp-log,whisper-cpp-tracing --verbose --examples
+        run: cargo build -F log_backend,tracing_backend --verbose --examples
