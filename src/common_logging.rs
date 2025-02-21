@@ -52,7 +52,7 @@ pub(crate) use {generic_debug, generic_error, generic_info, generic_trace, gener
 // Of course Windows thinks it's a special little shit and
 // picks a signed integer for an unsigned type
 #[cfg_attr(all(windows, not(target_env = "gnu")), repr(i32))]
-pub(crate) enum GGMLLogLevel {
+pub enum GGMLLogLevel {
     None = whisper_rs_sys::ggml_log_level_GGML_LOG_LEVEL_NONE,
     Info = whisper_rs_sys::ggml_log_level_GGML_LOG_LEVEL_INFO,
     Warn = whisper_rs_sys::ggml_log_level_GGML_LOG_LEVEL_WARN,
