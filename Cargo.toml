@@ -4,7 +4,7 @@ exclude = ["examples/full_usage"]
 
 [package]
 name = "whisper-rs"
-version = "0.13.2"
+version = "0.14.1"
 edition = "2021"
 description = "Rust bindings for whisper.cpp"
 license = "Unlicense"
@@ -14,7 +14,7 @@ repository = "https://github.com/tazz4843/whisper-rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-whisper-rs-sys = { path = "sys", version = "0.11" }
+whisper-rs-sys = { path = "sys", version = "0.12" }
 log = { version = "0.4", optional = true }
 tracing = { version = "0.1", optional = true }
 
