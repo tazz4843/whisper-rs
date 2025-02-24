@@ -253,6 +253,22 @@ fn main() {
     println!("cargo:rustc-link-search=native={}", destination.display());
     println!("cargo:rustc-link-lib=static=whisper");
     println!("cargo:rustc-link-lib=static=ggml");
+    println!("cargo:rustc-link-lib=static=ggml-base");
+    println!("cargo:rustc-link-lib=static=ggml-cpu");
+    if cfg!(target_os = "macos") {
+        println!("cargo:rustc-link-lib=static=ggml-blas");
+    }
+    if cfg!(feature = "vulkan") {
+        println!("cargo:rustc-link-lib=static=ggml-vulkan");
+    }
+
+    if cfg!(feature = "metal") {
+        println!("cargo:rustc-link-lib=static=ggml-metal");
+    }
+
+    if cfg!(feature = "cuda") {
+        println!("cargo:rustc-link-lib=static=ggml-cuda");
+    }
 
     println!(
         "cargo:WHISPER_CPP_VERSION={}",

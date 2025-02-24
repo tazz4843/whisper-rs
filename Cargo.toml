@@ -32,8 +32,14 @@ hipblas = ["whisper-rs-sys/hipblas", "_gpu"]
 openblas = ["whisper-rs-sys/openblas"]
 metal = ["whisper-rs-sys/metal", "_gpu"]
 vulkan = ["whisper-rs-sys/vulkan", "_gpu"]
+openmp = ["whisper-rs-sys/openmp"]
 _gpu = []
 test-with-tiny-model = []
-whisper-cpp-log = ["dep:log"]
-whisper-cpp-tracing = ["dep:tracing"]
-openmp = ["whisper-rs-sys/openmp"]
+
+# Bring logs into Rust via the log crate. *Warning*: not mutually exclusive with tracing_backend,
+# will result in duplicate logs if both are enabled and one consumes logs from the other.
+log_backend = ["dep:log"]
+
+# Bring logs into Rust via the tracing crate. *Warning*: not mutually exclusive with log_backend,
+# will result in duplicate logs if both are enabled and one consumes logs from the other.
+tracing_backend = ["dep:tracing"]
