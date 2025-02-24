@@ -537,7 +537,7 @@ impl<'a, 'b> FullParams<'a, 'b> {
     /// # Safety
     /// Do not use this function unless you know what you are doing.
     /// * Be careful not to mutate the state of the whisper_context pointer returned in the callback.
-    ///  This could cause undefined behavior, as this violates the thread-safety guarantees of the underlying C library.
+    ///   This could cause undefined behavior, as this violates the thread-safety guarantees of the underlying C library.
     ///
     /// Defaults to None.
     pub unsafe fn set_progress_callback(
@@ -652,7 +652,7 @@ impl<'a, 'b> FullParams<'a, 'b> {
     /// # Safety
     /// Do not use this function unless you know what you are doing.
     /// * Be careful not to mutate the state of the whisper_context pointer returned in the callback.
-    ///  This could cause undefined behavior, as this violates the thread-safety guarantees of the underlying C library.
+    ///   This could cause undefined behavior, as this violates the thread-safety guarantees of the underlying C library.
     ///
     /// Defaults to None.
     pub unsafe fn set_start_encoder_callback(
@@ -799,8 +799,8 @@ impl<'a, 'b> FullParams<'a, 'b> {
 // following implementations are safe
 // see https://github.com/ggerganov/whisper.cpp/issues/32#issuecomment-1272790388
 // concurrent usage is prevented by &mut self on methods that modify the struct
-unsafe impl<'a, 'b> Send for FullParams<'a, 'b> {}
-unsafe impl<'a, 'b> Sync for FullParams<'a, 'b> {}
+unsafe impl Send for FullParams<'_, '_> {}
+unsafe impl Sync for FullParams<'_, '_> {}
 
 #[cfg(test)]
 mod test_whisper_params_initial_prompt {
