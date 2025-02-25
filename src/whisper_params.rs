@@ -575,11 +575,13 @@ impl<'a, 'b> FullParams<'a, 'b> {
         }
 
         match closure.into() {
-            Some(mut closure) => {
-                self.fp.progress_callback = Some(trampoline::<F>);
-                self.fp.progress_callback_user_data = &mut closure as *mut F as *mut c_void;
-                // store the closure internally to make sure that the pointer above remains valid
-                self.progess_callback_safe = Some(Arc::new(Box::new(closure)));
+            Some(closure) => {
+                self.fp.progress_callback = Some(trampoline::<Box<dyn FnMut(i32)>>);
+                let boxed_closure = Box::new(closure) as Box<dyn FnMut(i32)>;
+                let boxed_closure = Box::new(boxed_closure);
+                let raw_ptr = Box::into_raw(boxed_closure);
+                self.fp.progress_callback_user_data = raw_ptr as *mut c_void;
+                self.progess_callback_safe = None;
             }
             None => {
                 self.fp.progress_callback = None;
