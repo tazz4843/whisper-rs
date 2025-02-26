@@ -419,26 +419,20 @@ impl<'a, 'b> FullParams<'a, 'b> {
         {
             unsafe {
                 let user_data = &mut *(user_data as *mut SegmentCallbackFn);
-                let n_segments = whisper_rs_sys::whisper_full_n_segments_from_state(state);
-                let s0 = n_segments - n_new;
-                //let user_data = user_data as *mut Box<dyn FnMut(SegmentCallbackData)>;
+                let text = whisper_rs_sys::whisper_full_get_segment_text_from_state(state, n_new);
+                let text = CStr::from_ptr(text);
 
-                for i in s0..n_segments {
-                    let text = whisper_rs_sys::whisper_full_get_segment_text_from_state(state, i);
-                    let text = CStr::from_ptr(text);
+                let t0 = whisper_rs_sys::whisper_full_get_segment_t0_from_state(state, n_new);
+                let t1 = whisper_rs_sys::whisper_full_get_segment_t1_from_state(state, n_new);
 
-                    let t0 = whisper_rs_sys::whisper_full_get_segment_t0_from_state(state, i);
-                    let t1 = whisper_rs_sys::whisper_full_get_segment_t1_from_state(state, i);
-
-                    match text.to_str() {
-                        Ok(n) => user_data(SegmentCallbackData {
-                            segment: i,
-                            start_timestamp: t0,
-                            end_timestamp: t1,
-                            text: n.to_string(),
-                        }),
-                        Err(_) => {}
-                    }
+                match text.to_str() {
+                    Ok(n) => user_data(SegmentCallbackData {
+                        segment: n_new + 1,
+                        start_timestamp: t0,
+                        end_timestamp: t1,
+                        text: n.to_string(),
+                    }),
+                    Err(_) => {}
                 }
             }
         }
@@ -488,23 +482,17 @@ impl<'a, 'b> FullParams<'a, 'b> {
         {
             unsafe {
                 let user_data = &mut *(user_data as *mut SegmentCallbackFn);
-                let n_segments = whisper_rs_sys::whisper_full_n_segments_from_state(state);
-                let s0 = n_segments - n_new;
-                //let user_data = user_data as *mut Box<dyn FnMut(SegmentCallbackData)>;
+                let text = whisper_rs_sys::whisper_full_get_segment_text_from_state(state, n_new);
+                let text = CStr::from_ptr(text);
 
-                for i in s0..n_segments {
-                    let text = whisper_rs_sys::whisper_full_get_segment_text_from_state(state, i);
-                    let text = CStr::from_ptr(text);
-
-                    let t0 = whisper_rs_sys::whisper_full_get_segment_t0_from_state(state, i);
-                    let t1 = whisper_rs_sys::whisper_full_get_segment_t1_from_state(state, i);
-                    user_data(SegmentCallbackData {
-                        segment: i,
-                        start_timestamp: t0,
-                        end_timestamp: t1,
-                        text: text.to_string_lossy().to_string(),
-                    });
-                }
+                let t0 = whisper_rs_sys::whisper_full_get_segment_t0_from_state(state, n_new);
+                let t1 = whisper_rs_sys::whisper_full_get_segment_t1_from_state(state, n_new);
+                user_data(SegmentCallbackData {
+                    segment: n_new,
+                    start_timestamp: t0,
+                    end_timestamp: t1,
+                    text: text.to_string_lossy().to_string(),
+                });
             }
         }
 
