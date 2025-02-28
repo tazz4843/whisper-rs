@@ -214,6 +214,12 @@ fn main() {
 
     if cfg!(feature = "openblas") {
         config.define("GGML_BLAS", "ON");
+        config.define("GGML_BLAS_VENDOR", "OpenBLAS");
+        if env::var("BLAS_INCLUDE_DIRS").is_err() {
+            panic!("BLAS_INCLUDE_DIRS environment variable must be set when using OpenBLAS");
+        }
+        config.define("BLAS_INCLUDE_DIRS", env::var("BLAS_INCLUDE_DIRS").unwrap());
+        println!("cargo:rerun-if-env-changed=BLAS_INCLUDE_DIRS");
     }
 
     if cfg!(feature = "metal") {
@@ -255,7 +261,7 @@ fn main() {
     println!("cargo:rustc-link-lib=static=ggml");
     println!("cargo:rustc-link-lib=static=ggml-base");
     println!("cargo:rustc-link-lib=static=ggml-cpu");
-    if cfg!(target_os = "macos") {
+    if cfg!(target_os = "macos") || cfg!(target_os = "openblas") {
         println!("cargo:rustc-link-lib=static=ggml-blas");
     }
     if cfg!(feature = "vulkan") {
