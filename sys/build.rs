@@ -164,6 +164,10 @@ fn main() {
         .very_verbose(true)
         .pic(true);
 
+    if cfg!(target_os = "windows") {
+        config.cxxflag("/utf-8");
+    }
+
     if cfg!(feature = "coreml") {
         config.define("WHISPER_COREML", "ON");
         config.define("WHISPER_COREML_ALLOW_FALLBACK", "1");
