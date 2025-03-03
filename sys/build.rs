@@ -9,6 +9,25 @@ use std::io::{BufRead, BufReader};
 use std::path::PathBuf;
 
 fn main() {
+    // Fail-fast test for OpenVINO
+    #[cfg(feature = "openvino")]
+    {
+        let openvino_dir = env::var("OpenVINO_DIR")
+            .unwrap_or_else(|_| String::from("/opt/intel/openvino/runtime/cmake/"));
+        // see if we can find OpenVINOConfig.cmake
+        let openvino_config_path = PathBuf::from(&openvino_dir).join("OpenVINOConfig.cmake");
+        if !openvino_config_path.exists() {
+            panic!(
+                "Couldn't find OpenVINOConfig.cmake in OpenVINO_DIR. Please set it to the path where `OpenVINOConfig.cmake` can be found.\n\
+                On Arch Linux, if you installed the AUR package, this path is `/opt/intel/openvino/runtime/cmake/`.\n\
+                Note the `/cmake/` at the end of the path."
+            );
+        }
+
+        // exists so be sure to reexport it
+        unsafe { env::set_var("OpenVINO_DIR", openvino_dir) }
+    }
+
     let target = env::var("TARGET").unwrap();
     // Link C++ standard library
     if let Some(cpp_stdlib) = get_cpp_link_stdlib(&target) {
@@ -186,6 +205,8 @@ fn main() {
             config.define("AMDGPU_TARGETS", gpu_targets);
         }
     }
+    #[cfg(feature = "openvino")]
+    config.define("WHISPER_OPENVINO", "1");
 
     if cfg!(feature = "vulkan") {
         config.define("GGML_VULKAN", "ON");
