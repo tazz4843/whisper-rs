@@ -12,15 +12,15 @@ fn main() {
     // Fail-fast test for OpenVINO
     #[cfg(feature = "openvino")]
     {
-        let openvino_dir = env::var("OpenVINO_DIR")
-            .unwrap_or_else(|_| String::from("/opt/intel/openvino/runtime/cmake/"));
+        let openvino_dir =
+            env::var("OpenVINO_DIR").unwrap_or_else(|_| String::from("/usr/lib/cmake/openvino/"));
         // see if we can find OpenVINOConfig.cmake
         let openvino_config_path = PathBuf::from(&openvino_dir).join("OpenVINOConfig.cmake");
         if !openvino_config_path.exists() {
             panic!(
-                "Couldn't find OpenVINOConfig.cmake in OpenVINO_DIR. Please set it to the path where `OpenVINOConfig.cmake` can be found.\n\
-                On Arch Linux, if you installed the AUR package, this path is `/opt/intel/openvino/runtime/cmake/`.\n\
-                Note the `/cmake/` at the end of the path."
+                "Couldn't find OpenVINOConfig.cmake in OpenVINO_DIR (currently set to {}). Please set it to the path where `OpenVINOConfig.cmake` can be found.\n\
+                On Arch Linux, if you installed the AUR package, this path is `/usr/lib/cmake/openvino/`.",
+                openvino_dir
             );
         }
 

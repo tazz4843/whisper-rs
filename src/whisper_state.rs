@@ -1,4 +1,4 @@
-use std::ffi::{c_int, CStr};
+use std::ffi::{c_int, CStr, CString};
 use std::sync::Arc;
 
 use crate::{FullParams, WhisperError, WhisperInnerContext, WhisperToken, WhisperTokenData};
@@ -66,9 +66,9 @@ impl WhisperState {
             whisper_rs_sys::whisper_ctx_init_openvino_encoder_with_state(
                 self.ctx.ctx,
                 self.ptr,
-                model_path.map(|s| s.as_ptr()).unwrap_or(std::ptr::null()),
+                model_path.map_or_else(std::ptr::null, |s| s.as_ptr()),
                 device.as_ptr(),
-                cache_dir.map(|s| s.as_ptr()).unwrap_or(std::ptr::null()),
+                cache_dir.map_or_else(std::ptr::null, |s| s.as_ptr()),
             )
         };
         ret != 0
