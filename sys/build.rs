@@ -183,6 +183,10 @@ fn main() {
         .very_verbose(true)
         .pic(true);
 
+    if cfg!(target_os = "windows") {
+        config.cxxflag("/utf-8");
+    }
+
     if cfg!(feature = "coreml") {
         config.define("WHISPER_COREML", "ON");
         config.define("WHISPER_COREML_ALLOW_FALLBACK", "1");
@@ -235,6 +239,12 @@ fn main() {
 
     if cfg!(feature = "openblas") {
         config.define("GGML_BLAS", "ON");
+        config.define("GGML_BLAS_VENDOR", "OpenBLAS");
+        if env::var("BLAS_INCLUDE_DIRS").is_err() {
+            panic!("BLAS_INCLUDE_DIRS environment variable must be set when using OpenBLAS");
+        }
+        config.define("BLAS_INCLUDE_DIRS", env::var("BLAS_INCLUDE_DIRS").unwrap());
+        println!("cargo:rerun-if-env-changed=BLAS_INCLUDE_DIRS");
     }
 
     if cfg!(feature = "metal") {
@@ -274,6 +284,22 @@ fn main() {
     println!("cargo:rustc-link-search=native={}", destination.display());
     println!("cargo:rustc-link-lib=static=whisper");
     println!("cargo:rustc-link-lib=static=ggml");
+    println!("cargo:rustc-link-lib=static=ggml-base");
+    println!("cargo:rustc-link-lib=static=ggml-cpu");
+    if cfg!(target_os = "macos") || cfg!(feature = "openblas") {
+        println!("cargo:rustc-link-lib=static=ggml-blas");
+    }
+    if cfg!(feature = "vulkan") {
+        println!("cargo:rustc-link-lib=static=ggml-vulkan");
+    }
+
+    if cfg!(feature = "metal") {
+        println!("cargo:rustc-link-lib=static=ggml-metal");
+    }
+
+    if cfg!(feature = "cuda") {
+        println!("cargo:rustc-link-lib=static=ggml-cuda");
+    }
 
     println!(
         "cargo:WHISPER_CPP_VERSION={}",

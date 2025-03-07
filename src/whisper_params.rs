@@ -304,8 +304,8 @@ impl<'a, 'b> FullParams<'a, 'b> {
     /// for more information.
     ///
     /// Defaults to false.
-    pub fn set_suppress_non_speech_tokens(&mut self, suppress_non_speech_tokens: bool) {
-        self.fp.suppress_non_speech_tokens = suppress_non_speech_tokens;
+    pub fn set_suppress_nst(&mut self, suppress_nst: bool) {
+        self.fp.suppress_nst = suppress_nst;
     }
 
     /// Set initial decoding temperature.
@@ -419,26 +419,20 @@ impl<'a, 'b> FullParams<'a, 'b> {
         {
             unsafe {
                 let user_data = &mut *(user_data as *mut SegmentCallbackFn);
-                let n_segments = whisper_rs_sys::whisper_full_n_segments_from_state(state);
-                let s0 = n_segments - n_new;
-                //let user_data = user_data as *mut Box<dyn FnMut(SegmentCallbackData)>;
+                let text = whisper_rs_sys::whisper_full_get_segment_text_from_state(state, n_new);
+                let text = CStr::from_ptr(text);
 
-                for i in s0..n_segments {
-                    let text = whisper_rs_sys::whisper_full_get_segment_text_from_state(state, i);
-                    let text = CStr::from_ptr(text);
+                let t0 = whisper_rs_sys::whisper_full_get_segment_t0_from_state(state, n_new);
+                let t1 = whisper_rs_sys::whisper_full_get_segment_t1_from_state(state, n_new);
 
-                    let t0 = whisper_rs_sys::whisper_full_get_segment_t0_from_state(state, i);
-                    let t1 = whisper_rs_sys::whisper_full_get_segment_t1_from_state(state, i);
-
-                    match text.to_str() {
-                        Ok(n) => user_data(SegmentCallbackData {
-                            segment: i,
-                            start_timestamp: t0,
-                            end_timestamp: t1,
-                            text: n.to_string(),
-                        }),
-                        Err(_) => {}
-                    }
+                match text.to_str() {
+                    Ok(n) => user_data(SegmentCallbackData {
+                        segment: n_new + 1,
+                        start_timestamp: t0,
+                        end_timestamp: t1,
+                        text: n.to_string(),
+                    }),
+                    Err(_) => {}
                 }
             }
         }
@@ -488,23 +482,17 @@ impl<'a, 'b> FullParams<'a, 'b> {
         {
             unsafe {
                 let user_data = &mut *(user_data as *mut SegmentCallbackFn);
-                let n_segments = whisper_rs_sys::whisper_full_n_segments_from_state(state);
-                let s0 = n_segments - n_new;
-                //let user_data = user_data as *mut Box<dyn FnMut(SegmentCallbackData)>;
+                let text = whisper_rs_sys::whisper_full_get_segment_text_from_state(state, n_new);
+                let text = CStr::from_ptr(text);
 
-                for i in s0..n_segments {
-                    let text = whisper_rs_sys::whisper_full_get_segment_text_from_state(state, i);
-                    let text = CStr::from_ptr(text);
-
-                    let t0 = whisper_rs_sys::whisper_full_get_segment_t0_from_state(state, i);
-                    let t1 = whisper_rs_sys::whisper_full_get_segment_t1_from_state(state, i);
-                    user_data(SegmentCallbackData {
-                        segment: i,
-                        start_timestamp: t0,
-                        end_timestamp: t1,
-                        text: text.to_string_lossy().to_string(),
-                    });
-                }
+                let t0 = whisper_rs_sys::whisper_full_get_segment_t0_from_state(state, n_new);
+                let t1 = whisper_rs_sys::whisper_full_get_segment_t1_from_state(state, n_new);
+                user_data(SegmentCallbackData {
+                    segment: n_new,
+                    start_timestamp: t0,
+                    end_timestamp: t1,
+                    text: text.to_string_lossy().to_string(),
+                });
             }
         }
 
@@ -537,7 +525,7 @@ impl<'a, 'b> FullParams<'a, 'b> {
     /// # Safety
     /// Do not use this function unless you know what you are doing.
     /// * Be careful not to mutate the state of the whisper_context pointer returned in the callback.
-    ///  This could cause undefined behavior, as this violates the thread-safety guarantees of the underlying C library.
+    ///   This could cause undefined behavior, as this violates the thread-safety guarantees of the underlying C library.
     ///
     /// Defaults to None.
     pub unsafe fn set_progress_callback(
@@ -652,7 +640,7 @@ impl<'a, 'b> FullParams<'a, 'b> {
     /// # Safety
     /// Do not use this function unless you know what you are doing.
     /// * Be careful not to mutate the state of the whisper_context pointer returned in the callback.
-    ///  This could cause undefined behavior, as this violates the thread-safety guarantees of the underlying C library.
+    ///   This could cause undefined behavior, as this violates the thread-safety guarantees of the underlying C library.
     ///
     /// Defaults to None.
     pub unsafe fn set_start_encoder_callback(
@@ -799,8 +787,8 @@ impl<'a, 'b> FullParams<'a, 'b> {
 // following implementations are safe
 // see https://github.com/ggerganov/whisper.cpp/issues/32#issuecomment-1272790388
 // concurrent usage is prevented by &mut self on methods that modify the struct
-unsafe impl<'a, 'b> Send for FullParams<'a, 'b> {}
-unsafe impl<'a, 'b> Sync for FullParams<'a, 'b> {}
+unsafe impl Send for FullParams<'_, '_> {}
+unsafe impl Sync for FullParams<'_, '_> {}
 
 #[cfg(test)]
 mod test_whisper_params_initial_prompt {

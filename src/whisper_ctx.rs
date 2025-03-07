@@ -587,6 +587,10 @@ impl<'a> WhisperContextParameters<'a> {
                     dtw_aheads_preset =
                         whisper_rs_sys::whisper_alignment_heads_preset_WHISPER_AHEADS_LARGE_V3;
                 }
+                DtwModelPreset::LargeV3Turbo => {
+                    dtw_aheads_preset =
+                        whisper_rs_sys::whisper_alignment_heads_preset_WHISPER_AHEADS_LARGE_V3_TURBO;
+                }
             },
         }
 
@@ -651,6 +655,7 @@ pub enum DtwModelPreset {
     LargeV1,
     LargeV2,
     LargeV3,
+    LargeV3Turbo,
 }
 
 #[cfg(test)]
