@@ -72,8 +72,6 @@ impl WhisperState {
         device: &str,
         cache_dir: Option<&str>,
     ) -> Result<(), WhisperError> {
-        let upstream_ctx = unsafe { *self.ctx.ctx };
-
         let model_path = model_path.map(|s| CString::new(s).unwrap());
         let device = CString::new(device).unwrap();
         let cache_dir = cache_dir.map(|s| CString::new(s).unwrap());
