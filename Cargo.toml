@@ -44,3 +44,7 @@ log_backend = ["dep:log"]
 # Bring logs into Rust via the tracing crate. *Warning*: not mutually exclusive with log_backend,
 # will result in duplicate logs if both are enabled and one consumes logs from the other.
 tracing_backend = ["dep:tracing"]
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

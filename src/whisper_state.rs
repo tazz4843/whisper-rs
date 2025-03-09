@@ -66,6 +66,7 @@ impl WhisperState {
     /// # C++ equivalent
     /// `int whisper_ctx_init_openvino_encoder(struct whisper_context * ctx, const char * model_path, const char * device, const char * cache_dir);`
     #[cfg(feature = "openvino")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "openvino")))]
     pub fn init_openvino_encoder(
         &mut self,
         model_path: Option<&str>,
