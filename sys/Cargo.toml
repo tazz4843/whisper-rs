@@ -35,6 +35,9 @@ metal = []
 vulkan = []
 force-debug = []
 openmp = []
+openvino = []
+
+[dependencies]
 
 [build-dependencies]
 cmake = "0.1"
