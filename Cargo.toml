@@ -1,6 +1,6 @@
 [workspace]
 members = ["sys"]
-exclude = ["examples/full_usage"]
+exclude = ["examples/examples_common", "examples/full_usage", "examples/openvino_usage"]
 
 [package]
 name = "whisper-rs"
