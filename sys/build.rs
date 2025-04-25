@@ -280,6 +280,10 @@ fn main() {
         println!("cargo:rustc-link-lib=static=ggml-cuda");
     }
 
+    if cfg!(feature = "openblas") {
+        println!("cargo:rustc-link-lib=static=ggml-blas");
+    }
+
     println!(
         "cargo:WHISPER_CPP_VERSION={}",
         get_whisper_cpp_version(&whisper_root)
