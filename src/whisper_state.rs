@@ -1,4 +1,4 @@
-use std::ffi::{c_int, CStr};
+use std::ffi::{c_int, CStr, CString};
 use std::sync::Arc;
 
 use crate::{FullParams, WhisperError, WhisperInnerContext, WhisperToken, WhisperTokenData};
@@ -28,6 +28,68 @@ impl WhisperState {
         ptr: *mut whisper_rs_sys::whisper_state,
     ) -> Self {
         Self { ctx, ptr }
+    }
+
+    /// Using this context, enable use of OpenVINO for encoder inference.
+    ///
+    /// # Arguments
+    /// * `model_path`: An optional path to the OpenVINO encoder IR model.
+    ///   Setting this to [`None`] will default to a file next to the path
+    ///   passed in to [`crate::WhisperContext::new_with_params`].
+    ///   For example, if the model path was `/path/to/ggml-base.en.bin`,
+    ///   then the OpenVINO IR model path will default to `/path/to/ggml-base.en-encoder-openvino.xml`.
+    ///
+    /// * `device`: The OpenVINO device to use for inference (e.g. `CPU`, `GPU`).
+    ///   This is a string, as OpenVINO can randomly add new devices,
+    ///   and having a hardcoded enum would result in major issues if one tried
+    ///   to use a new device with an outdated enum.
+    ///   Chances are unless you're doing something special, you just want `GPU` for this string.
+    ///
+    /// * `cache_dir`: Optional cache directory that can speed up init time,
+    ///   especially for GPU, by caching compiled 'blobs' in it.
+    ///   Setting this to [`None`] will default to placing this directory next to the model path.
+    ///   For example, if the model path was `/path/to/ggml-base.en.bin`,
+    ///   then the cache dir model path will default to `/path/to/ggml-base.en-encoder-openvino-cache`.
+    ///
+    /// **Note**: if you called [`crate::WhisperContext::new_from_buffer_with_params`], and either
+    /// `model_path` or `cache_dir` is None, this function will fail to initialize,
+    /// as there's no path for it to initialize from.
+    ///
+    /// # Returns
+    /// `Ok(())` if no error.
+    ///
+    /// `Err(WhisperError::GenericError(ret))` on error,
+    /// where ret is the return value from `whisper.cpp` (as of writing, this will always be 1).
+    /// Checking output logs for the actual error is more productive
+    /// than looking at the contained value.
+    ///
+    /// # C++ equivalent
+    /// `int whisper_ctx_init_openvino_encoder(struct whisper_context * ctx, const char * model_path, const char * device, const char * cache_dir);`
+    #[cfg(feature = "openvino")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "openvino")))]
+    pub fn init_openvino_encoder(
+        &mut self,
+        model_path: Option<&str>,
+        device: &str,
+        cache_dir: Option<&str>,
+    ) -> Result<(), WhisperError> {
+        let model_path = model_path.map(|s| CString::new(s).unwrap());
+        let device = CString::new(device).unwrap();
+        let cache_dir = cache_dir.map(|s| CString::new(s).unwrap());
+        let ret = unsafe {
+            whisper_rs_sys::whisper_ctx_init_openvino_encoder_with_state(
+                self.ctx.ctx,
+                self.ptr,
+                model_path.map_or_else(std::ptr::null, |s| s.as_ptr()),
+                device.as_ptr(),
+                cache_dir.map_or_else(std::ptr::null, |s| s.as_ptr()),
+            )
+        };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(WhisperError::GenericError(ret))
+        }
     }
 
     /// Convert raw PCM audio (floating point 32 bit) to log mel spectrogram.

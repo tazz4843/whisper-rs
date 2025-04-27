@@ -1,6 +1,6 @@
 [workspace]
 members = ["sys"]
-exclude = ["examples/full_usage"]
+exclude = ["examples/examples_common", "examples/full_usage", "examples/openvino_usage"]
 
 [package]
 name = "whisper-rs"
@@ -34,6 +34,7 @@ metal = ["whisper-rs-sys/metal", "_gpu"]
 vulkan = ["whisper-rs-sys/vulkan", "_gpu"]
 openmp = ["whisper-rs-sys/openmp"]
 _gpu = []
+openvino = ["whisper-rs-sys/openvino"]
 test-with-tiny-model = []
 
 # Bring logs into Rust via the log crate. *Warning*: not mutually exclusive with tracing_backend,
@@ -43,3 +44,7 @@ log_backend = ["dep:log"]
 # Bring logs into Rust via the tracing crate. *Warning*: not mutually exclusive with log_backend,
 # will result in duplicate logs if both are enabled and one consumes logs from the other.
 tracing_backend = ["dep:tracing"]
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

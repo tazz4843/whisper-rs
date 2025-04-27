@@ -29,7 +29,14 @@ fn main() {
         WhisperContextParameters::default(),
     )
     .expect("failed to open model");
-    let mut state = ctx.create_state().expect("failed to create key");
+    let mut state = ctx.create_state().expect("failed to create a model state");
+
+    // Enable OpenVINO now
+    // We're expecting the OpenVINO file sitting right next to the model
+    state
+        .init_openvino_encoder(None, "GPU", None)
+        .expect("failed to enable openvino");
+
     let mut params = FullParams::new(SamplingStrategy::default());
     params.set_initial_prompt("experience");
     params.set_progress_callback_safe(|progress| println!("Progress callback: {}%", progress));

@@ -57,3 +57,36 @@ brew install cmake
 ```
 
 CMake can also be installed from https://cmake.org/download/ but `cmake` binary needs to be in your PATH.
+
+# OpenVINO support
+
+## Development Tools
+OpenVINO support requires the OpenVINO Development Tools to be installed. You can find
+instructions for installing the OpenVINO Development Tools here:
+https://docs.openvino.ai/2023.0/openvino_docs_install_guides_install_dev_tools.html#for-c-developers
+
+On Arch Linux, you can install the OpenVINO Development Tools with the following command:
+```
+paru -S openvino
+```
+This build may take a significant amount of time, but can save massive headaches later on.
+
+## Building
+First, the `openvino` feature must be enabled in your Cargo.toml.
+
+Next, you must set the `OpenVINO_DIR` environment variable to the path where CMake can find
+`OpenVINOConfig.cmake`.
+This is usually in the `cmake` directory of the OpenVINO installation.
+
+If you used the AUR package to install OpenVINO, the location of this file is `/opt/intel/openvino/runtime/cmake`.
+
+```
+export OpenVINO_DIR=/opt/intel/openvino/runtime/cmake
+```
+
+Finally, you can build whisper-rs as normal.
+
+## Tested platforms
+- Arch Linux
+
+If you have successfully built whisper-rs with OpenVINO on another platform, please open a PR to document it here!

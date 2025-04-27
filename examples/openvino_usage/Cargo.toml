@@ -1,8 +1,8 @@
 [package]
-name = "full_usage"
+name = "openvino_usage"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-whisper-rs = { path = "../.." }
+whisper-rs = { path = "../..", features = ["openvino"] }
 examples-common = { path = "../examples_common" }
