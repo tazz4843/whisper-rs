@@ -178,7 +178,7 @@ fn main() {
     }
 
     if cfg!(feature = "hipblas") {
-        config.define("GGML_HIPBLAS", "ON");
+        config.define("GGML_HIP", "ON");
         config.define("CMAKE_C_COMPILER", "hipcc");
         config.define("CMAKE_CXX_COMPILER", "hipcc");
         println!("cargo:rerun-if-env-changed=AMDGPU_TARGETS");
@@ -270,6 +270,10 @@ fn main() {
     }
     if cfg!(feature = "vulkan") {
         println!("cargo:rustc-link-lib=static=ggml-vulkan");
+    }
+
+    if cfg!(feature = "hipblas") {
+        println!("cargo:rustc-link-lib=static=ggml-hip");
     }
 
     if cfg!(feature = "metal") {
