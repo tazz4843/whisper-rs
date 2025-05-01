@@ -175,6 +175,8 @@ fn main() {
 
     if cfg!(feature = "cuda") {
         config.define("GGML_CUDA", "ON");
+        config.define("NVCC_APPEND_FLAGS", "-fPIC");
+        config.cxxflag("-fPIC");
     }
 
     if cfg!(feature = "hipblas") {
