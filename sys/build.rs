@@ -175,8 +175,6 @@ fn main() {
 
     if cfg!(feature = "cuda") {
         config.define("GGML_CUDA", "ON");
-        config.define("NVCC_APPEND_FLAGS", "-fPIC");
-        config.cxxflag("-fPIC");
         config.define("CMAKE_POSITION_INDEPENDENT_CODE", "ON");
         config.define("CMAKE_CUDA_FLAGS", "-Xcompiler=-fPIC");
     }
