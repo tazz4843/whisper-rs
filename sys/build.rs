@@ -256,7 +256,7 @@ fn main() {
         config.define("GGML_OPENMP", "OFF");
     }
 
-    if target.contains("aarch64") {
+    if target.contains("aarch64") && target.contains("linux") {
         config.define("GGML_NATIVE", "OFF");
         config.define("GGML_CPU_ARM_ARCH", "native");
     }
