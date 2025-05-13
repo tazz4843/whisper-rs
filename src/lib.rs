@@ -1,6 +1,9 @@
 #![allow(clippy::uninlined_format_args)]
 #![cfg_attr(test, feature(test))]
 
+#[cfg(feature = "vulkan")]
+pub mod vulkan;
+
 mod common_logging;
 mod error;
 mod ggml_logging_hook;
