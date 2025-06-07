@@ -166,6 +166,7 @@ fn main() {
 
     if cfg!(target_os = "windows") {
         config.cxxflag("/utf-8");
+        println!("cargo:rustc-link-lib=advapi32");
     }
 
     if cfg!(feature = "coreml") {
