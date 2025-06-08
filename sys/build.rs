@@ -175,6 +175,8 @@ fn main() {
 
     if cfg!(feature = "cuda") {
         config.define("GGML_CUDA", "ON");
+        config.define("CMAKE_POSITION_INDEPENDENT_CODE", "ON");
+        config.define("CMAKE_CUDA_FLAGS", "-Xcompiler=-fPIC");
     }
 
     if cfg!(feature = "hipblas") {
