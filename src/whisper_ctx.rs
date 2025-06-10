@@ -70,6 +70,8 @@ impl WhisperInnerContext {
         }
     }
 
+    // we don't implement `whisper_init()` here since i have zero clue what `whisper_model_loader` does
+
     /// Convert the provided text into tokens.
     ///
     /// # Arguments

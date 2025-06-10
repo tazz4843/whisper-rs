@@ -1,5 +1,6 @@
 #![allow(clippy::uninlined_format_args)]
 #![cfg_attr(test, feature(test))]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
 #[cfg(feature = "vulkan")]
 pub mod vulkan;
