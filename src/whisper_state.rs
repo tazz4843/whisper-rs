@@ -385,6 +385,12 @@ impl WhisperState {
         Ok(self.full_get_segment_raw(segment)?.to_str()?.to_string())
     }
 
+    /// This avoids panics and gives you best-effort UTF-8 (replacing invalid bytes with �).
+    pub fn full_get_segment_text_best_effort(&self, segment: c_int) -> Result<String, WhisperError> {
+        let raw = self.full_get_segment_raw(segment)?;
+        Ok(String::from_utf8_lossy(raw).into_owned())
+    }
+
     /// Get the text of the specified segment.
     /// This function differs from [WhisperState::full_get_segment_text]
     /// in that it ignores invalid UTF-8 in whisper strings,
