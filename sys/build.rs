@@ -267,20 +267,39 @@ fn main() {
         config.define("GGML_OPENMP", "OFF");
     }
 
+    if cfg!(feature = "intel-sycl") {
+        config.define("BUILD_SHARED_LIBS", "ON");
+        config.define("GGML_SYCL", "ON");
+        config.define("GGML_SYCL_TARGET", "INTEL");
+        config.define("CMAKE_C_COMPILER", "icx");
+        config.define("CMAKE_CXX_COMPILER", "icpx");
+    }
+
     let destination = config.build();
 
     add_link_search_path(&out.join("build")).unwrap();
 
     println!("cargo:rustc-link-search=native={}", destination.display());
-    println!("cargo:rustc-link-lib=static=whisper");
-    println!("cargo:rustc-link-lib=static=ggml");
-    println!("cargo:rustc-link-lib=static=ggml-base");
-    println!("cargo:rustc-link-lib=static=ggml-cpu");
+    if cfg!(feature = "intel-sycl") {
+        println!("cargo:rustc-link-lib=whisper");
+        println!("cargo:rustc-link-lib=ggml");
+        println!("cargo:rustc-link-lib=ggml-base");
+        println!("cargo:rustc-link-lib=ggml-cpu");
+    } else {
+        println!("cargo:rustc-link-lib=static=whisper");
+        println!("cargo:rustc-link-lib=static=ggml");
+        println!("cargo:rustc-link-lib=static=ggml-base");
+        println!("cargo:rustc-link-lib=static=ggml-cpu");
+    }
     if cfg!(target_os = "macos") || cfg!(feature = "openblas") {
         println!("cargo:rustc-link-lib=static=ggml-blas");
     }
     if cfg!(feature = "vulkan") {
-        println!("cargo:rustc-link-lib=static=ggml-vulkan");
+        if cfg!(feature = "intel-sycl") {
+            println!("cargo:rustc-link-lib=ggml-vulkan");
+        } else {
+            println!("cargo:rustc-link-lib=static=ggml-vulkan");
+        }
     }
 
     if cfg!(feature = "hipblas") {
@@ -297,6 +316,10 @@ fn main() {
 
     if cfg!(feature = "openblas") {
         println!("cargo:rustc-link-lib=static=ggml-blas");
+    }
+
+    if cfg!(feature = "intel-sycl") {
+        println!("cargo:rustc-link-lib=ggml-sycl");
     }
 
     println!(

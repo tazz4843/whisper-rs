@@ -35,6 +35,7 @@ metal = []
 vulkan = []
 force-debug = []
 openmp = []
+intel-sycl = []
 
 [build-dependencies]
 cmake = "0.1"
