@@ -29,7 +29,7 @@ pub fn list_devices() -> Vec<VkDeviceInfo> {
         (0..n)
             .map(|id| {
                 // 256 bytes is plenty (spec says 128 is enough)
-                let mut tmp = [0i8; 256];
+                let mut tmp: [libc::c_char; 256] = [0; 256];
                 ggml_backend_vk_get_device_description(id as c_int, tmp.as_mut_ptr(), tmp.len());
                 let mut free = 0usize;
                 let mut total = 0usize;
