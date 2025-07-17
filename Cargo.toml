@@ -33,6 +33,7 @@ openblas = ["whisper-rs-sys/openblas"]
 metal = ["whisper-rs-sys/metal", "_gpu"]
 vulkan = ["whisper-rs-sys/vulkan", "_gpu"]
 openmp = ["whisper-rs-sys/openmp"]
+intel-sycl = ["whisper-rs-sys/intel-sycl", "_gpu"]
 _gpu = []
 test-with-tiny-model = []
 
